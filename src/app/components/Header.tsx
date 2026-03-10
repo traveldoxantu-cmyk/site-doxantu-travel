@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router';
 import { Menu, X, ChevronDown, LayoutGrid } from 'lucide-react';
 import logoImg from '../../assets/logo-doxantu.png';
+import logoImgWhite from '../../assets/logo-doxantu-white.png';
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -21,24 +22,17 @@ export function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 px-3 sm:px-5 lg:px-8 pt-4">
       <div
         className={`max-w-7xl mx-auto rounded-2xl transition-all duration-300 ${scrolled
-            ? 'bg-white/95 shadow-xl border border-blue-100/80'
-            : 'bg-white/12 border border-white/20 backdrop-blur-xl'
+          ? 'bg-white/95 shadow-xl border border-blue-100/80'
+          : 'bg-white/12 border border-white/20 backdrop-blur-xl'
           }`}
       >
-        <div className="px-4 sm:px-6 h-[72px] flex items-center justify-between">
+        <div className="px-4 sm:px-6 h-[100px] flex items-center justify-between">
           <Link to="/" className="flex items-center group">
-            <div
-              className="rounded-xl overflow-hidden group-hover:scale-105 transition-transform"
-              style={{
-                background: scrolled ? 'transparent' : 'rgba(255,255,255,0.92)',
-                padding: scrolled ? '0' : '4px 8px',
-                borderRadius: '10px',
-              }}
-            >
+            <div className="group-hover:scale-105 transition-transform duration-300 -ml-4">
               <img
-                src={logoImg}
+                src={scrolled ? logoImg : logoImgWhite}
                 alt="Doxantu Travel"
-                style={{ height: '48px', width: 'auto', objectFit: 'contain', display: 'block' }}
+                style={{ height: '140px', width: 'auto', objectFit: 'contain', display: 'block' }}
               />
             </div>
           </Link>
@@ -89,14 +83,15 @@ export function Header() {
           </nav>
 
           <div className="hidden lg:flex items-center gap-3">
-            <button
+            <Link
+              to="/mon-espace"
               className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all ${scrolled
-                  ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                  : 'bg-white/20 text-white hover:bg-white/28'
+                ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                : 'bg-white/20 text-white hover:bg-white/28'
                 }`}
             >
               <LayoutGrid className="w-4 h-4" /> Mon espace
-            </button>
+            </Link>
             <Link
               to="/devis"
               className="inline-flex items-center gap-2 px-6 py-2.5 text-white font-semibold text-sm transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5"
@@ -152,6 +147,13 @@ export function Header() {
                   {item.label}
                 </Link>
               ))}
+              <Link
+                to="/mon-espace"
+                onClick={() => setMobileOpen(false)}
+                className="block px-3 py-2.5 rounded-xl text-[#333333] hover:bg-[#E8F4FD] hover:text-[#0B84D8] transition-colors font-medium text-sm flex items-center gap-2"
+              >
+                <LayoutGrid className="w-4 h-4" /> Mon espace
+              </Link>
             </div>
 
             <Link

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { motion } from 'motion/react';
+import { motion, Variants } from 'motion/react';
 import {
   GraduationCap,
   Plane,
@@ -17,18 +17,23 @@ import {
   Award,
   Zap,
   Clock,
+  User,
+  Send,
+  Globe,
+  Smartphone,
+  CreditCard
 } from 'lucide-react';
 import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission';
 
 const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 const STUDENT_IMG = 'https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdHVkZW50cyUyMHN0dWR5aW5nJTIwYWJyb2FkJTIwdW5pdmVyc2l0eSUyMGNhbXB1c3xlbnwxfHx8fDE3NzIzMTAxNTF8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
 };
 
-const stagger = {
+const stagger: Variants = {
   visible: { transition: { staggerChildren: 0.12 } },
 };
 
@@ -39,7 +44,7 @@ const testimonials = [
     program: 'Master en Informatique — Paris',
     text: 'Grâce à Doxantu Travel, ma procédure Campus France s\'est déroulée sans stress. Tout était clair et suivi de A à Z.',
     rating: 5,
-    avatar: '👩🏾‍💻',
+    avatar: <User className="w-6 h-6 text-[#0B84D8]" />,
   },
   {
     id: 2,
@@ -47,7 +52,7 @@ const testimonials = [
     program: 'Licence en Finance — Montréal',
     text: 'Service exceptionnel ! Mon visa a été obtenu en 3 semaines. L\'équipe est réactive et professionnelle.',
     rating: 5,
-    avatar: '👨🏾‍🎓',
+    avatar: <User className="w-6 h-6 text-[#0B84D8]" />,
   },
   {
     id: 3,
@@ -55,7 +60,7 @@ const testimonials = [
     program: 'BTS Commerce — Casablanca',
     text: 'Je recommande fortement Doxantu Travel. Leur accompagnement m\'a permis d\'éviter de nombreuses erreurs dans mon dossier.',
     rating: 5,
-    avatar: '👩🏾‍📚',
+    avatar: <User className="w-6 h-6 text-[#0B84D8]" />,
   },
 ];
 
@@ -192,8 +197,8 @@ export function Home() {
                 }}
               >
                 <div className="mb-6">
-                  <h2 className="text-[#333333] font-bold mb-1" style={{ fontSize: '1.8rem' }}>
-                    🚀 Démarrer ma demande
+                  <h2 className="text-[#333333] font-bold mb-1 flex items-center gap-2" style={{ fontSize: '1.8rem' }}>
+                    <Send className="w-6 h-6 text-[#0B84D8]" /> Démarrer ma demande
                   </h2>
                   <p className="text-gray-400 text-sm">En moins de 3 clics</p>
                 </div>
@@ -209,7 +214,7 @@ export function Home() {
                       <select
                         value={destination}
                         onChange={(e) => setDestination(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:border-transparent bg-gray-50"
+                        className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:border-transparent bg-gray-50 appearance-none"
                         style={{ borderRadius: '12px', ['--tw-ring-color' as string]: '#0B84D8' }}
                       >
                         <option value="">Choisir un pays…</option>
@@ -233,7 +238,7 @@ export function Home() {
                         type="date"
                         value={date}
                         onChange={(e) => setDate(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
+                        className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
                         style={{ borderRadius: '12px' }}
                       />
                     </div>
@@ -249,14 +254,14 @@ export function Home() {
                       <select
                         value={service}
                         onChange={(e) => setService(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
+                        className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2 appearance-none"
                         style={{ borderRadius: '12px' }}
                       >
                         <option value="">Choisir un service…</option>
-                        <option value="etudiant">🎓 Accompagnement Étudiant</option>
-                        <option value="billet">✈️ Billetterie</option>
-                        <option value="visa">📄 Assistance Visa</option>
-                        <option value="etudes">🌍 Études à l'Étranger</option>
+                        <option value="etudiant">Accompagnement Étudiant</option>
+                        <option value="billet">Billetterie</option>
+                        <option value="visa">Assistance Visa</option>
+                        <option value="etudes">Études à l'Étranger</option>
                       </select>
                     </div>
                   </div>
@@ -279,10 +284,8 @@ export function Home() {
         </div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/60 animate-bounce">
-          <div className="w-6 h-9 rounded-full border-2 border-white/40 flex items-start justify-center pt-2">
-            <div className="w-1 h-2 rounded-full bg-white/60" />
-          </div>
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/70 animate-bounce">
+          <Plane className="w-8 h-8 opacity-80 md:w-10 md:h-10 rotate-90 transition-transform" />
         </div>
       </section>
 
@@ -433,8 +436,8 @@ export function Home() {
               style={{ backgroundColor: '#ffffff', minHeight: '220px' }}
             >
               <div>
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 text-2xl">
-                  🌍
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 bg-blue-50">
+                  <Globe className="w-6 h-6 text-[#0B84D8]" />
                 </div>
                 <h3 className="text-[#333333] mb-2" style={{ fontSize: '1.1rem', fontWeight: 700 }}>
                   Études à l'Étranger
@@ -525,15 +528,15 @@ export function Home() {
                 </h3>
                 <div className="grid grid-cols-3 gap-4 mb-8">
                   {[
-                    { name: 'Wave', color: '#1A56DB', emoji: '🌊' },
-                    { name: 'Orange Money', color: '#FF6600', emoji: '🟠' },
-                    { name: 'Visa / CB', color: '#1A1F71', emoji: '💳' },
+                    { name: 'Wave', color: '#1A56DB', icon: <Smartphone className="w-6 h-6" style={{ color: '#1A56DB' }} /> },
+                    { name: 'Orange', color: '#FF6600', icon: <Smartphone className="w-6 h-6" style={{ color: '#FF6600' }} /> },
+                    { name: 'Visa', color: '#1A1F71', icon: <CreditCard className="w-6 h-6" style={{ color: '#1A1F71' }} /> },
                   ].map((method) => (
                     <div
                       key={method.name}
                       className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow"
                     >
-                      <span className="text-3xl">{method.emoji}</span>
+                      {method.icon}
                       <span className="text-xs font-semibold text-center text-gray-600">{method.name}</span>
                     </div>
                   ))}
@@ -549,7 +552,11 @@ export function Home() {
 
               {/* Trust badge */}
               <div className="p-6 rounded-2xl border-2 text-center" style={{ borderColor: '#0B84D8' }}>
-                <div className="text-3xl mb-2">🏅</div>
+                <div className="flex justify-center mb-3">
+                  <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center">
+                    <Award className="w-6 h-6 text-[#0B84D8]" />
+                  </div>
+                </div>
                 <h4 className="text-[#333333] font-bold mb-1">Agence enregistrée au Sénégal</h4>
                 <p className="text-gray-500 text-sm">Licence ministérielle N° 2024-DT-001</p>
               </div>
@@ -637,7 +644,9 @@ export function Home() {
           >
             {formSent ? (
               <div className="text-center py-8">
-                <div className="text-6xl mb-4">✅</div>
+                <div className="w-16 h-16 bg-blue-50 text-[#0B84D8] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8" />
+                </div>
                 <h3 className="text-[#333333] font-bold mb-2" style={{ fontSize: '1.5rem' }}>
                   Demande reçue !
                 </h3>
@@ -694,10 +703,10 @@ export function Home() {
                     style={{ borderRadius: '12px' }}
                   >
                     <option value="">Choisir…</option>
-                    <option value="etudiant">🎓 Accompagnement Étudiant</option>
-                    <option value="billet">✈️ Billetterie</option>
-                    <option value="visa">📄 Assistance Visa</option>
-                    <option value="etudes">🌍 Études à l'Étranger</option>
+                    <option value="etudiant">Accompagnement Étudiant</option>
+                    <option value="billet">Billetterie</option>
+                    <option value="visa">Assistance Visa</option>
+                    <option value="etudes">Études à l'Étranger</option>
                   </select>
                 </div>
                 <div>

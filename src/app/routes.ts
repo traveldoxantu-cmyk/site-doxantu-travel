@@ -9,6 +9,11 @@ import { About } from './pages/About';
 import { Contact } from './pages/Contact';
 import { QuoteRequest } from './pages/QuoteRequest';
 import { LegalMentions } from './pages/LegalMentions';
+import { Dashboard } from './pages/Dashboard';
+import { MonDossier } from './pages/MonDossier';
+import { MesDocuments } from './pages/MesDocuments';
+import { Login } from './pages/Login';
+import { DashboardLayout } from './layouts/DashboardLayout';
 
 export const router = createBrowserRouter([
   {
@@ -24,6 +29,23 @@ export const router = createBrowserRouter([
       { path: 'contact', Component: Contact },
       { path: 'devis', Component: QuoteRequest },
       { path: 'mentions-legales', Component: LegalMentions },
+    ],
+  },
+  {
+    path: '/connexion',
+    Component: Login,
+  },
+  {
+    path: '/mon-espace',
+    Component: Login, // Defaults to login when accessing root space
+  },
+  {
+    path: '/mon-espace',
+    Component: DashboardLayout,
+    children: [
+      { path: 'dashboard', Component: Dashboard },
+      { path: 'dossier', Component: MonDossier },
+      { path: 'documents', Component: MesDocuments },
     ],
   },
 ]);

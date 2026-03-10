@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { Plane, MapPin, Phone, Mail, Facebook, Instagram, Linkedin } from 'lucide-react';
+import { MapPin, Phone, Mail, Facebook, Instagram, Linkedin } from 'lucide-react';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -9,13 +9,13 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           <div>
-            <Link to="/" className="flex items-center gap-2.5 mb-4">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#0B84D8' }}>
-                <Plane className="w-5 h-5 text-white" strokeWidth={2.5} />
-              </div>
-              <span className="text-xl font-bold text-white">
-                Doxantu <span style={{ color: '#45c2ff' }}>Travel</span>
-              </span>
+            <Link to="/" className="flex items-center group -ml-4 mb-4">
+              <img
+                src="/src/assets/logo-doxantu-white.png"
+                alt="Doxantu Travel"
+                style={{ height: '70px', width: 'auto', objectFit: 'contain', display: 'block' }}
+                className="group-hover:scale-105 transition-transform duration-300"
+              />
             </Link>
             <p className="text-sm leading-relaxed text-blue-100/70 mb-5">
               Votre agence de voyage digitale au Senegal. Accompagnement etudiant, billetterie et assistance visa.
