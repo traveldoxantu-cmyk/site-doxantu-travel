@@ -114,8 +114,7 @@ export function About() {
                 style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white' }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block mr-1"><rect x="2" y="7" width="9" height="14" /><rect x="13" y="2" width="9" height="19" /><line x1="9" y1="12" x2="13" y2="12" /></svg> Notre histoire
               </span>
-              <h1 className="text-white mb-5" style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 800, lineHeight: 1.2 }}>
-                Doxantu Travel :<br />
+              <h1 className="text-white mb-10" style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 800, lineHeight: 1.2 }}>
                 <span style={{ color: '#7dd3fc' }}>L'agence qui vous ressemble</span>
               </h1>
               <p className="text-blue-100 mb-8" style={{ fontSize: '1.05rem', lineHeight: 1.8 }}>

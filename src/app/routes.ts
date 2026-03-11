@@ -12,6 +12,9 @@ import { LegalMentions } from './pages/LegalMentions';
 import { Dashboard } from './pages/Dashboard';
 import { MonDossier } from './pages/MonDossier';
 import { MesDocuments } from './pages/MesDocuments';
+import { Messagerie } from './pages/Messagerie';
+import { Echeances } from './pages/Echeances';
+import { Profil } from './pages/Profil';
 import { Login } from './pages/Login';
 import { DashboardLayout } from './layouts/DashboardLayout';
 
@@ -46,6 +49,9 @@ export const router = createBrowserRouter([
       { path: 'dashboard', Component: Dashboard },
       { path: 'dossier', Component: MonDossier },
       { path: 'documents', Component: MesDocuments },
+      { path: 'messagerie', Component: Messagerie },
+      { path: 'echeances', Component: Echeances },
+      { path: 'profil', Component: Profil },
     ],
   },
 ]);

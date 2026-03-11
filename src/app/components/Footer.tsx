@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import { MapPin, Phone, Mail, Facebook, Instagram, Linkedin } from 'lucide-react';
+import logoImgWhite from '../../assets/logo-doxantu-white.png';
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -11,9 +12,9 @@ export function Footer() {
           <div>
             <Link to="/" className="flex items-center group -ml-4 mb-4">
               <img
-                src="/src/assets/logo-doxantu-white.png"
+                src={logoImgWhite}
                 alt="Doxantu Travel"
-                style={{ height: '70px', width: 'auto', objectFit: 'contain', display: 'block' }}
+                style={{ height: '140px', width: 'auto', objectFit: 'contain', display: 'block' }}
                 className="group-hover:scale-105 transition-transform duration-300"
               />
             </Link>

@@ -1,13 +1,13 @@
 import { Outlet, Link, useLocation } from 'react-router';
-import { LayoutGrid, FolderOpen, FileText, MessageSquare, Calendar, User, LogOut, GraduationCap } from 'lucide-react';
+import { LayoutGrid, FolderOpen, FileText, MessageSquare, Calendar, User, LogOut, GraduationCap, ArrowLeft } from 'lucide-react';
 
 const sidebarLinks = [
     { icon: LayoutGrid, label: 'Tableau de bord', to: '/mon-espace/dashboard' },
     { icon: FolderOpen, label: 'Mon Dossier', to: '/mon-espace/dossier' },
     { icon: FileText, label: 'Mes Documents', to: '/mon-espace/documents' },
-    { icon: MessageSquare, label: 'Messagerie', to: '#', badge: 2 },
-    { icon: Calendar, label: 'Échéances', to: '#', badge: 3 },
-    { icon: User, label: 'Mon Profil', to: '#' },
+    { icon: MessageSquare, label: 'Messagerie', to: '/mon-espace/messagerie', badge: 2 },
+    { icon: Calendar, label: 'Échéances', to: '/mon-espace/echeances', badge: 3 },
+    { icon: User, label: 'Mon Profil', to: '/mon-espace/profil' },
 ];
 
 export function DashboardLayout() {
@@ -18,12 +18,12 @@ export function DashboardLayout() {
             {/* Sidebar */}
             <aside className="fixed left-0 top-0 bottom-0 w-72 bg-white border-r border-gray-100 flex flex-col z-40 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
                 {/* Logo */}
-                <div className="h-[88px] flex items-center px-8 border-b border-gray-100/50">
+                <div className="h-[124px] flex items-center px-8 border-b border-gray-100/50">
                     <Link to="/" className="flex items-center group -ml-2 hover:scale-105 transition-transform duration-300">
                         <img
                             src="/src/assets/logo-doxantu.png"
                             alt="Doxantu Travel"
-                            style={{ height: '64px', width: 'auto', objectFit: 'contain' }}
+                            style={{ height: '100px', width: 'auto', objectFit: 'contain' }}
                         />
                     </Link>
                 </div>
@@ -71,16 +71,17 @@ export function DashboardLayout() {
                 </nav>
 
                 {/* Footer Actions */}
-                <div className="p-4 border-t border-gray-100/50 space-y-1">
+                <div className="p-4 border-t border-gray-100/50 space-y-2">
                     <Link
                         to="/"
-                        className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-500 hover:text-[#333] transition-colors rounded-xl hover:bg-gray-50"
+                        className="flex items-center gap-3 px-4 py-3.5 text-sm font-semibold text-gray-600 hover:text-[#0B84D8] transition-all rounded-xl hover:bg-[#E8F4FD]/50 border border-transparent hover:border-[#0B84D8]/10 group"
                     >
-                        <span className="text-lg">←</span> Retour au site
+                        <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
+                        Retour au site
                     </Link>
                     <Link
                         to="/connexion"
-                        className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors rounded-xl"
+                        className="flex items-center gap-3 px-4 py-3.5 text-sm font-bold text-red-500 hover:bg-red-50 hover:text-red-600 transition-all rounded-xl border border-transparent hover:border-red-100"
                     >
                         <LogOut className="w-5 h-5" /> Se déconnecter
                     </Link>
@@ -89,7 +90,7 @@ export function DashboardLayout() {
 
             {/* Main Content Area */}
             <main className="flex-1 ml-72 flex flex-col min-h-screen">
-                <header className="h-[88px] bg-white border-b border-gray-100 flex items-center justify-between px-10 sticky top-0 z-30">
+                <header className="h-[124px] bg-white border-b border-gray-100 flex items-center justify-between px-10 sticky top-0 z-30">
                     <div className="text-gray-500 font-medium text-sm">
                         {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                     </div>

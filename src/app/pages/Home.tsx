@@ -19,14 +19,16 @@ import {
   Clock,
   User,
   Send,
-  Globe,
-  Smartphone,
-  CreditCard
+  Globe
 } from 'lucide-react';
 import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission';
 
 const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 const STUDENT_IMG = 'https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdHVkZW50cyUyMHN0dWR5aW5nJTIwYWJyb2FkJTIwdW5pdmVyc2l0eSUyMGNhbXB1c3xlbnwxfHx8fDE3NzIzMTAxNTF8MA&ixlib=rb-4.1.0&q=80&w=1080';
+
+import visaLogo from '../../assets/visa.png';
+import waveLogo from '../../assets/wave.png';
+import orangeMoneyLogo from '../../assets/orange-money.png';
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 30 },
@@ -101,11 +103,12 @@ export function Home() {
       {/* ── HERO ─────────────────────────────────────────── */}
       <section className="relative min-h-screen flex items-center overflow-hidden pt-16">
         {/* Background */}
-        <div className="absolute inset-0">
+        <div className="absolute inset-0" aria-hidden="true">
           <img
             src={HERO_BG}
-            alt="Dakar"
+            alt="Vue aérienne de Dakar, la capitale du Sénégal"
             className="w-full h-full object-cover"
+            loading="eager"
           />
           <div className="absolute inset-0" style={{ background: 'linear-gradient(102deg, rgba(7,42,80,0.96) 5%, rgba(11,132,216,0.72) 58%, rgba(8,31,62,0.92) 100%)' }} />
         </div>
@@ -123,16 +126,15 @@ export function Home() {
                 <span className="inline-flex items-center gap-2 text-sm font-medium px-5 py-2.5 rounded-full mb-6"
                   style={{ backgroundColor: 'rgba(255,255,255,0.16)', color: 'white', backdropFilter: 'blur(12px)' }}>
                   <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                  Agence certifiée — Dakar, Sénégal
+                  Agence certifiée Dakar, Sénégal
                 </span>
               </motion.div>
 
               <motion.h1
                 variants={fadeUp}
-                className="text-white mb-6"
-                style={{ fontSize: 'clamp(2.6rem, 6vw, 5.1rem)', fontWeight: 800, lineHeight: 1.03 }}
+                className="text-white mb-10"
+                style={{ fontSize: 'clamp(2.2rem, 5vw, 4.2rem)', fontWeight: 800, lineHeight: 1.15 }}
               >
-                Doxantu Travel :<br />
                 <span style={{ color: '#7dd3fc' }}>Votre voyage</span> commence<br />
                 ici, en un clic
               </motion.h1>
@@ -142,8 +144,7 @@ export function Home() {
                 className="text-blue-100 mb-8 max-w-lg"
                 style={{ fontSize: '1.1rem', lineHeight: 1.65 }}
               >
-                Accompagnement étudiant Campus France, billetterie et assistance visa —
-                tout en toute transparence, depuis Dakar.
+                Accompagnement étudiant, billetterie et assistance visa en toute transparence
               </motion.p>
 
               <motion.div variants={fadeUp} className="flex flex-wrap gap-3 mb-10">
@@ -285,7 +286,7 @@ export function Home() {
 
         {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/70 animate-bounce">
-          <Plane className="w-8 h-8 opacity-80 md:w-10 md:h-10 rotate-90 transition-transform" />
+          <Plane className="w-8 h-8 opacity-80 md:w-10 md:h-10 rotate-180 transition-transform" />
         </div>
       </section>
 
@@ -323,7 +324,7 @@ export function Home() {
             >
               <img
                 src={STUDENT_IMG}
-                alt="Étudiants"
+                alt="Groupe d'étudiants souriants sur un campus universitaire, symbolisant la réussite académique à l'étranger"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div
@@ -331,9 +332,9 @@ export function Home() {
                 style={{ background: 'linear-gradient(135deg, rgba(7,42,80,0.95) 0%, rgba(11,132,216,0.78) 100%)' }}
               />
               <div className="relative p-8 h-full flex flex-col justify-between" style={{ minHeight: '380px' }}>
-                <div>
+                <header>
                   <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}>
-                    <GraduationCap className="w-7 h-7 text-white" />
+                    <GraduationCap className="w-7 h-7 text-white" aria-hidden="true" />
                   </div>
                   <h3 className="text-white mb-3" style={{ fontSize: '1.5rem', fontWeight: 700 }}>
                     Accompagnement Étudiant
@@ -342,6 +343,7 @@ export function Home() {
                     Spécialiste Campus France au Sénégal. Nous gérons votre dossier de A à Z :
                     inscription, entretien, visa, billet — tout inclus.
                   </p>
+                </header>
                   <div className="flex flex-wrap gap-2 mb-6">
                     {['Campus France', 'Dossier complet', 'Suivi personnalisé', 'Visa étudiant'].map((tag) => (
                       <span key={tag} className="text-xs px-3 py-1.5 rounded-full font-medium" style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white' }}>
@@ -349,7 +351,6 @@ export function Home() {
                       </span>
                     ))}
                   </div>
-                </div>
                 <Link
                   to="/services/accompagnement-etudiant"
                   className="inline-flex items-center gap-2 px-5 py-3 text-white font-semibold transition-all hover:shadow-lg group-hover:-translate-y-0.5 self-start"
@@ -369,16 +370,18 @@ export function Home() {
               className="rounded-3xl p-7 flex flex-col justify-between group hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
               style={{ backgroundColor: '#ffffff', minHeight: '250px' }}
             >
-              <div>
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: '#E8F4FD' }}>
-                  <Plane className="w-6 h-6" style={{ color: '#0B84D8' }} />
-                </div>
-                <h3 className="text-[#333333] mb-2" style={{ fontSize: '1.2rem', fontWeight: 700 }}>
-                  Billetterie
-                </h3>
-                <p className="text-gray-500 text-sm leading-relaxed mb-4">
-                  Vols nationaux & internationaux au meilleur prix. Assistance modification et annulation.
-                </p>
+              <article>
+                <header>
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: '#E8F4FD' }}>
+                    <Plane className="w-6 h-6" style={{ color: '#0B84D8' }} aria-hidden="true" />
+                  </div>
+                  <h3 className="text-[#333333] mb-2" style={{ fontSize: '1.2rem', fontWeight: 700 }}>
+                    Billetterie
+                  </h3>
+                  <p className="text-gray-500 text-sm leading-relaxed mb-4">
+                    Vols nationaux & internationaux au meilleur prix. Assistance modification et annulation.
+                  </p>
+                </header>
                 <ul className="space-y-1.5">
                   {['Vols internationaux', 'Vols domestiques', 'Meilleurs tarifs'].map((f) => (
                     <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
@@ -387,7 +390,7 @@ export function Home() {
                     </li>
                   ))}
                 </ul>
-              </div>
+              </article>
               <Link
                 to="/services/billetterie"
                 className="inline-flex items-center gap-1 text-sm font-semibold mt-4 hover:gap-2 transition-all"
@@ -406,17 +409,19 @@ export function Home() {
               className="rounded-3xl p-7 flex flex-col justify-between group hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-blue-100"
               style={{ backgroundColor: '#E8F4FD', minHeight: '220px' }}
             >
-              <div>
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: '#0B84D8' }}>
-                  <FileText className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-[#333333] mb-2" style={{ fontSize: '1.2rem', fontWeight: 700 }}>
-                  Assistance Visa & Documents
-                </h3>
-                <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                  Visa étudiant, tourisme, légalisation, traduction — on simplifie vos démarches.
-                </p>
-              </div>
+              <article>
+                <header>
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: '#0B84D8' }}>
+                    <FileText className="w-6 h-6 text-white" aria-hidden="true" />
+                  </div>
+                  <h3 className="text-[#333333] mb-2" style={{ fontSize: '1.2rem', fontWeight: 700 }}>
+                    Assistance Visa & Documents
+                  </h3>
+                  <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                    Visa étudiant, tourisme, légalisation, traduction — on simplifie vos démarches.
+                  </p>
+                </header>
+              </article>
               <Link
                 to="/services/visa-documents"
                 className="inline-flex items-center gap-1 text-sm font-semibold hover:gap-2 transition-all"
@@ -435,17 +440,19 @@ export function Home() {
               className="rounded-3xl p-7 flex flex-col justify-between group hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
               style={{ backgroundColor: '#ffffff', minHeight: '220px' }}
             >
-              <div>
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 bg-blue-50">
-                  <Globe className="w-6 h-6 text-[#0B84D8]" />
-                </div>
-                <h3 className="text-[#333333] mb-2" style={{ fontSize: '1.1rem', fontWeight: 700 }}>
-                  Études à l'Étranger
-                </h3>
-                <p className="text-gray-500 text-sm leading-relaxed">
-                  France, Canada, Maroc, Turquie — trouvez votre destination et votre programme.
-                </p>
-              </div>
+              <article>
+                <header>
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 bg-blue-50">
+                    <Globe className="w-6 h-6 text-[#0B84D8]" aria-hidden="true" />
+                  </div>
+                  <h3 className="text-[#333333] mb-2" style={{ fontSize: '1.1rem', fontWeight: 700 }}>
+                    Études à l'Étranger
+                  </h3>
+                  <p className="text-gray-500 text-sm leading-relaxed">
+                    France, Canada, Maroc, Turquie — trouvez votre destination et votre programme.
+                  </p>
+                </header>
+              </article>
               <Link
                 to="/etudes-etranger"
                 className="inline-flex items-center gap-1 text-sm font-semibold mt-4 hover:gap-2 transition-all"
@@ -526,19 +533,23 @@ export function Home() {
                 <h3 className="text-[#333333] font-bold mb-6 text-center" style={{ fontSize: '1.1rem' }}>
                   Moyens de paiement acceptés
                 </h3>
-                <div className="grid grid-cols-3 gap-4 mb-8">
+
+                <div className="grid grid-cols-3 gap-4 mb-8" role="list">
                   {[
-                    { name: 'Wave', color: '#1A56DB', icon: <Smartphone className="w-6 h-6" style={{ color: '#1A56DB' }} /> },
-                    { name: 'Orange', color: '#FF6600', icon: <Smartphone className="w-6 h-6" style={{ color: '#FF6600' }} /> },
-                    { name: 'Visa', color: '#1A1F71', icon: <CreditCard className="w-6 h-6" style={{ color: '#1A1F71' }} /> },
+                    { name: 'Wave', icon: waveLogo },
+                    { name: 'Orange Money', icon: orangeMoneyLogo },
+                    { name: 'Visa', icon: visaLogo },
                   ].map((method) => (
-                    <div
+                    <article
                       key={method.name}
-                      className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow"
+                      role="listitem"
+                      className="flex flex-col items-center justify-center gap-3 p-4 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all border border-gray-50 group min-h-[100px]"
                     >
-                      {method.icon}
-                      <span className="text-xs font-semibold text-center text-gray-600">{method.name}</span>
-                    </div>
+                      <div className="h-10 flex items-center justify-center transform transition-transform group-hover:scale-110 duration-300">
+                        <img src={method.icon} alt={`Logo ${method.name}`} className="max-h-full max-w-full object-contain" />
+                      </div>
+                      <span className="text-[10px] font-bold text-center text-[#1a2b40] uppercase tracking-wider">{method.name}</span>
+                    </article>
                   ))}
                 </div>
                 <Link
@@ -734,10 +745,10 @@ export function Home() {
                     <Shield className="w-3 h-3" /> Vos données sont protégées et jamais partagées
                   </p>
                 </div>
-              </form>
-            )}
-          </motion.div>
-        </div>
+          </form>
+        )}
+      </motion.div>
+    </div>
       </section>
     </div>
   );
