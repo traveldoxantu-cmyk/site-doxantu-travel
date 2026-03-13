@@ -83,15 +83,32 @@ export function Header() {
           </nav>
 
           <div className="hidden lg:flex items-center gap-3">
-            <Link
-              to="/mon-espace"
-              className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all ${scrolled
-                ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                : 'bg-white/20 text-white hover:bg-white/28'
-                }`}
-            >
-              <LayoutGrid className="w-4 h-4" /> Mon espace
-            </Link>
+            <div className="relative group">
+              <button
+                className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all ${scrolled
+                  ? 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  : 'bg-white/20 text-white hover:bg-white/28'
+                  }`}
+              >
+                <LayoutGrid className="w-4 h-4" /> Mon espace
+              </button>
+              <div className="absolute right-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-2 min-w-[200px] flex flex-col gap-1">
+                  <Link
+                    to="/connexion?role=client"
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#E8F4FD] hover:text-[#0B84D8] text-[#333333] transition-colors text-sm font-medium"
+                  >
+                    👤 Espace Client
+                  </Link>
+                  <Link
+                    to="/connexion?role=admin"
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#E8F4FD] hover:text-[#0B84D8] text-[#333333] transition-colors text-sm font-medium"
+                  >
+                    🛡️ Espace Admin
+                  </Link>
+                </div>
+              </div>
+            </div>
             <Link
               to="/devis"
               className="inline-flex items-center gap-2 px-6 py-2.5 text-white font-semibold text-sm transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5"
@@ -147,12 +164,23 @@ export function Header() {
                   {item.label}
                 </Link>
               ))}
+            </div>
+
+            <div className="border-t border-gray-100 pt-2 mt-2 space-y-1">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-1 pt-2">Mon Espace</p>
               <Link
-                to="/mon-espace"
+                to="/connexion?role=client"
                 onClick={() => setMobileOpen(false)}
-                className="block px-3 py-2.5 rounded-xl text-[#333333] hover:bg-[#E8F4FD] hover:text-[#0B84D8] transition-colors font-medium text-sm flex items-center gap-2"
+                className="block px-3 py-2.5 rounded-xl text-[#333333] hover:bg-[#E8F4FD] hover:text-[#0B84D8] transition-colors font-medium text-sm"
               >
-                <LayoutGrid className="w-4 h-4" /> Mon espace
+                👤 Espace Client
+              </Link>
+              <Link
+                to="/connexion?role=admin"
+                onClick={() => setMobileOpen(false)}
+                className="block px-3 py-2.5 rounded-xl text-[#333333] hover:bg-[#E8F4FD] hover:text-[#0B84D8] transition-colors font-medium text-sm"
+              >
+                🛡️ Espace Admin
               </Link>
             </div>
 
