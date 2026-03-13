@@ -53,44 +53,75 @@ export function Login() {
             <SEO title="Connexion" description="Accédez à votre espace sécurisé Doxantu Travel." />
             
             {/* Effets Cosmos (Lueurs de fond) - Adapté aux couleurs Doxantu */}
-            <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#0B84D8]/10 rounded-full blur-[120px] pointer-events-none" />
-            <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[#072a50]/40 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#0B84D8]/10 rounded-full blur-[120px] pointer-events-none z-0" />
+            <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[#072a50]/40 rounded-full blur-[100px] pointer-events-none z-0" />
             
-            {/* Animation Avion / Voyage discrète en arrière-plan */}
+            {/* Ciel étoilé scintillant */}
+            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                {[...Array(40)].map((_, i) => (
+                    <motion.div
+                        key={`star-${i}`}
+                        className="absolute bg-white rounded-full"
+                        style={{
+                            top: `${Math.random() * 100}%`,
+                            left: `${Math.random() * 100}%`,
+                            width: Math.random() * 2 + 1 + 'px',
+                            height: Math.random() * 2 + 1 + 'px',
+                        }}
+                        initial={{ opacity: Math.random() * 0.3 + 0.1 }}
+                        animate={{
+                            opacity: [Math.random() * 0.3 + 0.1, Math.random() * 0.8 + 0.4, Math.random() * 0.3 + 0.1],
+                            scale: [1, 1.2, 1],
+                        }}
+                        transition={{
+                            duration: Math.random() * 3 + 2,
+                            repeat: Infinity,
+                            ease: 'easeInOut',
+                            delay: Math.random() * 2,
+                        }}
+                    />
+                ))}
+            </div>
+
+            {/* Animation Avion / Voyage Ultra-Premium */}
             <motion.div 
-                className="absolute text-[#0B84D8]/10 pointer-events-none z-0"
-                initial={{ x: '-20vw', y: '80vh', rotate: -15, scale: 0.5 }}
+                className="absolute text-white/10 pointer-events-none z-0 flex items-center"
+                initial={{ x: '-15vw', y: '65vh', rotate: -20, scale: 0.8 }}
                 animate={{ 
-                    x: '120vw', 
-                    y: '-20vh',
+                    x: '115vw', 
+                    y: '-15vh',
                 }}
                 transition={{ 
-                    duration: 25, 
+                    duration: 40, 
                     repeat: Infinity, 
                     ease: "linear"
                 }}
             >
-                <svg width="240" height="240" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M21 16V14L13 9V3.5C13 2.67 12.33 2 11.5 2C10.67 2 10 2.67 10 3.5V9L2 14V16L10 13.5V19L8 20.5V22L11.5 21L15 22V20.5L13 19V13.5L21 16Z" />
-                </svg>
+                <div className="relative">
+                    <svg width="100" height="100" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" className="relative z-10 drop-shadow-2xl">
+                        <path d="M22 16.5L14 11.5V4C14 2.9 13.1 2 12 2C10.9 2 10 2.9 10 4V11.5L2 16.5V18.5L10 16V20.5L8 22V23L12 22L16 23V22L14 20.5V16L22 18.5V16.5Z" />
+                    </svg>
+                    {/* Traînée de l'avion */}
+                    <div className="absolute top-[48%] right-full w-[150px] h-[2px] bg-gradient-to-r from-transparent via-white/10 to-white/40 transform -translate-y-1/2 blur-[1px]"></div>
+                </div>
             </motion.div>
 
             {/* Nuages discrets animés */}
             <motion.div 
-                className="absolute top-[20%] right-[10%] text-white/5 pointer-events-none z-0"
-                animate={{ x: [0, -30, 0] }}
-                transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute top-[15%] right-[10%] text-[#0B84D8]/5 pointer-events-none z-0"
+                animate={{ x: [0, -40, 0] }}
+                transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
             >
-                <svg width="180" height="180" viewBox="0 0 24 24" fill="currentColor">
+                <svg width="220" height="220" viewBox="0 0 24 24" fill="currentColor" className="opacity-60 blur-sm">
                     <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4C9.11 4 6.6 5.64 5.35 8.04C2.34 8.36 0 10.91 0 14C0 17.31 2.69 20 6 20H19C21.76 20 24 17.76 24 15C24 12.36 21.95 10.22 19.35 10.04Z" />
                 </svg>
             </motion.div>
             <motion.div 
-                className="absolute bottom-[20%] left-[5%] text-white/5 pointer-events-none z-0"
-                animate={{ x: [0, 40, 0] }}
-                transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                className="absolute bottom-[10%] left-[5%] text-white/5 pointer-events-none z-0"
+                animate={{ x: [0, 50, 0] }}
+                transition={{ duration: 30, repeat: Infinity, ease: "easeInOut", delay: 2 }}
             >
-                <svg width="240" height="240" viewBox="0 0 24 24" fill="currentColor">
+                <svg width="280" height="280" viewBox="0 0 24 24" fill="currentColor" className="opacity-40 blur-md">
                     <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4C9.11 4 6.6 5.64 5.35 8.04C2.34 8.36 0 10.91 0 14C0 17.31 2.69 20 6 20H19C21.76 20 24 17.76 24 15C24 12.36 21.95 10.22 19.35 10.04Z" />
                 </svg>
             </motion.div>
