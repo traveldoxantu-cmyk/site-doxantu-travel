@@ -56,6 +56,45 @@ export function Login() {
             <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#0B84D8]/10 rounded-full blur-[120px] pointer-events-none" />
             <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[#072a50]/40 rounded-full blur-[100px] pointer-events-none" />
             
+            {/* Animation Avion / Voyage discrète en arrière-plan */}
+            <motion.div 
+                className="absolute text-[#0B84D8]/10 pointer-events-none z-0"
+                initial={{ x: '-20vw', y: '80vh', rotate: -15, scale: 0.5 }}
+                animate={{ 
+                    x: '120vw', 
+                    y: '-20vh',
+                }}
+                transition={{ 
+                    duration: 25, 
+                    repeat: Infinity, 
+                    ease: "linear"
+                }}
+            >
+                <svg width="240" height="240" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 16V14L13 9V3.5C13 2.67 12.33 2 11.5 2C10.67 2 10 2.67 10 3.5V9L2 14V16L10 13.5V19L8 20.5V22L11.5 21L15 22V20.5L13 19V13.5L21 16Z" />
+                </svg>
+            </motion.div>
+
+            {/* Nuages discrets animés */}
+            <motion.div 
+                className="absolute top-[20%] right-[10%] text-white/5 pointer-events-none z-0"
+                animate={{ x: [0, -30, 0] }}
+                transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+            >
+                <svg width="180" height="180" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4C9.11 4 6.6 5.64 5.35 8.04C2.34 8.36 0 10.91 0 14C0 17.31 2.69 20 6 20H19C21.76 20 24 17.76 24 15C24 12.36 21.95 10.22 19.35 10.04Z" />
+                </svg>
+            </motion.div>
+            <motion.div 
+                className="absolute bottom-[20%] left-[5%] text-white/5 pointer-events-none z-0"
+                animate={{ x: [0, 40, 0] }}
+                transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            >
+                <svg width="240" height="240" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4C9.11 4 6.6 5.64 5.35 8.04C2.34 8.36 0 10.91 0 14C0 17.31 2.69 20 6 20H19C21.76 20 24 17.76 24 15C24 12.36 21.95 10.22 19.35 10.04Z" />
+                </svg>
+            </motion.div>
+            
             {/* Bouton retour en absolut */}
             <Link 
                 to="/" 
