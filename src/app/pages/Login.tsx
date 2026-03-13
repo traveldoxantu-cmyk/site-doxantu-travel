@@ -49,12 +49,12 @@ export function Login() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#0A0A0A] selection:bg-[#ff3366]/30">
+        <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#0A0A0A] selection:bg-[#0B84D8]/30">
             <SEO title="Connexion" description="Accédez à votre espace sécurisé Doxantu Travel." />
             
-            {/* Effets Cosmos (Lueurs de fond) */}
-            <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#9333ea]/10 rounded-full blur-[120px] pointer-events-none" />
-            <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[#e11d48]/10 rounded-full blur-[100px] pointer-events-none" />
+            {/* Effets Cosmos (Lueurs de fond) - Adapté aux couleurs Doxantu */}
+            <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#0B84D8]/10 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[#072a50]/40 rounded-full blur-[100px] pointer-events-none" />
             
             {/* Bouton retour en absolut */}
             <Link 
@@ -73,8 +73,8 @@ export function Login() {
             >
                 <div className="text-center mb-8">
                     {/* Icône Entête */}
-                    <div className="w-14 h-14 bg-[#2f1118] border border-[#521c25] rounded-2xl mx-auto flex items-center justify-center mb-6">
-                        <LogIn className="w-6 h-6 text-[#ff3366]" />
+                    <div className="w-14 h-14 bg-[#072a50]/50 border border-[#0B84D8]/30 rounded-2xl mx-auto flex items-center justify-center mb-6">
+                        <LogIn className="w-6 h-6 text-[#0B84D8]" />
                     </div>
                     
                     <h1 className="text-2xl font-black text-white mb-2 tracking-tight">
@@ -96,7 +96,7 @@ export function Login() {
                             required
                             value={email}
                             onChange={e => setEmail(e.target.value)}
-                            className="block w-full pl-11 pr-4 py-3.5 bg-[#0a0a0a] border border-[#333] rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[#ff3366]/50 focus:border-[#ff3366] transition-all"
+                            className="block w-full pl-11 pr-4 py-3.5 bg-[#0a0a0a] border border-[#333] rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[#0B84D8]/50 focus:border-[#0B84D8] transition-all"
                             placeholder="Email"
                             autoComplete="email"
                         />
@@ -112,7 +112,7 @@ export function Login() {
                             required
                             value={password}
                             onChange={e => setPassword(e.target.value)}
-                            className="block w-full pl-11 pr-4 py-3.5 bg-[#0a0a0a] border border-[#333] rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[#ff3366]/50 focus:border-[#ff3366] transition-all"
+                            className="block w-full pl-11 pr-4 py-3.5 bg-[#0a0a0a] border border-[#333] rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-[#0B84D8]/50 focus:border-[#0B84D8] transition-all"
                             placeholder="Mot de passe"
                             autoComplete="current-password"
                         />
