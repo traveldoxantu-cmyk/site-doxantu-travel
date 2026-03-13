@@ -117,12 +117,12 @@ export function StudiesAbroad() {
               <span style={{ color: '#7dd3fc' }}>destination idéale</span>
             </h1>
             <p className="text-blue-100 max-w-xl mx-auto mb-8" style={{ fontSize: '1.05rem', lineHeight: 1.7 }}>
-              France, Canada, Maroc, Turquie — nos experts vous aident à choisir la destination
+              France, Canada, Maroc, Turquie, nos experts vous aident à choisir la destination
               adaptée à votre profil et à votre budget.
             </p>
             <Link to="/devis" className="inline-flex items-center gap-2 px-7 py-4 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5"
               style={{ backgroundColor: 'white', color: '#0B84D8', borderRadius: '12px' }}>
-              Être accompagné gratuitement <ArrowRight className="w-5 h-5" />
+              Démarrer mon projet <ArrowRight className="w-5 h-5" />
             </Link>
           </motion.div>
         </div>
@@ -140,9 +140,9 @@ export function StudiesAbroad() {
               transition={{ duration: 0.7, delay: i * 0.05 }}
               className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100"
             >
-              <div className={`grid lg:grid-cols-2 ${i % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}>
+              <div className={`grid lg:grid-cols-2 lg:h-[500px] ${i % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}>
                 {/* Image */}
-                <div className={`relative h-72 lg:h-auto overflow-hidden ${i % 2 === 1 ? 'lg:order-2' : ''}`}>
+                <div className={`relative h-72 lg:h-full overflow-hidden ${i % 2 === 1 ? 'lg:order-2' : ''}`}>
                   <img
                     src={dest.image}
                     alt={dest.country}
@@ -161,8 +161,9 @@ export function StudiesAbroad() {
                 </div>
 
                 {/* Content */}
-                <div className={`p-8 ${i % 2 === 1 ? 'lg:order-1' : ''}`}>
-                  {/* Key info */}
+                <div className={`p-8 flex flex-col h-full ${i % 2 === 1 ? 'lg:order-1' : ''}`}>
+                  <div className="flex-grow">
+                    {/* Key info */}
                   <div className="grid grid-cols-2 gap-4 mb-6">
                     <div className="p-4 rounded-2xl" style={{ backgroundColor: '#F0F8FF' }}>
                       <DollarSign className="w-5 h-5 mb-1" style={{ color: '#0B84D8' }} />
@@ -211,27 +212,30 @@ export function StudiesAbroad() {
                       </ol>
                     </div>
                   </div>
-
-                  {/* Cities */}
-                  <div className="mt-5 pt-5 border-t border-gray-100">
-                    <p className="text-xs text-gray-400 mb-2 uppercase tracking-wider font-medium">Villes populaires</p>
-                    <div className="flex flex-wrap gap-2">
-                      {dest.popular.map((city) => (
-                        <span key={city} className="text-xs px-3 py-1 rounded-full font-medium"
-                          style={{ backgroundColor: '#E8F4FD', color: '#0B84D8' }}>
-                          📍 {city}
-                        </span>
-                      ))}
-                    </div>
                   </div>
 
-                  <Link
-                    to="/devis"
-                    className="mt-5 inline-flex items-center gap-2 px-5 py-3 text-white font-semibold text-sm transition-all hover:shadow-lg hover:-translate-y-0.5"
-                    style={{ backgroundColor: '#0B84D8', borderRadius: '12px' }}
-                  >
-                    Être accompagné pour {dest.country} <ArrowRight className="w-4 h-4" />
-                  </Link>
+                  {/* Cities and Button Container */}
+                  <div className="mt-auto pt-5 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                      <p className="text-xs text-gray-400 mb-2 uppercase tracking-wider font-medium">Villes populaires</p>
+                      <div className="flex flex-wrap gap-2">
+                        {dest.popular.map((city) => (
+                          <span key={city} className="text-xs px-3 py-1 rounded-full font-medium"
+                            style={{ backgroundColor: '#E8F4FD', color: '#0B84D8' }}>
+                            📍 {city}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <Link
+                      to={`/devis?destination=${dest.country.toLowerCase()}`}
+                      className="inline-flex items-center gap-2 px-5 py-3 text-white font-semibold text-sm transition-all hover:shadow-lg hover:-translate-y-0.5 whitespace-nowrap"
+                      style={{ backgroundColor: '#0B84D8', borderRadius: '12px' }}
+                    >
+                      Démarrer mon projet <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -258,7 +262,7 @@ export function StudiesAbroad() {
             <div className="flex flex-wrap gap-4 justify-center">
               <Link to="/devis" className="inline-flex items-center gap-2 px-8 py-4 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5"
                 style={{ backgroundColor: 'white', color: '#0B84D8', borderRadius: '12px' }}>
-                Être accompagné <ArrowRight className="w-5 h-5" />
+                Démarrer mon projet <ArrowRight className="w-5 h-5" />
               </Link>
               <Link to="/contact" className="inline-flex items-center gap-2 px-8 py-4 font-semibold transition-all"
                 style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white', borderRadius: '12px', border: '1.5px solid rgba(255,255,255,0.3)' }}>

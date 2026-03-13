@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'motion/react';
 import { Phone, Mail, MapPin, Clock, MessageSquare, Send, CheckCircle } from 'lucide-react';
 import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission';
+import { SEO } from '../components/SEO';
 
 const contactInfo = [
   {
@@ -40,7 +41,7 @@ const services = [
   'Assistance Visa Étudiant',
   'Assistance Visa Tourisme',
   'Légalisation & Traduction',
-  'Études à l\'Étranger — Information',
+  'Études à l\'Étranger - Information',
   'Autre',
 ];
 
@@ -65,6 +66,7 @@ export function Contact() {
 
   return (
     <div>
+      <SEO title="Contact" description="Contactez Doxantu Travel pour toute demande d'assistance sur vos projets de voyage ou études à l'étranger." />
       {/* Hero */}
       <section
         className="relative pt-40 pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden"

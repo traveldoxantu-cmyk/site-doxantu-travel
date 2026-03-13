@@ -1,50 +1,37 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Calendar, Clock, AlertCircle, CheckCircle2, ChevronRight, Info } from 'lucide-react';
-
-const deadlines = [
-    {
-        id: 1,
-        title: 'Entretien pédagogique Campus France',
-        date: '7 mars 2026',
-        time: '10:00',
-        location: 'Dakar',
-        status: 'urgent',
-        daysRemaining: 5,
-        description: 'Votre présence est indispensable. Apportez tous vos originaux et préparez vos motivations.'
-    },
-    {
-        id: 2,
-        title: 'Paiement des frais de dossier',
-        date: '30 mars 2026',
-        time: '17:00 au plus tard',
-        location: 'Banque SG / En ligne',
-        status: 'upcoming',
-        daysRemaining: 28,
-        description: 'Le virement doit être effectué avant la fin du mois pour valider l\'étape suivante.'
-    },
-    {
-        id: 3,
-        title: 'Dépôt du dossier de visa',
-        date: '15 avril 2026',
-        time: '09:00',
-        location: 'VFS Global Dakar',
-        status: 'planned',
-        daysRemaining: 44,
-        description: 'Assurez-vous d\'avoir tous les justificatifs de logement et de ressources.'
-    },
-    {
-        id: 4,
-        title: 'Confirmation définitive Campus France',
-        date: '30 mai 2026',
-        time: 'N/A',
-        location: 'Portail en ligne',
-        status: 'planned',
-        daysRemaining: 89,
-        description: 'Validation de l\'admission définitive par l\'établissement d\'accueil.'
-    }
-];
+import { echeancesService, type Echeance } from '../lib/services/echeancesService';
 
 export function Echeances() {
+    const [deadlines, setDeadlines] = useState<Echeance[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        echeancesService.getEcheances()
+            .then(setDeadlines)
+            .catch(console.error)
+            .finally(() => setLoading(false));
+    }, []);
+
+    const urgentCount  = deadlines.filter(d => d.status === 'urgent').length;
+    const upcomingCount = deadlines.filter(d => d.status === 'upcoming').length;
+    const firstUrgent  = deadlines.find(d => d.status === 'urgent');
+
+    if (loading) {
+        return (
+            <div className="max-w-4xl mx-auto space-y-8 pb-24 animate-pulse">
+                <div className="h-10 bg-gray-200 rounded-2xl w-1/2" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {[1,2,3].map(i => <div key={i} className="bg-gray-200 rounded-3xl h-28" />)}
+                </div>
+                <div className="space-y-4">
+                    {[1,2,3].map(i => <div key={i} className="bg-gray-200 rounded-3xl h-32" />)}
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="max-w-4xl mx-auto space-y-8 pb-24">
             {/* Header section */}
@@ -59,14 +46,14 @@ export function Echeances() {
                     <div className="w-10 h-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center mb-4">
                         <AlertCircle className="w-5 h-5" />
                     </div>
-                    <p className="text-2xl font-black text-[#1a2b40]">1</p>
-                    <p className="text-sm font-bold text-gray-400 uppercase tracking-wider mt-1">Échéance urgente</p>
+                    <p className="text-2xl font-black text-[#1a2b40]">{urgentCount}</p>
+                    <p className="text-sm font-bold text-gray-400 uppercase tracking-wider mt-1">Échéance{urgentCount > 1 ? 's' : ''} urgente{urgentCount > 1 ? 's' : ''}</p>
                 </div>
                 <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
                     <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0B84D8] flex items-center justify-center mb-4">
                         <Calendar className="w-5 h-5" />
                     </div>
-                    <p className="text-2xl font-black text-[#1a2b40]">3</p>
+                    <p className="text-2xl font-black text-[#1a2b40]">{upcomingCount}</p>
                     <p className="text-sm font-bold text-gray-400 uppercase tracking-wider mt-1">À venir ce mois-ci</p>
                 </div>
                 <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
@@ -78,27 +65,29 @@ export function Echeances() {
                 </div>
             </div>
 
-            {/* Notice */}
-            <div className="bg-[#1a2b40] rounded-3xl p-6 text-white flex gap-6 items-center shadow-lg relative overflow-hidden">
-                <div className="absolute right-[-20px] top-[-20px] w-32 h-32 bg-white/5 rounded-full blur-2xl" />
-                <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center shrink-0">
-                    <Info className="w-7 h-7 text-blue-300" />
+            {/* Notice — shown only if there is an urgent deadline */}
+            {firstUrgent && (
+                <div className="bg-[#1a2b40] rounded-3xl p-6 text-white flex gap-6 items-center shadow-lg relative overflow-hidden">
+                    <div className="absolute right-[-20px] top-[-20px] w-32 h-32 bg-white/5 rounded-full blur-2xl" />
+                    <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center shrink-0">
+                        <Info className="w-7 h-7 text-blue-300" />
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-lg mb-1">Rappel : {firstUrgent.title}</h3>
+                        <p className="text-blue-100/80 text-sm leading-relaxed">
+                            Cet événement est l'étape la plus cruciale. Assurez-vous d'être prêt pour le <span className="text-white font-bold">{firstUrgent.date}</span>.
+                        </p>
+                    </div>
+                    <button className="ml-auto bg-[#0B84D8] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#0973BD] transition-all shadow-md shrink-0">
+                        S'y préparer
+                    </button>
                 </div>
-                <div>
-                    <h3 className="font-bold text-lg mb-1">Rappel : Entretien pédagogique</h3>
-                    <p className="text-blue-100/80 text-sm leading-relaxed">
-                        Votre entretien Campus France est l'étape la plus cruciale. Assurez-vous d'être prêt pour le <span className="text-white font-bold">7 mars</span>. 
-                    </p>
-                </div>
-                <button className="ml-auto bg-[#0B84D8] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#0973BD] transition-all shadow-md shrink-0">
-                    S'y préparer
-                </button>
-            </div>
+            )}
 
             {/* Timeline */}
             <div className="space-y-6">
                 <h2 className="text-xl font-bold text-[#1a2b40] flex items-center gap-3">
-                    <Clock className="w-5 h-5 text-[#0B84D8]" /> 
+                    <Clock className="w-5 h-5 text-[#0B84D8]" />
                     Planning détaillé
                 </h2>
 
@@ -134,14 +123,14 @@ export function Echeances() {
                                             {item.title}
                                         </h3>
                                         <div className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider ${
-                                            item.status === 'urgent' ? 'bg-red-50 text-red-600' : 
+                                            item.status === 'urgent' ? 'bg-red-50 text-red-600' :
                                             item.status === 'upcoming' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-[#0B84D8]'
                                         }`}>
                                             J-{item.daysRemaining}
                                         </div>
                                     </div>
                                     <p className="text-sm text-gray-500 leading-relaxed font-medium">{item.description}</p>
-                                    
+
                                     <div className="flex flex-wrap gap-4 pt-3 border-t border-gray-50">
                                         <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-wide">
                                             <Clock className="w-3.5 h-3.5" />
@@ -154,7 +143,7 @@ export function Echeances() {
                                     </div>
                                 </div>
 
-                                {/* Action button (subtle until hover) */}
+                                {/* Action button */}
                                 <div className="flex items-center shrink-0">
                                     <button className="w-12 h-12 rounded-2xl bg-gray-50 text-gray-400 flex items-center justify-center transition-all group-hover:bg-[#0B84D8] group-hover:text-white shadow-sm ring-1 ring-gray-200 group-hover:ring-[#0B84D8]/30">
                                         <ChevronRight className="w-5 h-5" />

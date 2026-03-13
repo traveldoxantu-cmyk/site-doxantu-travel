@@ -1,22 +1,20 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { Link } from 'react-router';
-import { Shield, CheckCircle, Upload, ArrowRight } from 'lucide-react';
+import { Upload, ArrowRight, CheckCircle, Shield } from 'lucide-react';
+import { useSearchParams } from 'react-router';
 import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission';
-
-const steps = [
-  { id: 1, label: 'Service' },
-  { id: 2, label: 'Détails' },
-  { id: 3, label: 'Coordonnées' },
-  { id: 4, label: 'Confirmation' },
-];
+import { SEO } from '../components/SEO';
 
 export function QuoteRequest() {
+  const [searchParams] = useSearchParams();
+  const initialDestination = searchParams.get('destination') || '';
+
   const [currentStep, setCurrentStep] = useState(1);
   const [form, setForm] = useState({
-    service: '',
-    destination: '',
+    service: initialDestination ? 'campus-france' : '', // Pré-sélection Campus France si destination définie depuis la page Études
+    destination: initialDestination,
     budget: '',
+    visaType: initialDestination ? 'etudes' : '', // Pré-sélectionne le visa étudiant si ça vient de la page études
     date: '',
     documents: false,
     nom: '',
@@ -33,12 +31,13 @@ export function QuoteRequest() {
   };
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const message = buildWhatsAppMessage('Nouvelle demande de devis', {
-      Service: form.service,
-      Destination: form.destination,
+    const message = buildWhatsAppMessage("Nouvelle demande d'accompagnement", {
+      "Service": form.service,
+      "Destination": form.destination,
+      "Type de visa": form.visaType || 'Non spécifié',
       Budget: form.budget,
       'Date prevue': form.date,
-      'Documents a joindre': form.documents,
+      'Documents a joindre': form.documents ? 'Oui' : 'Non',
       Nom: form.nom,
       Telephone: form.tel,
       Email: form.email,
@@ -50,6 +49,10 @@ export function QuoteRequest() {
 
   return (
     <div>
+      <SEO 
+        title="Démarrer mon projet" 
+        description="Faites une évaluation gratuite de votre profil pour étudier à l'étranger avec Doxantu Travel." 
+      />
       {/* Hero */}
       <section
         className="relative pt-40 pb-16 px-4 sm:px-6 lg:px-8"
@@ -59,22 +62,27 @@ export function QuoteRequest() {
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
             <div className="text-5xl mb-4">📋</div>
             <h1 className="text-white mb-4" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 800 }}>
-              Demande de devis
+              Démarrer mon projet
             </h1>
             <p className="text-blue-200" style={{ fontSize: '1rem', lineHeight: 1.7 }}>
-              Remplissez ce formulaire détaillé pour recevoir une proposition personnalisée
-              de notre équipe dans les 24h.
+              Renseignez ces informations pour que nos experts évaluent gratuitement votre profil 
+              et vous proposent un accompagnement sur mesure dans les 24h.
             </p>
           </motion.div>
         </div>
       </section>
 
-      {/* Stepper + Form */}
+      {/* Form Area */}
       <section className="py-16 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: '#F8FAFC' }}>
         <div className="max-w-2xl mx-auto">
           {/* Progress steps */}
           <div className="flex items-center justify-center mb-10">
-            {steps.map((step, i) => (
+            {[
+              { id: 1, label: 'Service' },
+              { id: 2, label: 'Détails' },
+              { id: 3, label: 'Coordonnées' },
+              { id: 4, label: 'Confirmation' },
+            ].map((step, i) => (
               <div key={step.id} className="flex items-center">
                 <div className="flex flex-col items-center">
                   <div
@@ -90,7 +98,7 @@ export function QuoteRequest() {
                     {step.label}
                   </span>
                 </div>
-                {i < steps.length - 1 && (
+                {i < 3 && (
                   <div
                     className="h-0.5 w-12 sm:w-20 mx-2 mb-4 transition-all duration-300"
                     style={{ backgroundColor: currentStep > step.id ? '#0B84D8' : '#E5E7EB' }}
@@ -105,7 +113,7 @@ export function QuoteRequest() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4 }}
-            className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100"
+            className="bg-white rounded-2xl shadow-xl p-6 sm:p-10"
           >
             {/* Step 1: Service */}
             {currentStep === 1 && (
@@ -156,7 +164,7 @@ export function QuoteRequest() {
                 <h2 className="text-[#333333] mb-2" style={{ fontSize: '1.3rem', fontWeight: 700 }}>
                   Détails de votre projet
                 </h2>
-                <p className="text-gray-400 text-sm mb-6">Plus vous êtes précis, plus notre devis sera adapté.</p>
+                <p className="text-gray-400 text-sm mb-6">Plus vous êtes précis, mieux nous pourrons vous orienter.</p>
 
                 <div className="space-y-4">
                   <div>
@@ -175,6 +183,27 @@ export function QuoteRequest() {
                       <option value="autres">🌍 Autre</option>
                     </select>
                   </div>
+
+                  {/* Nouveau champ : Type de visa (Caché si on vient de la page Études) */}
+                  {!initialDestination && (
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                        Type de visa souhaité *
+                      </label>
+                      <select required value={form.visaType} onChange={(e) => setForm({ ...form, visaType: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
+                        style={{ borderRadius: '12px' }}>
+                        <option value="">Sélectionner…</option>
+                        <option value="etudes">🎓 Visa Étudiant</option>
+                        <option value="visiteur">🧳 Visa Visiteur / Tourisme</option>
+                        <option value="travail">💼 Visa de Travail</option>
+                        <option value="affaires">🤝 Visa d'Affaires</option>
+                        <option value="medical">🏥 Visa Médical</option>
+                        <option value="autre">Plusieurs / Autre</option>
+                        <option value="aucun">Je ne sais pas encore</option>
+                      </select>
+                    </div>
+                  )}
 
                   <div>
                     <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
@@ -241,7 +270,7 @@ export function QuoteRequest() {
                 <h2 className="text-[#333333] mb-2" style={{ fontSize: '1.3rem', fontWeight: 700 }}>
                   Vos coordonnées
                 </h2>
-                <p className="text-gray-400 text-sm mb-6">Pour vous faire parvenir votre devis personnalisé.</p>
+                <p className="text-gray-400 text-sm mb-6">Pour vous recontacter avec votre bilan personnalisé.</p>
 
                 <div className="space-y-4">
                   <div>
@@ -333,13 +362,17 @@ export function QuoteRequest() {
                     <p className="text-xs text-gray-500 mb-0.5">Destination</p>
                     <p className="font-semibold text-[#333333] text-sm">{form.destination || '—'}</p>
                   </div>
+                  <div className="p-4 rounded-2xl text-left sm:col-span-2" style={{ backgroundColor: '#F0F8FF' }}>
+                    <p className="text-xs text-gray-500 mb-0.5">Type de visa</p>
+                    <p className="font-semibold text-[#333333] text-sm">{form.visaType || '—'}</p>
+                  </div>
                 </div>
 
                 <div className="flex flex-wrap gap-3 justify-center">
-                  <Link to="/" className="px-6 py-3 font-semibold text-sm"
+                  <a href="/" className="px-6 py-3 font-semibold text-sm"
                     style={{ backgroundColor: '#0B84D8', color: 'white', borderRadius: '12px' }}>
                     Retour à l'accueil
-                  </Link>
+                  </a>
                   <a href="https://wa.me/221780000000" target="_blank" rel="noopener noreferrer"
                     className="px-6 py-3 font-semibold text-sm"
                     style={{ backgroundColor: '#25D366', color: 'white', borderRadius: '12px' }}>

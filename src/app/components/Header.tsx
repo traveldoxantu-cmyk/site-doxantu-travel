@@ -52,7 +52,7 @@ export function Header() {
                   className="flex items-center gap-3 px-5 py-3.5 hover:bg-[#E8F4FD] text-[#333333] hover:text-[#0B84D8] transition-colors border-b border-gray-50"
                 >
                   <span className="text-xl">🎓</span>
-                  <span className="text-sm font-medium">Accompagnement Etudiant</span>
+                  <span className="text-sm font-medium">Accompagnement Étudiant</span>
                 </Link>
                 <Link
                   to="/services/billetterie"
@@ -72,10 +72,10 @@ export function Header() {
             </div>
 
             <NavLink to="/etudes-etranger" className={navLinkClass}>
-              Etudes
+              Études
             </NavLink>
             <NavLink to="/a-propos" className={navLinkClass}>
-              A propos
+              À propos
             </NavLink>
             <NavLink to="/contact" className={navLinkClass}>
               Contact
@@ -118,7 +118,7 @@ export function Header() {
           <div className="bg-white border-t border-gray-100 shadow-2xl px-4 py-5 space-y-1 rounded-b-2xl">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 pb-1">Services</p>
             {[
-              { to: '/services/accompagnement-etudiant', label: '🎓 Accompagnement Etudiant' },
+              { to: '/services/accompagnement-etudiant', label: '🎓 Accompagnement Étudiant' },
               { to: '/services/billetterie', label: '✈️ Billetterie' },
               { to: '/services/visa-documents', label: '📄 Assistance Visa & Documents' },
             ].map((item) => (
@@ -134,8 +134,8 @@ export function Header() {
 
             <div className="border-t border-gray-100 pt-2 mt-2 space-y-1">
               {[
-                { to: '/etudes-etranger', label: '🌍 Etudes a l\'etranger' },
-                { to: '/a-propos', label: '🏢 A propos' },
+                { to: '/etudes-etranger', label: '🌍 Études à l\'étranger' },
+                { to: '/a-propos', label: '🏢 À propos' },
                 { to: '/contact', label: '📞 Contact' },
               ].map((item) => (
                 <Link

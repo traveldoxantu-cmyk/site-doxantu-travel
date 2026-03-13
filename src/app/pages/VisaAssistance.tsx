@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import { motion } from 'motion/react';
 import { CheckCircle, ArrowRight, Shield, Clock, FileText, Globe, BookOpen } from 'lucide-react';
+import { SEO } from '../components/SEO';
 
 const HERO_IMG =
   'https://images.unsplash.com/photo-1758928807847-ed94f9ed3cad?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYXNzcG9ydCUyMHZpc2ElMjBkb2N1bWVudHMlMjB0cmF2ZWx8ZW58MXx8fHwxNzcyMzEwMTU5fDA&ixlib=rb-4.1.0&q=80&w=1080';
@@ -57,6 +58,7 @@ const process = [
 export function VisaAssistance() {
   return (
     <div>
+      <SEO title="Assistance Visa & Documents" description="Simplifiez vos démarches administratives avec Doxantu Travel : Visa étudiant, Visa tourisme, Légalisation et traduction de documents." />
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center overflow-hidden pt-28">
         <div className="absolute inset-0">
@@ -75,7 +77,7 @@ export function VisaAssistance() {
               <span style={{ color: '#7dd3fc' }}>démarches administratives</span>
             </h1>
             <p className="text-blue-100 max-w-xl mb-8" style={{ fontSize: '1.05rem', lineHeight: 1.7 }}>
-              Visa étudiant, visa tourisme, légalisation de documents — nous gérons tout
+              Visa étudiant, visa tourisme, légalisation de documents, nous gérons tout
               pour vous permettre de vous concentrer sur l'essentiel.
             </p>
             <div className="flex flex-wrap gap-4">

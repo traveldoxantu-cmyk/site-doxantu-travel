@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import { motion } from 'motion/react';
 import { ArrowRight, Target, Eye, Heart, Shield, Users, Award, CheckCircle } from 'lucide-react';
+import { SEO } from '../components/SEO';
 
 const TEAM_IMG =
   'https://images.unsplash.com/photo-1578894381163-e72c17f2d45f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBZnJpY2FuJTIwdHJhdmVsJTIwYWdlbmN5JTIwdGVhbSUyMHByb2Zlc3Npb25hbHN8ZW58MXx8fHwxNzcyMzEwMTU5fDA&ixlib=rb-4.1.0&q=80&w=1080';
@@ -101,8 +102,9 @@ const stats = [
 
 export function About() {
   return (
-    <div>
-      {/* Hero */}
+    <div className="pt-24 pb-16">
+      <SEO title="À propos" description="Découvrez l'histoire de Doxantu Travel, l'agence de voyage 100% digitale dédiée aux étudiants sénégalais." />
+      {/* Hero Section */}
       <section
         className="relative pt-40 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden"
         style={{ background: 'linear-gradient(135deg, #072a50 0%, #0B84D8 100%)' }}
@@ -175,7 +177,7 @@ export function About() {
               {
                 icon: <Target className="w-7 h-7" />,
                 title: 'Notre Mission',
-                content: 'Simplifier et démocratiser la mobilité internationale pour les étudiants et voyageurs sénégalais. Nous rendons chaque étape — du choix de la destination au retour — transparente, abordable et accompagnée.',
+                content: 'Simplifier et démocratiser la mobilité internationale pour les étudiants et voyageurs sénégalais. Nous rendons chaque étape, du choix de la destination au retour, transparente, abordable et accompagnée.',
               },
             ].map((item, i) => (
               <motion.div

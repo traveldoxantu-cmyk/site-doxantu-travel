@@ -19,9 +19,12 @@ import {
   Clock,
   User,
   Send,
-  Globe
+  Globe,
+  Loader2
 } from 'lucide-react';
 import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission';
+import { SEO } from '../components/SEO';
+import { submitContactForm } from '../lib/services/contactService';
 
 const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 const STUDENT_IMG = 'https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdHVkZW50cyUyMHN0dWR5aW5nJTIwYWJyb2FkJTIwdW5pdmVyc2l0eSUyMGNhbXB1c3xlbnwxfHx8fDE3NzIzMTAxNTF8MA&ixlib=rb-4.1.0&q=80&w=1080';
@@ -43,7 +46,7 @@ const testimonials = [
   {
     id: 1,
     name: 'Fatou Diallo',
-    program: 'Master en Informatique — Paris',
+    program: 'Master en Informatique - Paris',
     text: 'Grâce à Doxantu Travel, ma procédure Campus France s\'est déroulée sans stress. Tout était clair et suivi de A à Z.',
     rating: 5,
     avatar: <User className="w-6 h-6 text-[#0B84D8]" />,
@@ -51,7 +54,7 @@ const testimonials = [
   {
     id: 2,
     name: 'Moussa Ndiaye',
-    program: 'Licence en Finance — Montréal',
+    program: 'Licence en Finance - Montréal',
     text: 'Service exceptionnel ! Mon visa a été obtenu en 3 semaines. L\'équipe est réactive et professionnelle.',
     rating: 5,
     avatar: <User className="w-6 h-6 text-[#0B84D8]" />,
@@ -59,7 +62,7 @@ const testimonials = [
   {
     id: 3,
     name: 'Aminata Sow',
-    program: 'BTS Commerce — Casablanca',
+    program: 'BTS Commerce - Casablanca',
     text: 'Je recommande fortement Doxantu Travel. Leur accompagnement m\'a permis d\'éviter de nombreuses erreurs dans mon dossier.',
     rating: 5,
     avatar: <User className="w-6 h-6 text-[#0B84D8]" />,
@@ -80,26 +83,38 @@ export function Home() {
   const [service, setService] = useState('');
   const [formData, setFormData] = useState({ nom: '', tel: '', service: '', message: '' });
   const [formSent, setFormSent] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     navigate('/devis');
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const message = buildWhatsAppMessage('Nouvelle demande rapide', {
-      Nom: formData.nom,
-      Telephone: formData.tel,
-      Service: formData.service,
-      Message: formData.message,
-    });
-    openWhatsAppSubmission(message);
-    setFormSent(true);
+    setIsSubmitting(true);
+
+    // Save to Firebase
+    const result = await submitContactForm(formData);
+
+    if (result.success) {
+      const message = buildWhatsAppMessage('Nouvelle demande rapide', {
+        Nom: formData.nom,
+        Telephone: formData.tel,
+        Service: formData.service,
+        Message: formData.message,
+      });
+      openWhatsAppSubmission(message);
+      setFormSent(true);
+    } else {
+      alert("Une erreur est survenue lors de l'envoi. Veuillez réessayer ou nous contacter directement via WhatsApp.");
+    }
+    setIsSubmitting(false);
   };
 
   return (
     <div>
+      <SEO title="Accueil" description="Doxantu Travel, la première agence 100% digitale pour les étudiants sénégalais. Étudiez en France, au Canada, au Maroc avec un accompagnement sur mesure." />
       {/* ── HERO ─────────────────────────────────────────── */}
       <section className="relative min-h-screen flex items-center overflow-hidden pt-16">
         {/* Background */}
@@ -341,7 +356,7 @@ export function Home() {
                   </h3>
                   <p className="text-blue-100 mb-5 max-w-sm leading-relaxed">
                     Spécialiste Campus France au Sénégal. Nous gérons votre dossier de A à Z :
-                    inscription, entretien, visa, billet — tout inclus.
+                    inscription, entretien, visa, billet, tout inclus.
                   </p>
                 </header>
                   <div className="flex flex-wrap gap-2 mb-6">
@@ -418,7 +433,7 @@ export function Home() {
                     Assistance Visa & Documents
                   </h3>
                   <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                    Visa étudiant, tourisme, légalisation, traduction — on simplifie vos démarches.
+                    Visa étudiant, tourisme, légalisation, traduction, on simplifie vos démarches.
                   </p>
                 </header>
               </article>
@@ -449,7 +464,7 @@ export function Home() {
                     Études à l'Étranger
                   </h3>
                   <p className="text-gray-500 text-sm leading-relaxed">
-                    France, Canada, Maroc, Turquie — trouvez votre destination et votre programme.
+                    France, Canada, Maroc, Turquie, trouvez votre destination et votre programme.
                   </p>
                 </header>
               </article>
@@ -496,7 +511,7 @@ export function Home() {
                   {
                     icon: <CheckCircle className="w-5 h-5" />,
                     title: 'Paiement local sécurisé',
-                    desc: 'Wave, Orange Money, Visa — payez comme vous le souhaitez, en toute sécurité.',
+                    desc: 'Wave, Orange Money, Visa, payez comme vous le souhaitez, en toute sécurité.',
                   },
                   {
                     icon: <Award className="w-5 h-5" />,
@@ -643,7 +658,7 @@ export function Home() {
             <h2 className="text-white mb-4" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 700 }}>
               Commencez votre projet maintenant
             </h2>
-            <p className="text-blue-200">Remplissez ce formulaire rapide — réponse garantie en moins de 24h.</p>
+            <p className="text-blue-200">Remplissez ce formulaire rapide, réponse garantie en moins de 24h.</p>
           </motion.div>
 
           <motion.div
@@ -736,10 +751,17 @@ export function Home() {
                 <div className="md:col-span-2">
                   <button
                     type="submit"
-                    className="w-full py-4 text-white font-semibold text-base transition-all hover:shadow-xl hover:-translate-y-0.5"
+                    disabled={isSubmitting}
+                    className="w-full py-4 text-white font-semibold text-base transition-all hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     style={{ backgroundColor: '#0B84D8', borderRadius: '12px' }}
                   >
-                    Recevoir mon devis gratuit →
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" /> Envoi en cours...
+                      </>
+                    ) : (
+                      'Recevoir mon devis gratuit →'
+                    )}
                   </button>
                   <p className="text-center text-xs text-gray-400 mt-3 flex items-center justify-center gap-1">
                     <Shield className="w-3 h-3" /> Vos données sont protégées et jamais partagées

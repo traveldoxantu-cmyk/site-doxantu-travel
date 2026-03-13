@@ -1,73 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Upload, FileText, Image as ImageIcon, Eye, Download, Trash2, CheckCircle2, Clock } from 'lucide-react';
+import { documentsService, type Document } from '../lib/services/documentsService';
+
+const filters = ['Tous', 'Identité', 'Académique', 'Visa', 'Assurance', 'Paiement'];
 
 export function MesDocuments() {
     const [activeTab, setActiveTab] = useState<'mes-documents' | 'documents-requis'>('mes-documents');
     const [activeFilter, setActiveFilter] = useState('Tous');
+    const [documents, setDocuments] = useState<Document[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const filters = ['Tous', 'Identité', 'Académique', 'Visa', 'Assurance', 'Paiement'];
-
-    const documents = [
-        {
-            id: 1,
-            name: 'Passeport_Amadou_Diallo.pdf',
-            size: '2.4 MB',
-            date: '10 jan. 2026',
-            category: 'Identité',
-            type: 'pdf',
-            status: 'verified'
-        },
-        {
-            id: 2,
-            name: 'CNI_verso.jpg',
-            size: '850 KB',
-            date: '10 jan. 2026',
-            category: 'Identité',
-            type: 'image',
-            status: 'verified'
-        },
-        {
-            id: 3,
-            name: 'Releve_Notes_L3.pdf',
-            size: '1.2 MB',
-            date: '12 jan. 2026',
-            category: 'Académique',
-            type: 'pdf',
-            status: 'verified'
-        },
-        {
-            id: 4,
-            name: 'Lettre_Motivation.pdf',
-            size: '320 KB',
-            date: '12 jan. 2026',
-            category: 'Académique',
-            type: 'pdf',
-            status: 'pending'
-        },
-        {
-            id: 5,
-            name: 'Attestation_Inscription.pdf',
-            size: '450 KB',
-            date: '20 jan. 2026',
-            category: 'Visa',
-            type: 'pdf',
-            status: 'pending'
-        },
-        {
-            id: 6,
-            name: 'Police_Assurance_Sante.pdf',
-            size: '1.8 MB',
-            date: '25 jan. 2026',
-            category: 'Assurance',
-            type: 'pdf',
-            status: 'pending'
-        }
-    ];
+    useEffect(() => {
+        documentsService.getDocuments()
+            .then(setDocuments)
+            .catch(console.error)
+            .finally(() => setLoading(false));
+    }, []);
 
     const filteredDocs = activeFilter === 'Tous'
         ? documents
         : documents.filter(doc => doc.category === activeFilter);
+
+    const verifiedCount = documents.filter(d => d.status === 'verified').length;
+
+    const handleDelete = async (id: number) => {
+        await documentsService.deleteDocument(id);
+        setDocuments(prev => prev.filter(d => d.id !== id));
+    };
 
     return (
         <div className="max-w-5xl mx-auto pb-24 space-y-8">
@@ -75,11 +35,11 @@ export function MesDocuments() {
             <div className="flex justify-end items-center">
                 <div className="flex gap-8 text-center pt-2">
                     <div>
-                        <p className="text-2xl font-black text-[#0B84D8]">6</p>
+                        <p className="text-2xl font-black text-[#0B84D8]">{documents.length}</p>
                         <p className="text-xs text-gray-500 font-medium">Fichiers</p>
                     </div>
                     <div>
-                        <p className="text-2xl font-black text-emerald-500">3</p>
+                        <p className="text-2xl font-black text-emerald-500">{verifiedCount}</p>
                         <p className="text-xs text-gray-500 font-medium">Vérifiés</p>
                     </div>
                 </div>
@@ -89,8 +49,7 @@ export function MesDocuments() {
             <div className="flex border-b border-gray-100">
                 <button
                     onClick={() => setActiveTab('mes-documents')}
-                    className={`px-6 py-4 font-semibold text-sm transition-all relative ${activeTab === 'mes-documents' ? 'text-[#0B84D8]' : 'text-gray-400 hover:text-gray-600'
-                        }`}
+                    className={`px-6 py-4 font-semibold text-sm transition-all relative ${activeTab === 'mes-documents' ? 'text-[#0B84D8]' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                     <span className="flex items-center gap-2">
                         <FileText className="w-4 h-4" /> Mes documents
@@ -101,8 +60,7 @@ export function MesDocuments() {
                 </button>
                 <button
                     onClick={() => setActiveTab('documents-requis')}
-                    className={`px-6 py-4 font-semibold text-sm transition-all relative ${activeTab === 'documents-requis' ? 'text-[#0B84D8]' : 'text-gray-400 hover:text-gray-600'
-                        }`}
+                    className={`px-6 py-4 font-semibold text-sm transition-all relative ${activeTab === 'documents-requis' ? 'text-[#0B84D8]' : 'text-gray-400 hover:text-gray-600'}`}
                 >
                     <span className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4" /> Documents requis
@@ -134,7 +92,7 @@ export function MesDocuments() {
                         className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${activeFilter === filter
                             ? 'bg-[#0B84D8] text-white shadow-sm ring-2 ring-[#0B84D8]/20 ring-offset-1'
                             : 'bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700'
-                            }`}
+                        }`}
                     >
                         {filter}
                     </button>
@@ -142,58 +100,66 @@ export function MesDocuments() {
             </div>
 
             {/* Document List */}
-            <div className="space-y-4 pt-2">
-                {filteredDocs.map((doc, i) => (
-                    <motion.div
-                        key={doc.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.05 }}
-                        className="bg-white rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-gray-100 shadow-sm hover:shadow-md hover:border-[#0B84D8]/30 transition-all group"
-                    >
-                        <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-gray-50 text-gray-400">
-                                {doc.type === 'pdf' ? <FileText className="w-5 h-5 text-gray-500" /> : <ImageIcon className="w-5 h-5 text-gray-500" />}
-                            </div>
-                            <div>
-                                <h4 className="font-bold text-[#1a2b40] text-sm sm:text-base group-hover:text-[#0B84D8] transition-colors">{doc.name}</h4>
-                                <div className="flex items-center gap-3 mt-1 text-xs font-medium">
-                                    <span className="text-gray-500">{doc.size}</span>
-                                    <span className="w-1 h-1 rounded-full bg-gray-300"></span>
-                                    <span className="text-gray-500">{doc.date}</span>
-                                    <span className="text-[#0B84D8] bg-blue-50/50 border border-blue-100 px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wide">{doc.category}</span>
+            {loading ? (
+                <div className="space-y-4 animate-pulse">
+                    {[1,2,3].map(i => <div key={i} className="bg-gray-200 rounded-2xl h-20" />)}
+                </div>
+            ) : (
+                <div className="space-y-4 pt-2">
+                    {filteredDocs.map((doc, i) => (
+                        <motion.div
+                            key={doc.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: i * 0.05 }}
+                            className="bg-white rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-gray-100 shadow-sm hover:shadow-md hover:border-[#0B84D8]/30 transition-all group"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-gray-50 text-gray-400">
+                                    {doc.type === 'pdf' ? <FileText className="w-5 h-5 text-gray-500" /> : <ImageIcon className="w-5 h-5 text-gray-500" />}
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-[#1a2b40] text-sm sm:text-base group-hover:text-[#0B84D8] transition-colors">{doc.name}</h4>
+                                    <div className="flex items-center gap-3 mt-1 text-xs font-medium">
+                                        <span className="text-gray-500">{doc.size}</span>
+                                        <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                                        <span className="text-gray-500">{doc.date}</span>
+                                        <span className="text-[#0B84D8] bg-blue-50/50 border border-blue-100 px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wide">{doc.category}</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div className="flex items-center justify-between sm:justify-end gap-6 border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-100 w-full sm:w-auto mt-2 sm:mt-0">
-                            {/* Status Badge */}
-                            {doc.status === 'verified' ? (
-                                <div className="flex items-center gap-1.5 px-3 py-1 text-emerald-600 text-[11px] font-bold uppercase tracking-wider">
-                                    <CheckCircle2 className="w-4 h-4" /> Vérifié
-                                </div>
-                            ) : (
-                                <div className="flex items-center gap-1.5 px-3 py-1 text-amber-500 text-[11px] font-bold uppercase tracking-wider">
-                                    <Clock className="w-4 h-4" /> En attente
-                                </div>
-                            )}
+                            <div className="flex items-center justify-between sm:justify-end gap-6 border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-100 w-full sm:w-auto mt-2 sm:mt-0">
+                                {doc.status === 'verified' ? (
+                                    <div className="flex items-center gap-1.5 px-3 py-1 text-emerald-600 text-[11px] font-bold uppercase tracking-wider">
+                                        <CheckCircle2 className="w-4 h-4" /> Vérifié
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-1.5 px-3 py-1 text-amber-500 text-[11px] font-bold uppercase tracking-wider">
+                                        <Clock className="w-4 h-4" /> En attente
+                                    </div>
+                                )}
 
-                            {/* Actions (Always visible to match Figma, subtle gray normally) */}
-                            <div className="flex items-center gap-1">
-                                <button className="p-2.5 text-gray-400 hover:text-[#0B84D8] hover:bg-blue-50 rounded-lg transition-colors" aria-label="Aperçu">
-                                    <Eye className="w-[18px] h-[18px]" />
-                                </button>
-                                <button className="p-2.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" aria-label="Télécharger">
-                                    <Download className="w-[18px] h-[18px]" />
-                                </button>
-                                <button className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" aria-label="Supprimer">
-                                    <Trash2 className="w-[18px] h-[18px]" />
-                                </button>
+                                <div className="flex items-center gap-1">
+                                    <button className="p-2.5 text-gray-400 hover:text-[#0B84D8] hover:bg-blue-50 rounded-lg transition-colors" aria-label="Aperçu">
+                                        <Eye className="w-[18px] h-[18px]" />
+                                    </button>
+                                    <button className="p-2.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" aria-label="Télécharger">
+                                        <Download className="w-[18px] h-[18px]" />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(doc.id)}
+                                        className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                        aria-label="Supprimer"
+                                    >
+                                        <Trash2 className="w-[18px] h-[18px]" />
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    </motion.div>
-                ))}
-            </div>
+                        </motion.div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }

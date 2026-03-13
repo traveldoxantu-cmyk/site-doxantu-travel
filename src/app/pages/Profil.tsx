@@ -1,17 +1,49 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { User, Mail, Phone, MapPin, Camera, Shield, Bell, CreditCard, ChevronRight, LogOut, GraduationCap, Building2 } from 'lucide-react';
+import { profilService, type Profil } from '../lib/services/profilService';
+
+type SectionItem = {
+    icon: React.ElementType;
+    label: string;
+    desc: string;
+    color: string;
+    bg: string;
+};
+
+const settingsSections = [
+    {
+        title: 'Paramètres du compte',
+        items: [
+            { icon: Shield,     label: 'Sécurité & Mot de passe', desc: 'Gérer votre mot de passe et 2FA',    color: 'text-indigo-600',  bg: 'bg-indigo-50' },
+            { icon: Bell,       label: 'Notifications',            desc: 'Alertes par email et SMS',          color: 'text-amber-600',   bg: 'bg-amber-50' },
+            { icon: CreditCard, label: 'Paiements & Factures',     desc: 'Historique de vos règlements',      color: 'text-emerald-600', bg: 'bg-emerald-50' },
+        ] as SectionItem[]
+    }
+];
 
 export function Profil() {
-    const sections = [
-        {
-            title: 'Paramètres du compte',
-            items: [
-                { icon: Shield, label: 'Sécurité & Mot de passe', desc: 'Gérer votre mot de passe et 2FA', color: 'text-indigo-600', bg: 'bg-indigo-50' },
-                { icon: Bell, label: 'Notifications', desc: 'Alertes par email et SMS', color: 'text-amber-600', bg: 'bg-amber-50' },
-                { icon: CreditCard, label: 'Paiements & Factures', desc: 'Historique de vos règlements', color: 'text-emerald-600', bg: 'bg-emerald-50' },
-            ]
-        }
-    ];
+    const [profil, setProfil] = useState<Profil | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        profilService.getProfil()
+            .then(setProfil)
+            .catch(console.error)
+            .finally(() => setLoading(false));
+    }, []);
+
+    if (loading || !profil) {
+        return (
+            <div className="max-w-4xl mx-auto space-y-8 pb-24 animate-pulse">
+                <div className="bg-gray-200 rounded-[32px] h-72" />
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2 bg-gray-200 rounded-[32px] h-64" />
+                    <div className="bg-gray-200 rounded-[32px] h-64" />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-4xl mx-auto space-y-8 pb-24">
@@ -21,13 +53,13 @@ export function Profil() {
                 <div className="h-40 bg-gradient-to-r from-[#072a50] to-[#0B84D8] relative">
                     <div className="absolute top-0 right-0 w-64 h-full bg-white/5 skew-x-[-20deg] translate-x-32" />
                 </div>
-                
+
                 <div className="px-8 pb-8 relative">
                     <div className="flex flex-col md:flex-row md:items-end gap-6 -mt-16">
                         {/* Avatar */}
                         <div className="relative group">
                             <div className="w-32 h-32 rounded-3xl bg-[#0B84D8] border-8 border-white text-white flex items-center justify-center text-4xl font-black shadow-xl relative z-10 transition-transform group-hover:scale-105">
-                                AD
+                                {profil.initiales}
                             </div>
                             <button className="absolute bottom-1 right-1 z-20 w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center text-[#1a2b40] hover:text-[#0B84D8] transition-colors border border-gray-50">
                                 <Camera className="w-5 h-5" />
@@ -36,7 +68,7 @@ export function Profil() {
 
                         {/* User Info Header */}
                         <div className="flex-1 mb-2">
-                            <h1 className="text-3xl font-black text-[#1a2b40] mb-1">Amadou Diallo</h1>
+                            <h1 className="text-3xl font-black text-[#1a2b40] mb-1">{profil.nom}</h1>
                             <div className="flex flex-wrap gap-3">
                                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#E8F4FD] text-[#0B84D8] text-[11px] font-bold uppercase tracking-wider">
                                     <GraduationCap className="w-3.5 h-3.5" /> Étudiant
@@ -47,7 +79,6 @@ export function Profil() {
                             </div>
                         </div>
 
-                        {/* Header Action */}
                         <button className="mb-2 px-6 py-3 bg-gray-50 text-[#1a2b40] font-bold rounded-2xl hover:bg-gray-100 transition-all text-sm border border-gray-100">
                             Modifier le profil
                         </button>
@@ -57,15 +88,15 @@ export function Profil() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-8 border-t border-gray-50">
                         <div>
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Dossier ID</p>
-                            <p className="font-bold text-[#1a2b40]">DXT-2026-0142</p>
+                            <p className="font-bold text-[#1a2b40]">{profil.dossierId}</p>
                         </div>
                         <div>
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Destination</p>
-                            <p className="font-bold text-[#1a2b40]">Paris, France</p>
+                            <p className="font-bold text-[#1a2b40]">{profil.destination}</p>
                         </div>
                         <div>
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Membre depuis</p>
-                            <p className="font-bold text-[#1a2b40]">Janvier 2026</p>
+                            <p className="font-bold text-[#1a2b40]">{profil.membreDepuis}</p>
                         </div>
                         <div>
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Dernière activité</p>
@@ -82,38 +113,38 @@ export function Profil() {
                         <h2 className="text-xl font-bold text-[#1a2b40] mb-6 flex items-center gap-3">
                             <User className="w-5 h-5 text-[#0B84D8]" /> Informations personnelles
                         </h2>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-4">
                                 <div>
                                     <label className="text-xs font-black text-gray-400 uppercase tracking-widest block mb-2">Nom complet</label>
                                     <div className="flex items-center gap-3 p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
                                         <User className="w-4 h-4 text-gray-400" />
-                                        <span className="text-sm font-bold text-[#1a2b40]">Amadou Diallo</span>
+                                        <span className="text-sm font-bold text-[#1a2b40]">{profil.nom}</span>
                                     </div>
                                 </div>
                                 <div>
                                     <label className="text-xs font-black text-gray-400 uppercase tracking-widest block mb-2">Email</label>
                                     <div className="flex items-center gap-3 p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
                                         <Mail className="w-4 h-4 text-gray-400" />
-                                        <span className="text-sm font-bold text-[#1a2b40]">amadou.diallo@edu.sn</span>
+                                        <span className="text-sm font-bold text-[#1a2b40]">{profil.email}</span>
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div className="space-y-4">
                                 <div>
                                     <label className="text-xs font-black text-gray-400 uppercase tracking-widest block mb-2">Téléphone</label>
                                     <div className="flex items-center gap-3 p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
                                         <Phone className="w-4 h-4 text-gray-400" />
-                                        <span className="text-sm font-bold text-[#1a2b40]">+221 77 000 00 00</span>
+                                        <span className="text-sm font-bold text-[#1a2b40]">{profil.telephone}</span>
                                     </div>
                                 </div>
                                 <div>
                                     <label className="text-xs font-black text-gray-400 uppercase tracking-widest block mb-2">Adresse</label>
                                     <div className="flex items-center gap-3 p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
                                         <MapPin className="w-4 h-4 text-gray-400" />
-                                        <span className="text-sm font-bold text-[#1a2b40]">Dakar Plateau, Sénégal</span>
+                                        <span className="text-sm font-bold text-[#1a2b40]">{profil.adresse}</span>
                                     </div>
                                 </div>
                             </div>
@@ -126,8 +157,8 @@ export function Profil() {
                                     <Building2 className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <p className="font-bold text-[#1a2b40] text-sm">Université Cheikh Anta Diop (UCAD)</p>
-                                    <p className="text-xs text-gray-500 font-medium">Licence en Informatique • Promotion 2025</p>
+                                    <p className="font-bold text-[#1a2b40] text-sm">{profil.parcours.universite}</p>
+                                    <p className="text-xs text-gray-500 font-medium">{profil.parcours.diplome} • Promotion {profil.parcours.promotion}</p>
                                 </div>
                             </div>
                         </div>
@@ -136,12 +167,12 @@ export function Profil() {
 
                 {/* Right Column: Settings & Actions */}
                 <div className="space-y-8">
-                    {sections.map((section, idx) => (
-                        <div key={idx} className="bg-white rounded-[32px] p-6 border border-gray-100 shadow-sm">
+                    {settingsSections.map((section, idx) => (
+                        <motion.div key={idx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-[32px] p-6 border border-gray-100 shadow-sm">
                             <h2 className="text-lg font-bold text-[#1a2b40] mb-6">{section.title}</h2>
                             <div className="space-y-2">
                                 {section.items.map((item, i) => (
-                                    <button 
+                                    <button
                                         key={i}
                                         className="w-full group flex items-center justify-between p-3 rounded-2xl hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100"
                                     >
@@ -158,7 +189,7 @@ export function Profil() {
                                     </button>
                                 ))}
                             </div>
-                        </div>
+                        </motion.div>
                     ))}
 
                     {/* Support Widget */}

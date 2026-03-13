@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { Link } from 'react-router';
 import { Shield, FileText, Lock, Scale } from 'lucide-react';
+import { SEO } from '../components/SEO';
 
 const sections = [
   {
@@ -13,7 +14,7 @@ const sections = [
 **Capital social :** 5 000 000 FCFA
 **Registre du Commerce :** RCCM SN-DKR-2024-B-XXXXX
 **Numéro d'Identification Fiscale :** NINEA XXXXXXXX
-**Licence d'agence de voyages :** N° 2024-DT-001 — Ministère du Tourisme du Sénégal
+**Licence d'agence de voyages :** N° 2024-DT-001 - Ministère du Tourisme du Sénégal
 
 **Directeur de la publication :** Ibrahima Diallo
 
@@ -93,6 +94,7 @@ Des ressources tierces peuvent être chargées (par exemple Google Maps, Google 
 export function LegalMentions() {
   return (
     <div>
+      <SEO title="Mentions Légales" description="Mentions légales, politique de confidentialité et conditions générales de vente de l'agence Doxantu Travel." />
       {/* Hero */}
       <section
         className="relative pt-40 pb-16 px-4 sm:px-6 lg:px-8"

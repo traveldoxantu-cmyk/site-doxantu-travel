@@ -1,0 +1,210 @@
+{
+  "users": [
+    { "id": 1, "email": "admin@doxantu.com", "password": "Admin2026!", "role": "admin", "nom": "Ousmane Ndiaye", "initiales": "ON", "poste": "Direction Générale" },
+    { "id": 2, "email": "amadou.diallo@edu.sn", "password": "Demo2026!", "role": "client", "nom": "Amadou Diallo", "initiales": "AD" }
+  ],
+
+  "adminStats": {
+    "caTotalAnnuel": 13840000,
+    "clientsSatisfaits": 94,
+    "caCurrentMonth": 2140000,
+    "caGrowthPercent": 13,
+    "dossiersActifs": 31,
+    "nouveauxDossiers": 22,
+    "tauxSuccesVisa": 82,
+    "tauxSuccesGrowth": 4,
+    "paiementsEnAttente": 4,
+    "montantAEncaisser": 380000
+  },
+
+  "chartData": [
+    { "mois": "Sep 25", "valeur": 700000 },
+    { "mois": "Oct 25", "valeur": 1100000 },
+    { "mois": "Nov 25", "valeur": 1150000 },
+    { "mois": "Déc 25", "valeur": 1200000 },
+    { "mois": "Jan 26", "valeur": 1600000 },
+    { "mois": "Fév 26", "valeur": 1800000 },
+    { "mois": "Mar 26", "valeur": 2140000 }
+  ],
+
+  "dossiersByStatut": [
+    { "statut": "Entretien", "count": 2, "color": "#F59E0B" },
+    { "statut": "En cours",  "count": 3, "color": "#8B5CF6" },
+    { "statut": "Visa",      "count": 1, "color": "#F97316" },
+    { "statut": "Nouveau",   "count": 2, "color": "#06B6D4" },
+    { "statut": "Validé",    "count": 2, "color": "#10B981" },
+    { "statut": "Archivé",   "count": 1, "color": "#9CA3AF" },
+    { "statut": "Rejeté",    "count": 1, "color": "#EF4444" }
+  ],
+
+  "derniersPaiements": [
+    { "id": 1, "client": "Amadou Diallo", "montant": 150000, "date": "13 mar 2026", "statut": "reçu" },
+    { "id": 2, "client": "Marie Sow", "montant": 95000, "date": "12 mar 2026", "statut": "en_attente" },
+    { "id": 3, "client": "Ibrahim Ndiaye", "montant": 220000, "date": "11 mar 2026", "statut": "reçu" }
+  ],
+
+  "conseillers": [
+    { "id": 1, "nom": "Fatou Mbaye", "initiales": "FM", "couleur": "#8B5CF6", "clients": 8 },
+    { "id": 2, "nom": "Ibrahima Fall", "initiales": "IF", "couleur": "#10B981", "clients": 6 },
+    { "id": 3, "nom": "Omar Ba", "initiales": "OB", "couleur": "#F59E0B", "clients": 5 }
+  ],
+
+  "clients": [
+    {
+      "id": 1, "nom": "Amadou Diallo", "initiales": "AD", "type": "étudiant",
+      "email": "amadou.diallo@edu.sn", "telephone": "+221 77 000 00 00",
+      "dossierId": "DXT-2026-0142", "destination": "Paris, France", "formation": "Master IA",
+      "statut": "Entretien", "conseillerNom": "Fatou Mbaye", "conseillerInitiales": "FM", "conseillerCouleur": "#8B5CF6",
+      "etapesFaites": 6, "etapesTotal": 8, "avancement": 43, "urgent": true
+    },
+    {
+      "id": 2, "nom": "Marie Sow", "initiales": "MS", "type": "voyageur",
+      "email": "marie.sow@gmail.com", "telephone": "+221 76 123 45 67",
+      "dossierId": "DXT-2026-0203", "destination": "Montréal, Canada", "formation": "Voyage familial",
+      "statut": "En cours", "conseillerNom": "Ibrahima Fall", "conseillerInitiales": "IF", "conseillerCouleur": "#10B981",
+      "etapesFaites": 4, "etapesTotal": 6, "avancement": 42, "urgent": false
+    },
+    {
+      "id": 3, "nom": "Cheikh Sarr", "initiales": "CS", "type": "étudiant",
+      "email": "cheikh.sarr@ucad.sn", "telephone": "+221 77 234 56 78",
+      "dossierId": "DXT-2026-0089", "destination": "Lyon, France", "formation": "Licence Pro Informatique",
+      "statut": "Visa", "conseillerNom": "Fatou Mbaye", "conseillerInitiales": "FM", "conseillerCouleur": "#8B5CF6",
+      "etapesFaites": 8, "etapesTotal": 8, "avancement": 100, "urgent": false
+    },
+    {
+      "id": 4, "nom": "Ndéye Fatou Ba", "initiales": "NF", "type": "étudiant",
+      "email": "nf.ba@gmail.com", "telephone": "+221 70 345 67 89",
+      "dossierId": "DXT-2026-0215", "destination": "Bruxelles, Belgique", "formation": "Master Finance",
+      "statut": "Nouveau", "conseillerNom": null, "conseillerInitiales": "Na", "conseillerCouleur": "#9CA3AF",
+      "etapesFaites": 2, "etapesTotal": 7, "avancement": 0, "urgent": false
+    },
+    {
+      "id": 5, "nom": "Moussa Camara", "initiales": "MC", "type": "étudiant",
+      "email": "moussa.camara@esp.sn", "telephone": "+221 78 456 78 90",
+      "dossierId": "DXT-2026-0178", "destination": "Montréal, Canada", "formation": "Master Génie Civil",
+      "statut": "En cours", "conseillerNom": "Ibrahima Fall", "conseillerInitiales": "IF", "conseillerCouleur": "#10B981",
+      "etapesFaites": 5, "etapesTotal": 9, "avancement": 29, "urgent": false
+    },
+    {
+      "id": 6, "nom": "Aïcha Diallo", "initiales": "AD", "type": "voyageur",
+      "email": "aicha.diallo@gmail.com", "telephone": "+221 77 567 89 01",
+      "dossierId": "DXT-2026-0196", "destination": "Dubai, EAU", "formation": "Voyage d'affaires",
+      "statut": "Validé", "conseillerNom": "Fatou Mbaye", "conseillerInitiales": "FM", "conseillerCouleur": "#8B5CF6",
+      "etapesFaites": 5, "etapesTotal": 5, "avancement": 100, "urgent": false
+    },
+    {
+      "id": 7, "nom": "Samba Niang", "initiales": "SN", "type": "étudiant",
+      "email": "samba.niang@ucad.sn", "telephone": "+221 76 678 90 12",
+      "dossierId": "DXT-2026-0107", "destination": "Berlin, Allemagne", "formation": "Master Robotique",
+      "statut": "Validé", "conseillerNom": "Ibrahima Fall", "conseillerInitiales": "IF", "conseillerCouleur": "#10B981",
+      "etapesFaites": 9, "etapesTotal": 9, "avancement": 100, "urgent": false
+    },
+    {
+      "id": 8, "nom": "Rokhaya Faye", "initiales": "RF", "type": "étudiant",
+      "email": "rokhaya.faye@gmail.com", "telephone": "+221 70 789 01 23",
+      "dossierId": "DXT-2026-0222", "destination": "Londres, Royaume-Uni", "formation": "MSc Data Science",
+      "statut": "Nouveau", "conseillerNom": null, "conseillerInitiales": "Na", "conseillerCouleur": "#9CA3AF",
+      "etapesFaites": 1, "etapesTotal": 8, "avancement": 0, "urgent": true
+    },
+    {
+      "id": 9, "nom": "Ibou Diatta", "initiales": "ID", "type": "étudiant",
+      "email": "ibou.diatta@esp.sn", "telephone": "+221 78 890 12 34",
+      "dossierId": "DXT-2025-0988", "destination": "Paris, France", "formation": "Master Droit",
+      "statut": "Archivé", "conseillerNom": "Fatou Mbaye", "conseillerInitiales": "FM", "conseillerCouleur": "#8B5CF6",
+      "etapesFaites": 8, "etapesTotal": 8, "avancement": 100, "urgent": false
+    },
+    {
+      "id": 10, "nom": "Fatoumata Bah", "initiales": "FB", "type": "étudiant",
+      "email": "fatoumata.bah@gmail.com", "telephone": "+221 77 901 23 45",
+      "dossierId": "DXT-2026-0231", "destination": "Toulouse, France", "formation": "Licence Biologie",
+      "statut": "Entretien", "conseillerNom": "Omar Ba", "conseillerInitiales": "OB", "conseillerCouleur": "#F59E0B",
+      "etapesFaites": 4, "etapesTotal": 8, "avancement": 38, "urgent": false
+    },
+    {
+      "id": 11, "nom": "Aliou Barry", "initiales": "AB", "type": "voyageur",
+      "email": "aliou.barry@yahoo.fr", "telephone": "+221 76 012 34 56",
+      "dossierId": "DXT-2026-0189", "destination": "New York, USA", "formation": "Visa touriste",
+      "statut": "Rejeté", "conseillerNom": "Ibrahima Fall", "conseillerInitiales": "IF", "conseillerCouleur": "#10B981",
+      "etapesFaites": 3, "etapesTotal": 5, "avancement": 60, "urgent": false
+    },
+    {
+      "id": 12, "nom": "Coumba Diop", "initiales": "CD", "type": "étudiant",
+      "email": "coumba.diop@ucad.sn", "telephone": "+221 70 123 45 67",
+      "dossierId": "DXT-2026-0245", "destination": "Madrid, Espagne", "formation": "Master Tourisme",
+      "statut": "En cours", "conseillerNom": "Omar Ba", "conseillerInitiales": "OB", "conseillerCouleur": "#F59E0B",
+      "etapesFaites": 3, "etapesTotal": 7, "avancement": 35, "urgent": false
+    }
+  ],
+
+  "profil": {
+    "id": 1, "nom": "Amadou Diallo", "initiales": "AD", "email": "amadou.diallo@edu.sn",
+    "telephone": "+221 77 000 00 00", "adresse": "Dakar Plateau, Sénégal",
+    "dossierId": "DXT-2026-0142", "destination": "Paris, France",
+    "formation": "Master en Intelligence Artificielle", "etablissement": "Université Paris-Saclay",
+    "membreDepuis": "Janvier 2026",
+    "parcours": { "universite": "Université Cheikh Anta Diop (UCAD)", "diplome": "Licence en Informatique", "promotion": "2025" },
+    "avancement": 33, "etapesTotal": 6, "etapesCompletees": 2
+  },
+  "quickStats": [
+    { "id": 1, "label": "Mon Dossier", "value": "Étape 3/6", "category": "dossier" },
+    { "id": 2, "label": "Documents", "value": "4 fichiers", "category": "documents" },
+    { "id": 3, "label": "Messagerie", "value": "2 non lus", "category": "messagerie" },
+    { "id": 4, "label": "Échéances", "value": "3 à venir", "category": "echeances" }
+  ],
+  "timeline": [
+    { "id": 1, "title": "Soumission du dossier", "date": "10 jan. 2026", "status": "completed" },
+    { "id": 2, "title": "Vérification des documents", "date": "18 jan. 2026", "status": "completed" },
+    { "id": 3, "title": "Entretien pédagogique", "date": "7 mars 2026", "status": "current" },
+    { "id": 4, "title": "Demande de visa", "date": "Prévu avril 2026", "status": "upcoming" },
+    { "id": 5, "title": "Confirmation d'inscription", "date": "Prévu mai 2026", "status": "upcoming" }
+  ],
+  "deadlines": [
+    { "id": 1, "title": "Rendez-vous Campus France", "date": "7 mars 2026", "daysRemaining": 5, "colorClass": "red" },
+    { "id": 2, "title": "Paiement frais de dossier", "date": "30 mars 2026", "daysRemaining": 28, "colorClass": "amber" },
+    { "id": 3, "title": "Rendez-vous visa", "date": "3 avr. 2026", "daysRemaining": 32, "colorClass": "emerald" }
+  ],
+  "statsWidget": { "documents": { "fait": 4, "total": 7 }, "messages": 12, "joursRestants": 198 },
+  "echeances": [
+    { "id": 1, "title": "Entretien pédagogique Campus France", "date": "7 mars 2026", "time": "10:00", "location": "Dakar", "status": "urgent", "daysRemaining": 5, "description": "Apportez tous vos originaux." },
+    { "id": 2, "title": "Paiement des frais de dossier", "date": "30 mars 2026", "time": "17:00", "location": "En ligne", "status": "upcoming", "daysRemaining": 28, "description": "Virement avant fin du mois." },
+    { "id": 3, "title": "Dépôt du dossier de visa", "date": "15 avril 2026", "time": "09:00", "location": "VFS Global Dakar", "status": "planned", "daysRemaining": 44, "description": "Justificatifs de logement et ressources requis." },
+    { "id": 4, "title": "Confirmation définitive Campus France", "date": "30 mai 2026", "time": "N/A", "location": "Portail en ligne", "status": "planned", "daysRemaining": 89, "description": "Validation de l'admission définitive." }
+  ],
+  "documents": [
+    { "id": 1, "name": "Passeport_Amadou_Diallo.pdf", "size": "2.4 MB", "date": "10 jan. 2026", "category": "Identité", "type": "pdf", "status": "verified" },
+    { "id": 2, "name": "CNI_verso.jpg", "size": "850 KB", "date": "10 jan. 2026", "category": "Identité", "type": "image", "status": "verified" },
+    { "id": 3, "name": "Releve_Notes_L3.pdf", "size": "1.2 MB", "date": "12 jan. 2026", "category": "Académique", "type": "pdf", "status": "verified" },
+    { "id": 4, "name": "Lettre_Motivation.pdf", "size": "320 KB", "date": "12 jan. 2026", "category": "Académique", "type": "pdf", "status": "pending" },
+    { "id": 5, "name": "Attestation_Inscription.pdf", "size": "450 KB", "date": "20 jan. 2026", "category": "Visa", "type": "pdf", "status": "pending" },
+    { "id": 6, "name": "Police_Assurance_Sante.pdf", "size": "1.8 MB", "date": "25 jan. 2026", "category": "Assurance", "type": "pdf", "status": "pending" }
+  ],
+  "conversations": [
+    { "id": 1, "name": "Fatou Mbaye", "role": "Conseiller Doxantu", "avatar": "FM", "lastMessage": "Votre dossier avance très bien !", "time": "14:20", "unread": 2, "online": true },
+    { "id": 2, "name": "Service Visa", "role": "Support Technique", "avatar": "SV", "lastMessage": "Les documents ont été validés.", "time": "Hier", "unread": 0, "online": false },
+    { "id": 3, "name": "Amadou Diallo", "role": "Étudiant", "avatar": "AD", "lastMessage": "Merci pour votre aide !", "time": "Lundi", "unread": 0, "online": true }
+  ],
+  "messages": [
+    { "id": 1, "conversationId": 1, "senderId": 1, "text": "Bonjour Amadou, comment allez-vous ?", "time": "10:00", "status": "read" },
+    { "id": 2, "conversationId": 1, "senderId": "me", "text": "Bonjour Fatou, ça va très bien merci.", "time": "10:05", "status": "read" },
+    { "id": 3, "conversationId": 1, "senderId": 1, "text": "Votre entretien Campus France a été confirmé pour le 7 mars.", "time": "10:10", "status": "read" },
+    { "id": 4, "conversationId": 1, "senderId": 1, "text": "N'oubliez pas d'apporter tous vos originaux.", "time": "10:11", "status": "read" },
+    { "id": 5, "conversationId": 1, "senderId": "me", "text": "C'est noté, j'ai déjà tout préparé.", "time": "10:15", "status": "read" },
+    { "id": 6, "conversationId": 2, "senderId": 2, "text": "Les documents ont été validés par l'ambassade.", "time": "Hier", "status": "read" },
+    { "id": 7, "conversationId": 3, "senderId": 3, "text": "Merci pour votre aide !", "time": "Lundi", "status": "read" }
+  ],
+  "dossierSteps": [
+    { "id": 1, "title": "Étape 1 — Soumission du dossier", "date": "10 janvier 2026", "status": "completed", "iconType": "FileText" },
+    { "id": 2, "title": "Étape 2 — Vérification des documents", "date": "18 janvier 2026", "status": "completed", "iconType": "Search" },
+    { "id": 3, "title": "Étape 3 — Entretien pédagogique", "date": "7 mars 2026", "status": "current", "iconType": "GraduationCap",
+      "details": { "description": "Rendez-vous Campus France confirmé. Préparez votre projet d'études.", "date": "7 mars 2026", "heure": "10h00", "lieu": "Campus France Dakar – Rue Carnot" }
+    },
+    { "id": 4, "title": "Étape 4 — Demande de visa", "date": "Prévu avril 2026", "status": "upcoming", "iconType": "FileText" },
+    { "id": 5, "title": "Étape 5 — Confirmation d'admission", "date": "Prévu mai 2026", "status": "upcoming", "iconType": "Building2" },
+    { "id": 6, "title": "Étape 6 — Départ", "date": "Prévu septembre 2026", "status": "upcoming", "iconType": "Plane" }
+  ],
+  "conseiller": {
+    "id": 1, "nom": "Fatou Mbaye", "initiales": "FM", "online": true,
+    "dernierMessage": "Votre dossier avance très bien ! N'oubliez pas votre rendez-vous Campus France le 7 mars.",
+    "tempsMessage": "Il y a 3 heures"
+  }
+}

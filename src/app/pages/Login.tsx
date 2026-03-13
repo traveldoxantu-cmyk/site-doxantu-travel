@@ -1,171 +1,219 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { Shield, MessageSquare, Bell, ArrowRight, Eye, EyeOff, GraduationCap, Briefcase, Zap, FileText } from 'lucide-react';
+import { Shield, MessageSquare, Bell, Eye, EyeOff, FileText, ArrowRight, Zap, ChevronDown } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
 import logoImgWhite from '../../assets/logo-doxantu-white.png';
 
+// Credentials de démonstration (simulation - pas de vrai backend auth)
+const DEMO_ACCOUNTS = [
+  { email: 'admin@doxantu.com', password: 'Admin2026!', role: 'admin', label: 'Admin', redirectTo: '/admin/dashboard' },
+  { email: 'amadou.diallo@edu.sn', password: 'Demo2026!', role: 'client', label: 'Client', redirectTo: '/mon-espace/dashboard' },
+];
+
 export function Login() {
-    const [tab, setTab] = useState<'etudiant' | 'voyageur'>('etudiant');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [showDemoMenu, setShowDemoMenu] = useState(false);
     const navigate = useNavigate();
 
-    const handleDemoFill = () => {
-        // Fill with demo data
-        const emailInput = document.getElementById('email') as HTMLInputElement;
-        const pwdInput = document.getElementById('password') as HTMLInputElement;
-        if (emailInput) emailInput.value = 'amadou.diallo@esp.sn';
-        if (pwdInput) pwdInput.value = 'demo1234';
+    const fillDemo = (account: typeof DEMO_ACCOUNTS[0]) => {
+        setEmail(account.email);
+        setPassword(account.password);
+        setError('');
+        setShowDemoMenu(false);
     };
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
-        // Simulate login and redirect to dashboard
-        navigate('/mon-espace/dashboard');
+        setLoading(true);
+        setError('');
+
+        // Simulate auth delay
+        setTimeout(() => {
+            const account = DEMO_ACCOUNTS.find(
+                a => a.email === email.trim().toLowerCase() && a.password === password
+            );
+            if (account) {
+                navigate(account.redirectTo);
+            } else {
+                setError('Email ou mot de passe incorrect. Utilisez les accès démo ci-dessus.');
+                setLoading(false);
+            }
+        }, 600);
     };
 
     return (
         <div className="min-h-screen flex bg-[#F8FAFC]">
-            {/* Left Pane - Blue Branding */}
-            <div className="hidden lg:flex flex-col justify-between w-[45%] p-14 relative overflow-hidden" style={{ backgroundColor: '#0B84D8' }}>
-                {/* Decorative Circles */}
-                <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-white/5 blur-3xl" />
-                <div className="absolute bottom-[-10%] left-[-20%] w-[600px] h-[600px] rounded-full bg-black/5" />
+            {/* Left Pane */}
+            <div className="hidden lg:flex flex-col justify-between w-[45%] p-14 relative overflow-hidden" style={{ backgroundColor: '#072a50' }}>
+                <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-white/5 blur-3xl pointer-events-none" />
+                <div className="absolute bottom-[-10%] left-[-20%] w-[600px] h-[600px] rounded-full bg-[#0B84D8]/10 pointer-events-none" />
 
                 <div className="relative z-10">
-                    <Link to="/" className="inline-block mb-24 hover:opacity-90 transition-opacity">
-                        <img src={logoImgWhite} alt="Doxantu Travel" style={{ height: '80px', width: 'auto', objectFit: 'contain' }} />
+                    <Link to="/" className="inline-block mb-20 hover:opacity-90 transition-opacity">
+                        <img src={logoImgWhite} alt="Doxantu Travel" style={{ height: '72px', width: 'auto', objectFit: 'contain' }} />
                     </Link>
 
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
-                    >
-                        <h1 className="text-4xl xl:text-5xl font-extrabold text-white mb-6 leading-tight">
-                            Votre espace personnel sécurisé
+                    <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+                        <h1 className="text-4xl xl:text-5xl font-extrabold text-white mb-5 leading-tight">
+                            Votre espace<br />personnel sécurisé
                         </h1>
-                        <p className="text-xl text-blue-100/90 mb-12 max-w-md leading-relaxed">
-                            Suivez l'avancement de votre dossier, gérez vos documents et communiquez avec votre conseiller — tout en un seul endroit.
+                        <p className="text-lg text-blue-200/80 mb-10 leading-relaxed">
+                            Suivez votre dossier, gérez vos documents et échangez avec votre conseiller en toute simplicité.
                         </p>
 
-                        <div className="space-y-6">
+                        <div className="space-y-5">
                             {[
-                                { icon: <FileText className="w-5 h-5 text-blue-300" />, text: 'Suivi en temps réel de votre dossier' },
-                                { icon: <Shield className="w-5 h-5 text-amber-400" />, text: 'Coffre-fort numérique sécurisé' },
-                                { icon: <MessageSquare className="w-5 h-5 text-white" />, text: 'Messagerie directe avec votre conseiller' },
-                                { icon: <Bell className="w-5 h-5 text-amber-500" />, text: 'Rappels automatiques des échéances' },
+                                { icon: <FileText className="w-5 h-5 text-[#0B84D8]" />, text: 'Suivi en temps réel de votre dossier' },
+                                { icon: <Shield className="w-5 h-5 text-amber-400" />, text: 'Documents sécurisés et accessibles partout' },
+                                { icon: <MessageSquare className="w-5 h-5 text-emerald-400" />, text: 'Messagerie directe avec votre conseiller' },
+                                { icon: <Bell className="w-5 h-5 text-amber-500" />, text: 'Rappels automatiques des échéances clés' },
                             ].map((feature, idx) => (
                                 <motion.div
                                     key={idx}
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: 0.3 + idx * 0.1 }}
-                                    className="flex items-center gap-4 text-white text-lg"
+                                    className="flex items-center gap-4"
                                 >
-                                    <div className="w-8 flex justify-center">{feature.icon}</div>
-                                    <span className="font-medium text-blue-50/90">{feature.text}</span>
+                                    <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                                        {feature.icon}
+                                    </div>
+                                    <span className="text-blue-100/90 font-medium">{feature.text}</span>
                                 </motion.div>
                             ))}
                         </div>
                     </motion.div>
                 </div>
 
-                <div className="relative z-10 text-sm text-blue-200/60 font-medium">
-                    © {new Date().getFullYear()} Doxantu Travel — Dakar, Sénégal
+                <div className="relative z-10 text-sm text-blue-300/40 font-medium">
+                    © {new Date().getFullYear()} Doxantu Travel - Dakar, Sénégal
                 </div>
             </div>
 
-            {/* Right Pane - Login Form */}
-            <div className="flex-1 flex flex-col items-center justify-center p-6 lg:p-20 relative">
-                <Link to="/" className="absolute top-8 left-8 text-gray-400 hover:text-gray-600 transition-colors text-sm font-medium flex items-center gap-2 lg:hidden">
-                    ← Retour
+            {/* Right Pane */}
+            <div className="flex-1 flex flex-col items-center justify-center p-6 lg:p-16 relative">
+                <Link to="/" className="absolute top-6 right-8 text-sm font-medium text-gray-400 hover:text-[#0B84D8] transition-colors flex items-center gap-1.5">
+                    ← Retour au site
                 </Link>
-                <div className="absolute top-8 right-8 text-gray-400 hover:text-gray-600 transition-colors text-sm font-medium">
-                    <Link to="/" className="hidden lg:flex items-center gap-2 hover:text-[#0B84D8]">← Retour au site</Link>
-                </div>
 
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5 }}
-                    className="w-full max-w-[480px] bg-white rounded-[32px] p-8 sm:p-12 shadow-[0_8px_40px_rgba(0,0,0,0.06)] border border-gray-100"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className="w-full max-w-[440px]"
                 >
+                    {/* Logo mobile */}
+                    <Link to="/" className="flex lg:hidden justify-center mb-8">
+                        <img src={logoImgWhite} alt="Doxantu Travel" style={{ height: '40px', filter: 'invert(1) sepia(1) saturate(3) hue-rotate(190deg)' }} />
+                    </Link>
+
                     <div className="mb-8">
-                        <h2 className="text-3xl font-black text-[#1a2b40] mb-2">Connexion</h2>
-                        <p className="text-gray-500">Accédez à votre tableau de bord</p>
+                        <h2 className="text-3xl font-black text-[#1a2b40] mb-1.5">Connexion</h2>
+                        <p className="text-gray-500">Accédez à votre espace personnel</p>
                     </div>
 
-                    <div className="flex p-1 bg-gray-100/80 rounded-2xl mb-8">
-                        <button
-                            onClick={() => setTab('etudiant')}
-                            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all ${tab === 'etudiant' ? 'bg-white text-[#0B84D8] shadow-sm' : 'text-gray-500 hover:text-gray-700'
-                                }`}
-                        >
-                            <GraduationCap className="w-4 h-4" /> Étudiant
-                        </button>
-                        <button
-                            onClick={() => setTab('voyageur')}
-                            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all ${tab === 'voyageur' ? 'bg-white text-[#0B84D8] shadow-sm' : 'text-gray-500 hover:text-gray-700'
-                                }`}
-                        >
-                            <Briefcase className="w-4 h-4" /> Voyageur
-                        </button>
+                    {/* Demo banner */}
+                    <div className="mb-6 bg-amber-50 border border-amber-200 rounded-2xl p-4">
+                        <div className="flex items-start justify-between gap-3">
+                            <div className="flex gap-2.5">
+                                <Zap className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                                <p className="text-sm text-amber-800 font-medium">
+                                    Mode démo - cliquez pour remplir automatiquement
+                                </p>
+                            </div>
+                            <div className="relative">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowDemoMenu(!showDemoMenu)}
+                                    className="flex items-center gap-1 text-xs font-bold text-amber-700 bg-amber-100 hover:bg-amber-200 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+                                >
+                                    Choisir <ChevronDown className="w-3 h-3" />
+                                </button>
+                                {showDemoMenu && (
+                                    <div className="absolute right-0 top-full mt-1.5 bg-white border border-gray-100 rounded-xl shadow-lg overflow-hidden z-10 w-52">
+                                        {DEMO_ACCOUNTS.map(acc => (
+                                            <button
+                                                key={acc.email}
+                                                type="button"
+                                                onClick={() => fillDemo(acc)}
+                                                className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
+                                            >
+                                                <p className="text-sm font-bold text-[#1a2b40]">{acc.label}</p>
+                                                <p className="text-xs text-gray-400">{acc.email}</p>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="mb-8 bg-[#F0F8FF] border border-[#0B84D8]/20 rounded-xl p-4 flex items-center justify-between">
-                        <p className="text-xs text-[#0B84D8] font-medium leading-relaxed flex gap-2">
-                            <Zap className="w-4 h-4 shrink-0 text-amber-500" />
-                            <span><strong>Démo {tab} :</strong> cliquez pour remplir automatiquement les identifiants</span>
-                        </p>
-                        <button onClick={handleDemoFill} className="text-[#0B84D8] text-xs font-bold hover:underline whitespace-nowrap flex items-center gap-1">
-                            Remplir <ArrowRight className="w-3 h-3" />
-                        </button>
-                    </div>
-
-                    <form onSubmit={handleLogin} className="space-y-6">
+                    <form onSubmit={handleLogin} className="space-y-4">
                         <div>
-                            <label className="block text-sm font-bold text-[#1a2b40] mb-2" htmlFor="email">Adresse email</label>
+                            <label className="block text-sm font-bold text-[#1a2b40] mb-2">Adresse email</label>
                             <input
-                                id="email"
                                 type="email"
                                 required
-                                className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B84D8]/20 focus:border-[#0B84D8] outline-none transition-all text-[#333333]"
+                                value={email}
+                                onChange={e => setEmail(e.target.value)}
+                                className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B84D8]/20 focus:border-[#0B84D8] outline-none transition-all text-[#333]"
                                 placeholder="votre@email.com"
+                                autoComplete="email"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-bold text-[#1a2b40] mb-2" htmlFor="password">Mot de passe</label>
+                            <label className="block text-sm font-bold text-[#1a2b40] mb-2">Mot de passe</label>
                             <div className="relative">
                                 <input
-                                    id="password"
-                                    type={showPassword ? "text" : "password"}
+                                    type={showPassword ? 'text' : 'password'}
                                     required
-                                    className="w-full px-5 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B84D8]/20 focus:border-[#0B84D8] outline-none transition-all text-[#333333]"
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
+                                    className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#0B84D8]/20 focus:border-[#0B84D8] outline-none transition-all text-[#333]"
                                     placeholder="••••••••"
+                                    autoComplete="current-password"
                                 />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                >
+                                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                 </button>
                             </div>
                         </div>
 
+                        {error && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -4 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl"
+                            >
+                                {error}
+                            </motion.div>
+                        )}
+
                         <button
                             type="submit"
-                            className="w-full py-4 bg-[#0B84D8] hover:bg-[#0973BD] text-white font-bold rounded-xl transition-colors shadow-lg shadow-[#0B84D8]/25"
+                            disabled={loading}
+                            className="w-full py-4 bg-[#0B84D8] hover:bg-[#0973BD] disabled:opacity-70 text-white font-bold rounded-xl transition-all shadow-lg shadow-[#0B84D8]/20 flex items-center justify-center gap-2 mt-2"
                         >
-                            Se connecter
+                            {loading ? (
+                                <span className="inline-block w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            ) : (
+                                <>Se connecter <ArrowRight className="w-4 h-4" /></>
+                            )}
                         </button>
                     </form>
 
-                    <div className="mt-8 text-center text-sm font-medium">
-                        <span className="text-gray-500">Pas encore de compte ? </span>
-                        <Link to="/devis" className="text-[#0B84D8] hover:underline">Faire une demande →</Link>
-                    </div>
+                    <p className="text-center text-sm text-gray-500 mt-6">
+                        Pas encore de compte ?{' '}
+                        <Link to="/devis" className="text-[#0B84D8] font-semibold hover:underline">
+                            Faire une demande →
+                        </Link>
+                    </p>
                 </motion.div>
             </div>
         </div>

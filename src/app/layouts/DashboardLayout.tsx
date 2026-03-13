@@ -1,11 +1,12 @@
 import { Outlet, Link, useLocation } from 'react-router';
-import { LayoutGrid, FolderOpen, FileText, MessageSquare, Calendar, User, LogOut, GraduationCap, ArrowLeft } from 'lucide-react';
+import { LayoutGrid, FolderOpen, FileText, MessageSquare, Calendar, User, LogOut, GraduationCap, ArrowLeft, CreditCard } from 'lucide-react';
 
 const sidebarLinks = [
     { icon: LayoutGrid, label: 'Tableau de bord', to: '/mon-espace/dashboard' },
     { icon: FolderOpen, label: 'Mon Dossier', to: '/mon-espace/dossier' },
     { icon: FileText, label: 'Mes Documents', to: '/mon-espace/documents' },
     { icon: MessageSquare, label: 'Messagerie', to: '/mon-espace/messagerie', badge: 2 },
+    { icon: CreditCard, label: 'Paiements', to: '/mon-espace/paiement' },
     { icon: Calendar, label: 'Échéances', to: '/mon-espace/echeances', badge: 3 },
     { icon: User, label: 'Mon Profil', to: '/mon-espace/profil' },
 ];

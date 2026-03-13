@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { motion } from 'motion/react';
+import { SEO } from '../components/SEO';
 import {
   Plane,
   MapPin,
@@ -58,7 +59,7 @@ export function Ticketing() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (returnDate && departDate && returnDate < departDate) {
-      setFormError('La date retour doit etre apres la date aller.');
+      setFormError('La date retour doit être après la date aller.');
       return;
     }
     setFormError('');
@@ -75,6 +76,7 @@ export function Ticketing() {
 
   return (
     <div>
+      <SEO title="Billetterie Aérienne" description="Réservation de billets d'avion abordables au Sénégal. Vols pas chers vers la France, Canada, et le monde entier avec Doxantu Travel." />
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center overflow-hidden pt-28">
         <div className="absolute inset-0">

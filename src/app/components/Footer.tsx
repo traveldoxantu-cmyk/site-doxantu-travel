@@ -19,7 +19,7 @@ export function Footer() {
               />
             </Link>
             <p className="text-sm leading-relaxed text-blue-100/70 mb-5">
-              Votre agence de voyage digitale au Senegal. Accompagnement etudiant, billetterie et assistance visa.
+              Votre agence de voyage digitale au Sénégal. Accompagnement étudiant, billetterie et assistance visa.
             </p>
             <div className="flex gap-2.5">
               {[Facebook, Instagram, Linkedin].map((Icon, idx) => (
@@ -27,7 +27,7 @@ export function Footer() {
                   key={idx}
                   href="#"
                   className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors bg-white/10 hover:bg-[#0B84D8]"
-                  aria-label="Reseau social"
+                  aria-label="Réseau social"
                 >
                   <Icon className="w-4 h-4" />
                 </a>
@@ -38,10 +38,10 @@ export function Footer() {
           <div>
             <h4 className="text-white font-semibold mb-4">Services</h4>
             <ul className="space-y-2.5 text-sm text-blue-100/70">
-              <li><Link className="hover:text-[#7dd3fc]" to="/services/accompagnement-etudiant">Accompagnement Etudiant</Link></li>
+              <li><Link className="hover:text-[#7dd3fc]" to="/services/accompagnement-etudiant">Accompagnement Étudiant</Link></li>
               <li><Link className="hover:text-[#7dd3fc]" to="/services/billetterie">Billetterie</Link></li>
               <li><Link className="hover:text-[#7dd3fc]" to="/services/visa-documents">Assistance Visa & Documents</Link></li>
-              <li><Link className="hover:text-[#7dd3fc]" to="/etudes-etranger">Etudes a l'etranger</Link></li>
+              <li><Link className="hover:text-[#7dd3fc]" to="/etudes-etranger">Études à l'étranger</Link></li>
               <li><Link className="hover:text-[#7dd3fc]" to="/devis">Demande de devis</Link></li>
             </ul>
           </div>
@@ -49,9 +49,9 @@ export function Footer() {
           <div>
             <h4 className="text-white font-semibold mb-4">Liens utiles</h4>
             <ul className="space-y-2.5 text-sm text-blue-100/70">
-              <li><Link className="hover:text-[#7dd3fc]" to="/a-propos">A propos</Link></li>
+              <li><Link className="hover:text-[#7dd3fc]" to="/a-propos">À propos</Link></li>
               <li><Link className="hover:text-[#7dd3fc]" to="/contact">Contact</Link></li>
-              <li><Link className="hover:text-[#7dd3fc]" to="/mentions-legales">Mentions legales</Link></li>
+              <li><Link className="hover:text-[#7dd3fc]" to="/mentions-legales">Mentions légales</Link></li>
               <li>
                 <a
                   href="https://www.campusfrance.org"
@@ -70,7 +70,7 @@ export function Footer() {
             <ul className="space-y-3 text-sm text-blue-100/70">
               <li className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 mt-0.5 text-[#7dd3fc]" />
-                <span>Dakar, Senegal<br />Plateau, Rue Carnot</span>
+                <span>Dakar, Sénégal<br />Plateau, Rue Carnot</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-[#7dd3fc]" />
@@ -87,8 +87,8 @@ export function Footer() {
 
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="text-xs text-blue-100/60">© {currentYear} Doxantu Travel - Agence enregistree au Senegal</p>
-          <p className="text-xs text-blue-100/50">Concu a Dakar, pour le monde entier</p>
+          <p className="text-xs text-blue-100/60">© {currentYear} Doxantu Travel - Agence enregistrée au Sénégal</p>
+          <p className="text-xs text-blue-100/50">Conçu à Dakar, pour le monde entier</p>
         </div>
       </div>
     </footer>

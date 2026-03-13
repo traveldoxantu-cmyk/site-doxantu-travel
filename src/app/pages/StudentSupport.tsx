@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { motion } from 'motion/react';
+import { SEO } from '../components/SEO';
 import {
   CheckCircle,
   ChevronDown,
@@ -93,6 +94,7 @@ export function StudentSupport() {
 
   return (
     <div>
+      <SEO title="Études à l'étranger" description="Découvrez nos formules d'accompagnement pour étudier à l'étranger, de la préparation de dossier à l'installation." />
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center overflow-hidden pt-28">
         <div className="absolute inset-0">
