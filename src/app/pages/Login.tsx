@@ -68,15 +68,22 @@ export function Login() {
                             width: Math.random() * 2 + 1 + 'px',
                             height: Math.random() * 2 + 1 + 'px',
                         }}
-                        initial={{ opacity: Math.random() * 0.3 + 0.1 }}
+                        initial={{ 
+                            opacity: Math.random() * 0.3 + 0.1,
+                            x: 0,
+                            y: 0
+                        }}
                         animate={{
                             opacity: [Math.random() * 0.3 + 0.1, Math.random() * 0.8 + 0.4, Math.random() * 0.3 + 0.1],
                             scale: [1, 1.2, 1],
+                            x: [(Math.random() - 0.5) * 50, (Math.random() - 0.5) * 100],
+                            y: [(Math.random() - 0.5) * 50, (Math.random() - 0.5) * 100],
                         }}
                         transition={{
-                            duration: Math.random() * 3 + 2,
+                            duration: Math.random() * 10 + 10,
                             repeat: Infinity,
-                            ease: 'easeInOut',
+                            repeatType: 'reverse',
+                            ease: 'linear',
                             delay: Math.random() * 2,
                         }}
                     />
