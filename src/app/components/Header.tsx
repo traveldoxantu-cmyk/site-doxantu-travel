@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router';
-import { Menu, X, ChevronDown, LayoutGrid } from 'lucide-react';
+import { Menu, X, ChevronDown, LayoutGrid, User, ShieldCheck } from 'lucide-react';
 import logoImg from '../../assets/logo-doxantu.png';
 import logoImgWhite from '../../assets/logo-doxantu-white.png';
 
@@ -98,13 +98,13 @@ export function Header() {
                     to="/connexion?role=client"
                     className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#E8F4FD] hover:text-[#0B84D8] text-[#333333] transition-colors text-sm font-medium"
                   >
-                    👤 Espace Client
+                    <User className="w-4 h-4" /> Espace Client
                   </Link>
                   <Link
                     to="/connexion?role=admin"
                     className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#E8F4FD] hover:text-[#0B84D8] text-[#333333] transition-colors text-sm font-medium"
                   >
-                    🛡️ Espace Admin
+                    <ShieldCheck className="w-4 h-4" /> Espace Admin
                   </Link>
                 </div>
               </div>
@@ -171,16 +171,16 @@ export function Header() {
               <Link
                 to="/connexion?role=client"
                 onClick={() => setMobileOpen(false)}
-                className="block px-3 py-2.5 rounded-xl text-[#333333] hover:bg-[#E8F4FD] hover:text-[#0B84D8] transition-colors font-medium text-sm"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#E8F4FD] hover:text-[#0B84D8] text-[#333333] transition-colors text-sm font-medium"
               >
-                👤 Espace Client
+                <User className="w-4 h-4" /> Espace Client
               </Link>
               <Link
                 to="/connexion?role=admin"
                 onClick={() => setMobileOpen(false)}
-                className="block px-3 py-2.5 rounded-xl text-[#333333] hover:bg-[#E8F4FD] hover:text-[#0B84D8] transition-colors font-medium text-sm"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#E8F4FD] hover:text-[#0B84D8] text-[#333333] transition-colors text-sm font-medium"
               >
-                🛡️ Espace Admin
+                <ShieldCheck className="w-4 h-4" /> Espace Admin
               </Link>
             </div>
 
