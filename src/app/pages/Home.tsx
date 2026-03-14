@@ -205,10 +205,10 @@ export function Home() {
               transition={{ duration: 0.7, delay: 0.3 }}
             >
               <div
-                className="p-7 shadow-2xl border border-gray-100"
+                className="p-8 shadow-2xl border border-gray-100"
                 style={{
                   backgroundColor: 'rgba(250,250,252,0.98)',
-                  borderRadius: '26px',
+                  borderRadius: '24px',
                   backdropFilter: 'blur(20px)',
                 }}
               >
@@ -254,8 +254,7 @@ export function Home() {
                         type="date"
                         value={date}
                         onChange={(e) => setDate(e.target.value)}
-                        className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
-                        style={{ borderRadius: '12px' }}
+                        className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#0B84D8]/50 focus:border-[#0B84D8] transition-all"
                       />
                     </div>
                   </div>
@@ -270,8 +269,7 @@ export function Home() {
                       <select
                         value={service}
                         onChange={(e) => setService(e.target.value)}
-                        className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2 appearance-none"
-                        style={{ borderRadius: '12px' }}
+                        className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#0B84D8]/50 focus:border-[#0B84D8] transition-all appearance-none"
                       >
                         <option value="">Choisir un service…</option>
                         <option value="etudiant">Accompagnement Étudiant</option>
@@ -334,8 +332,8 @@ export function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="lg:col-span-2 relative overflow-hidden rounded-3xl group cursor-pointer"
-              style={{ minHeight: '380px' }}
+              className="lg:col-span-2 relative overflow-hidden rounded-[32px] group cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500"
+              style={{ minHeight: '420px' }}
             >
               <img
                 src={STUDENT_IMG}
@@ -346,7 +344,7 @@ export function Home() {
                 className="absolute inset-0"
                 style={{ background: 'linear-gradient(135deg, rgba(7,42,80,0.95) 0%, rgba(11,132,216,0.78) 100%)' }}
               />
-              <div className="relative p-8 h-full flex flex-col justify-between" style={{ minHeight: '380px' }}>
+              <div className="relative p-10 h-full flex flex-col justify-between" style={{ minHeight: '420px' }}>
                 <header>
                   <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}>
                     <GraduationCap className="w-7 h-7 text-white" aria-hidden="true" />
@@ -382,8 +380,8 @@ export function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.15 }}
-              className="rounded-3xl p-7 flex flex-col justify-between group hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
-              style={{ backgroundColor: '#ffffff', minHeight: '250px' }}
+              className="rounded-[32px] p-8 flex flex-col justify-between group hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
+              style={{ backgroundColor: '#ffffff', minHeight: '280px' }}
             >
               <article>
                 <header>
@@ -426,7 +424,7 @@ export function Home() {
             >
               <article>
                 <header>
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: '#0B84D8' }}>
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: '#0B84D8', boxShadow: '0 4px 12px rgba(11, 132, 216, 0.25)' }}>
                     <FileText className="w-6 h-6 text-white" aria-hidden="true" />
                   </div>
                   <h3 className="text-[#333333] mb-2" style={{ fontSize: '1.2rem', fontWeight: 700 }}>
@@ -577,13 +575,13 @@ export function Home() {
               </div>
 
               {/* Trust badge */}
-              <div className="p-6 rounded-2xl border-2 text-center" style={{ borderColor: '#0B84D8' }}>
-                <div className="flex justify-center mb-3">
-                  <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center">
-                    <Award className="w-6 h-6 text-[#0B84D8]" />
+              <div className="p-8 rounded-[32px] border-2 text-center transition-all hover:border-[#0B84D8]/50" style={{ borderColor: '#0B84D8' }}>
+                <div className="flex justify-center mb-4">
+                  <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center shadow-inner">
+                    <Award className="w-7 h-7 text-[#0B84D8]" />
                   </div>
                 </div>
-                <h4 className="text-[#333333] font-bold mb-1">Agence enregistrée au Sénégal</h4>
+                <h4 className="text-[#333333] font-bold mb-1 text-lg">Agence enregistrée au Sénégal</h4>
                 <p className="text-gray-500 text-sm">Licence ministérielle N° 2024-DT-001</p>
               </div>
             </motion.div>

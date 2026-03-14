@@ -113,7 +113,7 @@ export function QuoteRequest() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4 }}
-            className="bg-white rounded-2xl shadow-xl p-6 sm:p-10"
+            className="bg-white rounded-[32px] shadow-2xl p-8 sm:p-12 border border-blue-50/50"
           >
             {/* Step 1: Service */}
             {currentStep === 1 && (
@@ -150,8 +150,8 @@ export function QuoteRequest() {
                 <button
                   onClick={handleNext}
                   disabled={!form.service}
-                  className="w-full mt-6 py-3.5 text-white font-semibold flex items-center justify-center gap-2 transition-all hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed"
-                  style={{ backgroundColor: '#0B84D8', borderRadius: '12px' }}
+                  className="w-full mt-8 py-4 text-white font-bold flex items-center justify-center gap-3 transition-all hover:shadow-xl hover:-translate-y-1 disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-[#0B84D8]/20"
+                  style={{ backgroundColor: '#0B84D8', borderRadius: '16px' }}
                 >
                   Continuer <ArrowRight className="w-4 h-4" />
                 </button>
@@ -249,15 +249,15 @@ export function QuoteRequest() {
                   </div>
                 </div>
 
-                <div className="flex gap-3 mt-6">
+                <div className="flex gap-4 mt-8">
                   <button type="button" onClick={handleBack}
-                    className="flex-1 py-3.5 font-semibold border-2 border-gray-200 rounded-xl text-[#333333] hover:border-[#0B84D8] transition-all"
-                    style={{ borderRadius: '12px' }}>
+                    className="flex-1 py-4 font-bold border-2 border-gray-100 rounded-2xl text-[#333333] hover:border-[#0B84D8] hover:text-[#0B84D8] transition-all"
+                  >
                     ← Retour
                   </button>
                   <button type="submit"
-                    className="flex-1 py-3.5 text-white font-semibold flex items-center justify-center gap-2 transition-all hover:shadow-lg"
-                    style={{ backgroundColor: '#0B84D8', borderRadius: '12px' }}>
+                    className="flex-1 py-4 text-white font-bold flex items-center justify-center gap-3 transition-all hover:shadow-xl hover:-translate-y-1 shadow-md shadow-[#0B84D8]/20"
+                    style={{ backgroundColor: '#0B84D8', borderRadius: '16px' }}>
                     Continuer <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>

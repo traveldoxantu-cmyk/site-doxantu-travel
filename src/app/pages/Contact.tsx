@@ -102,14 +102,14 @@ export function Contact() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 text-center block"
+                className="bg-white rounded-2xl p-7 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 text-center block group"
               >
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3 text-white" style={{ backgroundColor: '#0B84D8' }}>
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 text-white shadow-md shadow-[#0B84D8]/20 group-hover:scale-110 transition-transform" style={{ backgroundColor: '#0B84D8' }}>
                   {info.icon}
                 </div>
-                <h3 className="text-[#333333] font-bold mb-1 text-sm">{info.title}</h3>
-                <p className="font-semibold text-sm mb-0.5" style={{ color: '#0B84D8' }}>{info.value}</p>
-                <p className="text-gray-400 text-xs">{info.sub}</p>
+                <h3 className="text-gray-400 font-bold mb-1 text-xs uppercase tracking-widest">{info.title}</h3>
+                <p className="font-bold text-sm sm:text-base mb-1" style={{ color: '#0B84D8' }}>{info.value}</p>
+                <p className="text-gray-400 text-xs font-medium">{info.sub}</p>
               </motion.a>
             ))}
           </div>
@@ -127,12 +127,12 @@ export function Contact() {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
+              <div className="bg-white rounded-[32px] p-10 shadow-2xl border border-gray-50">
                 <div className="mb-8">
-                  <h2 className="text-[#333333] mb-2" style={{ fontSize: '1.5rem', fontWeight: 700 }}>
+                  <h2 className="text-[#333333] mb-2" style={{ fontSize: '1.8rem', fontWeight: 800 }}>
                     Envoyez-nous un message
                   </h2>
-                  <p className="text-gray-400 text-sm">Nous répondons dans les 24h ouvrées.</p>
+                  <p className="text-gray-400 text-sm font-medium">Nous répondons dans les 24h ouvrées.</p>
                 </div>
 
                 {sent ? (
@@ -207,9 +207,9 @@ export function Contact() {
                     </div>
 
                     <button type="submit"
-                      className="w-full py-3.5 text-white font-semibold flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:-translate-y-0.5"
-                      style={{ backgroundColor: '#0B84D8', borderRadius: '12px' }}>
-                      <Send className="w-4 h-4" /> Envoyer mon message
+                      className="w-full py-4 text-white font-bold flex items-center justify-center gap-3 transition-all hover:shadow-xl hover:-translate-y-1 shadow-md shadow-[#0B84D8]/20"
+                      style={{ backgroundColor: '#0B84D8', borderRadius: '16px' }}>
+                      <Send className="w-5 h-5" /> Envoyer mon message
                     </button>
                   </form>
                 )}

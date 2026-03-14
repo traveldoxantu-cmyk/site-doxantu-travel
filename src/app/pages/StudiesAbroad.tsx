@@ -120,8 +120,8 @@ export function StudiesAbroad() {
               France, Canada, Maroc, Turquie, nos experts vous aident à choisir la destination
               adaptée à votre profil et à votre budget.
             </p>
-            <Link to="/devis" className="inline-flex items-center gap-2 px-7 py-4 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5"
-              style={{ backgroundColor: 'white', color: '#0B84D8', borderRadius: '12px' }}>
+            <Link to="/devis" className="inline-flex items-center gap-3 px-8 py-4 font-bold transition-all hover:shadow-2xl hover:-translate-y-1 shadow-lg"
+              style={{ backgroundColor: 'white', color: '#0B84D8', borderRadius: '16px' }}>
               Démarrer mon projet <ArrowRight className="w-5 h-5" />
             </Link>
           </motion.div>
@@ -138,7 +138,7 @@ export function StudiesAbroad() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7, delay: i * 0.05 }}
-              className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100"
+              className="bg-white rounded-[32px] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 group"
             >
               <div className={`grid lg:grid-cols-2 lg:h-[500px] ${i % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}>
                 {/* Image */}
@@ -230,8 +230,8 @@ export function StudiesAbroad() {
 
                     <Link
                       to={`/devis?destination=${dest.country.toLowerCase()}`}
-                      className="inline-flex items-center gap-2 px-5 py-3 text-white font-semibold text-sm transition-all hover:shadow-lg hover:-translate-y-0.5 whitespace-nowrap"
-                      style={{ backgroundColor: '#0B84D8', borderRadius: '12px' }}
+                      className="inline-flex items-center gap-2 px-6 py-3.5 text-white font-bold text-sm transition-all hover:shadow-xl hover:-translate-y-1 whitespace-nowrap shadow-md shadow-[#0B84D8]/20"
+                      style={{ backgroundColor: '#0B84D8', borderRadius: '16px' }}
                     >
                       Démarrer mon projet <ArrowRight className="w-4 h-4" />
                     </Link>

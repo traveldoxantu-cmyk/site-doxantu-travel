@@ -127,13 +127,13 @@ export function About() {
                 ont voulu créer l'agence qu'ils auraient aimé trouver.
               </p>
               <div
-                className="inline-flex items-center gap-3 px-5 py-3 rounded-xl"
-                style={{ backgroundColor: 'rgba(255,255,255,0.15)', border: '1.5px solid rgba(255,255,255,0.3)' }}
+                className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl"
+                style={{ backgroundColor: 'rgba(255,255,255,0.15)', border: '1.5px solid rgba(255,255,255,0.3)', backdropFilter: 'blur(10px)' }}
               >
-                <Shield className="w-5 h-5 text-green-300" />
+                <Shield className="w-6 h-6 text-green-300" />
                 <div>
-                  <p className="text-white font-semibold text-sm">Agence officielle enregistrée au Sénégal</p>
-                  <p className="text-blue-200 text-xs">Licence Ministérielle N° 2024-DT-001</p>
+                  <p className="text-white font-bold text-sm tracking-tight">Agence officielle enregistrée au Sénégal</p>
+                  <p className="text-blue-200 text-xs font-medium">Licence Ministérielle N° 2024-DT-001</p>
                 </div>
               </div>
             </motion.div>
@@ -186,13 +186,13 @@ export function About() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: i * 0.15 }}
-                className="p-8 rounded-3xl border border-gray-100 hover:shadow-xl transition-all hover:-translate-y-1"
+                className="p-10 rounded-[32px] border border-gray-100 hover:shadow-2xl transition-all hover:-translate-y-1 bg-white"
               >
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 text-white" style={{ backgroundColor: '#0B84D8' }}>
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 text-white shadow-lg shadow-[#0B84D8]/20" style={{ backgroundColor: '#0B84D8' }}>
                   {item.icon}
                 </div>
-                <h3 className="text-[#333333] mb-3" style={{ fontSize: '1.3rem', fontWeight: 700 }}>{item.title}</h3>
-                <p className="text-gray-500 leading-relaxed">{item.content}</p>
+                <h3 className="text-[#333333] mb-4" style={{ fontSize: '1.5rem', fontWeight: 800 }}>{item.title}</h3>
+                <p className="text-gray-500 leading-relaxed text-sm lg:text-base">{item.content}</p>
               </motion.div>
             ))}
           </div>
