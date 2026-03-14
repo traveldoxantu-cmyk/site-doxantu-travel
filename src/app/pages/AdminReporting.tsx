@@ -24,10 +24,16 @@ export function AdminReporting() {
           <p className="text-gray-500 text-sm mt-1">Analyse des performances de l'agence.</p>
         </div>
         <div className="flex gap-3">
-          <button className="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-gray-50 transition-colors shadow-sm">
+          <button 
+            onClick={() => alert("Sélection de la période (Année, Mois, Semaine)...")}
+            className="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-gray-50 transition-colors shadow-sm"
+          >
             <Calendar className="w-4 h-4" /> Cette Année
           </button>
-          <button className="bg-[#0B84D8] text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-blue-600 transition-colors shadow-sm">
+          <button 
+            onClick={() => alert("Exportation de tous les rapports statistiques... format Excel/PDF.")}
+            className="bg-[#0B84D8] text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-blue-600 transition-colors shadow-sm"
+          >
             <Download className="w-4 h-4" /> Export complet
           </button>
         </div>

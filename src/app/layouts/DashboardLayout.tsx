@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router';
-import { LayoutGrid, FolderOpen, FileText, MessageSquare, Calendar, User, LogOut, GraduationCap, ArrowLeft, CreditCard } from 'lucide-react';
+import { LayoutGrid, FolderOpen, FileText, MessageSquare, Calendar, User, LogOut, GraduationCap, ArrowLeft, CreditCard, Menu as MenuIcon } from 'lucide-react';
 
 const sidebarLinks = [
     { icon: LayoutGrid, label: 'Tableau de bord', to: '/mon-espace/dashboard' },
@@ -13,11 +14,22 @@ const sidebarLinks = [
 
 export function DashboardLayout() {
     const location = useLocation();
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     return (
         <div className="flex min-h-screen bg-[#F8FAFC]">
+            {/* Overlay mobile */}
+            {isSidebarOpen && (
+                <div 
+                    className="fixed inset-0 bg-black/40 z-50 lg:hidden backdrop-blur-sm"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
+
             {/* Sidebar */}
-            <aside className="fixed left-0 top-0 bottom-0 w-72 bg-white border-r border-gray-100 flex flex-col z-40 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+            <aside className={`fixed left-0 top-0 bottom-0 w-72 bg-white border-r border-gray-100 flex flex-col z-[60] shadow-[4px_0_24px_rgba(0,0,0,0.02)] transition-transform duration-300 lg:translate-x-0 ${
+                isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+            }`}>
                 {/* Logo */}
                 <div className="h-[124px] flex items-center px-8 border-b border-gray-100/50">
                     <Link to="/" className="flex items-center group -ml-2 hover:scale-105 transition-transform duration-300">
@@ -52,6 +64,7 @@ export function DashboardLayout() {
                             <Link
                                 key={idx}
                                 to={link.to}
+                                onClick={() => setIsSidebarOpen(false)}
                                 className={`flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-200 font-medium ${isActive
                                     ? 'bg-[#F0F8FF] text-[#0B84D8] shadow-sm ring-1 ring-[#0B84D8]/10'
                                     : 'text-gray-500 hover:text-[#0B84D8] hover:bg-gray-50'
@@ -90,10 +103,20 @@ export function DashboardLayout() {
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-1 ml-72 flex flex-col min-h-screen">
-                <header className="h-[124px] bg-white border-b border-gray-100 flex items-center justify-between px-10 sticky top-0 z-30">
-                    <div className="text-gray-500 font-medium text-sm">
-                        {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            <main className="flex-1 lg:ml-72 flex flex-col min-h-screen w-full overflow-x-hidden">
+                <header className="h-[80px] lg:h-[124px] bg-white border-b border-gray-100 flex items-center justify-between px-4 lg:px-10 sticky top-0 z-30">
+                    <div className="flex items-center gap-4">
+                        {/* Menu burger pour Mobile */}
+                        <button 
+                            onClick={() => setIsSidebarOpen(true)}
+                            className="lg:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                            <MenuIcon className="w-6 h-6" />
+                        </button>
+
+                        <div className="text-gray-500 font-medium text-xs hidden sm:block">
+                            {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                        </div>
                     </div>
                     <div className="flex items-center gap-4">
                         <button className="relative p-2 text-gray-400 hover:text-[#0B84D8] transition-colors rounded-full hover:bg-gray-50">

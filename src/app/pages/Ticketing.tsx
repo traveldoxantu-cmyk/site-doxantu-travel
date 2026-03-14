@@ -105,9 +105,9 @@ export function Ticketing() {
       </section>
 
       {/* Search Engine */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-4xl mx-auto">
-          <div className="p-8 rounded-3xl shadow-2xl border border-gray-100">
+          <div className="p-8 rounded-2xl shadow-2xl border border-gray-100">
             <h2 className="text-[#333333] mb-6" style={{ fontSize: '1.4rem', fontWeight: 700 }}>
               🔍 Rechercher un vol
             </h2>
@@ -136,8 +136,8 @@ export function Ticketing() {
                         value={from}
                         onChange={(e) => setFrom(e.target.value)}
                         required
-                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
-                        style={{ borderRadius: '12px' }}
+                        className="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
+                        style={{ borderRadius: '16px' }}
                       />
                     </div>
                   </div>
@@ -153,8 +153,8 @@ export function Ticketing() {
                         value={to}
                         onChange={(e) => setTo(e.target.value)}
                         required
-                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
-                        style={{ borderRadius: '12px' }}
+                        className="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
+                        style={{ borderRadius: '16px' }}
                       />
                     </div>
                   </div>
@@ -169,8 +169,8 @@ export function Ticketing() {
                         value={departDate}
                         onChange={(e) => setDepartDate(e.target.value)}
                         required
-                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
-                        style={{ borderRadius: '12px' }}
+                        className="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
+                        style={{ borderRadius: '16px' }}
                       />
                     </div>
                   </div>
@@ -184,8 +184,8 @@ export function Ticketing() {
                         type="date"
                         value={returnDate}
                         onChange={(e) => setReturnDate(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
-                        style={{ borderRadius: '12px' }}
+                        className="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
+                        style={{ borderRadius: '16px' }}
                       />
                     </div>
                   </div>
@@ -198,8 +198,8 @@ export function Ticketing() {
                       <select
                         value={passengers}
                         onChange={(e) => setPassengers(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
-                        style={{ borderRadius: '12px' }}
+                        className="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
+                        style={{ borderRadius: '16px' }}
                       >
                         {[1, 2, 3, 4, 5, 6].map((n) => (
                           <option key={n} value={n}>{n} passager{n > 1 ? 's' : ''}</option>
@@ -211,7 +211,7 @@ export function Ticketing() {
                     <button
                       type="submit"
                       className="w-full py-3.5 text-white font-semibold transition-all hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-center gap-2"
-                      style={{ backgroundColor: '#0B84D8', borderRadius: '12px' }}
+                      style={{ backgroundColor: '#0B84D8', borderRadius: '16px' }}
                     >
                       Obtenir un devis vol <ArrowRight className="w-4 h-4" />
                     </button>
@@ -228,7 +228,7 @@ export function Ticketing() {
       </section>
 
       {/* Services */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: '#F8FAFC' }}>
+      <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: '#F8FAFC' }}>
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -253,7 +253,7 @@ export function Ticketing() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: i * 0.15 }}
-                className="bg-white rounded-3xl p-7 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
+                className="bg-white rounded-[32px] p-7 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
               >
                 <div className="text-4xl mb-4">{s.icon}</div>
                 <h3 className="text-[#333333] mb-3" style={{ fontSize: '1.15rem', fontWeight: 700 }}>
@@ -299,7 +299,7 @@ export function Ticketing() {
       </section>
 
       {/* CTA */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: 'linear-gradient(135deg, #072a50 0%, #0B84D8 100%)' }}>
+      <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8" style={{ background: 'linear-gradient(135deg, #072a50 0%, #0B84D8 100%)' }}>
         <div className="max-w-3xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

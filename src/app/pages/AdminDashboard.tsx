@@ -108,10 +108,17 @@ export function AdminDashboard() {
 
     if (loading) {
         return (
-            <div className="space-y-5 animate-pulse">
-                <div className="h-28 bg-gray-200 rounded-2xl" />
-                <div className="grid grid-cols-4 gap-4">{[1,2,3,4].map(i => <div key={i} className="h-24 bg-gray-200 rounded-2xl" />)}</div>
-                <div className="grid grid-cols-3 gap-5"><div className="col-span-2 h-64 bg-gray-200 rounded-2xl" /><div className="h-64 bg-gray-200 rounded-2xl" /></div>
+            <div className="space-y-6 max-w-7xl mx-auto">
+                <div className="h-32 bg-gray-100 rounded-3xl animate-pulse" />
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[1, 2, 3, 4].map(i => (
+                        <div key={i} className="h-32 bg-white border border-gray-50 rounded-[28px] animate-pulse" />
+                    ))}
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                    <div className="lg:col-span-2 h-[350px] bg-white border border-gray-50 rounded-3xl animate-pulse" />
+                    <div className="h-[350px] bg-white border border-gray-50 rounded-3xl animate-pulse" />
+                </div>
             </div>
         );
     }
@@ -140,7 +147,7 @@ export function AdminDashboard() {
             </motion.div>
 
             {/* ── 4 KPI Cards ──────────────────────────────────────────────── */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {kpis.map((k, idx) => (
                     <motion.div key={idx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.07 }}
                         className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">

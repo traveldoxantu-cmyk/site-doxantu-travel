@@ -199,12 +199,53 @@
       "details": { "description": "Rendez-vous Campus France confirmé. Préparez votre projet d'études.", "date": "7 mars 2026", "heure": "10h00", "lieu": "Campus France Dakar – Rue Carnot" }
     },
     { "id": 4, "title": "Étape 4 — Demande de visa", "date": "Prévu avril 2026", "status": "upcoming", "iconType": "FileText" },
-    { "id": 5, "title": "Étape 5 — Confirmation d'admission", "date": "Prévu mai 2026", "status": "upcoming", "iconType": "Building2" },
+    { "id": 5, "title": "Étape 5 — Confirmation d'admission", "date": "Prévu mai 2026", "status": "upcoming", "iconType": "Building2"    },
     { "id": 6, "title": "Étape 6 — Départ", "date": "Prévu septembre 2026", "status": "upcoming", "iconType": "Plane" }
   ],
   "conseiller": {
     "id": 1, "nom": "Fatou Mbaye", "initiales": "FM", "online": true,
     "dernierMessage": "Votre dossier avance très bien ! N'oubliez pas votre rendez-vous Campus France le 7 mars.",
     "tempsMessage": "Il y a 3 heures"
-  }
+  },
+  "transactions": [
+    { "id": "TRX-1029", "client": "Fatou Sow", "date": "12 Mars 2026", "montant": 150000, "type": "Visa Étudiant", "statut": "Payé" },
+    { "id": "TRX-1028", "client": "Amadou Diallo", "date": "11 Mars 2026", "montant": 500000, "type": "Pack Complet", "statut": "En attente" },
+    { "id": "TRX-1027", "client": "Marie Ndiaye", "date": "08 Mars 2026", "montant": 75000, "type": "Billet d'avion", "statut": "Payé" },
+    { "id": "TRX-1026", "client": "Ousmane Fall", "date": "05 Mars 2026", "montant": 25000, "type": "Légalisation", "statut": "Payé" },
+    { "id": "TRX-1025", "client": "Aminata Bâ", "date": "02 Mars 2026", "montant": 300000, "type": "Campus France", "statut": "Échoué" }
+  ],
+  "conseillers_full": [
+    {
+      "id": 1,
+      "name": "Ibrahima Diallo",
+      "role": "Directeur Général",
+      "initials": "ID",
+      "color": "#0B84D8",
+      "desc": "Expert en mobilité internationale avec 8 ans d'expérience dans l'accompagnement étudiant."
+    },
+    {
+      "id": 2,
+      "name": "Mariama Bâ",
+      "role": "Responsable Études",
+      "initials": "MB",
+      "color": "#7C3AED",
+      "desc": "Ancienne conseillère Campus France, spécialiste des procédures d'admission en France et Canada."
+    },
+    {
+      "id": 3,
+      "name": "Ousmane Seck",
+      "role": "Responsable Billetterie",
+      "initials": "OS",
+      "color": "#059669",
+      "desc": "Spécialiste des tarifs aériens et de l'optimisation des voyages depuis le Sénégal."
+    },
+    {
+      "id": 4,
+      "name": "Aïssatou Niang",
+      "role": "Conseillère Visa",
+      "initials": "AN",
+      "color": "#DC2626",
+      "desc": "Experte en procédures consulaires avec un taux de succès de 97% sur les demandes de visa."
+    }
+  ]
 }

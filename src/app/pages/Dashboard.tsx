@@ -51,10 +51,28 @@ export function Dashboard() {
 
     if (loading) {
         return (
-            <div className="space-y-8 pb-10 animate-pulse">
-                <div className="rounded-3xl h-40 bg-gray-200" />
+            <div className="space-y-8 pb-10">
+                {/* Banner Skeleton */}
+                <div className="rounded-[32px] p-8 h-48 bg-gray-100 animate-pulse flex items-center justify-between">
+                    <div className="space-y-3">
+                        <div className="h-8 w-64 bg-gray-200 rounded-lg" />
+                        <div className="h-4 w-48 bg-gray-200 rounded-lg" />
+                    </div>
+                    <div className="h-20 w-48 bg-gray-200 rounded-2xl hidden md:block" />
+                </div>
+                {/* Stats Grid Skeleton */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    {[1,2,3,4].map(i => <div key={i} className="bg-gray-200 rounded-3xl h-28" />)}
+                    {[1, 2, 3, 4].map(i => (
+                        <div key={i} className="bg-white p-6 rounded-[32px] border border-gray-100 h-32 animate-pulse space-y-4">
+                            <div className="w-10 h-10 bg-gray-100 rounded-xl" />
+                            <div className="h-4 w-20 bg-gray-100 rounded" />
+                        </div>
+                    ))}
+                </div>
+                {/* Content Skeleton */}
+                <div className="grid lg:grid-cols-3 gap-8">
+                     <div className="lg:col-span-2 h-96 bg-gray-50 border border-gray-100 rounded-[32px] animate-pulse" />
+                     <div className="h-96 bg-gray-50 border border-gray-100 rounded-[32px] animate-pulse" />
                 </div>
             </div>
         );
@@ -76,7 +94,7 @@ export function Dashboard() {
                         <p className="text-blue-100 font-medium mb-1">Dossier <span className="text-white font-bold">DXT-2026-0142</span> - Paris, France</p>
                         <p className="text-blue-200 text-sm">Master en Intelligence Artificielle – Université Paris-Saclay</p>
                     </div>
-                    <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 min-w-[200px]">
+                    <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 w-full md:min-w-[200px]">
                         <div className="flex justify-between items-center mb-2">
                             <span className="text-sm font-medium text-blue-100">Avancement global</span>
                             <span className="text-2xl font-black">33%</span>
@@ -89,7 +107,7 @@ export function Dashboard() {
             </motion.div>
 
             {/* Quick Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                 {quickStats.map((stat, i) => {
                     const styles = STAT_STYLES[stat.category] ?? STAT_STYLES.dossier;
                     const Icon = styles.icon;

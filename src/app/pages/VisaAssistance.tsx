@@ -82,12 +82,12 @@ export function VisaAssistance() {
             </p>
             <div className="flex flex-wrap gap-4">
               <Link to="/devis" className="inline-flex items-center gap-2 px-7 py-4 text-white font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5"
-                style={{ backgroundColor: '#0B84D8', borderRadius: '12px' }}>
+                style={{ backgroundColor: '#0B84D8', borderRadius: '16px' }}>
                 Démarrer ma demande <ArrowRight className="w-5 h-5" />
               </Link>
               <a href="https://wa.me/221780000000" target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-7 py-4 font-semibold transition-all"
-                style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white', borderRadius: '12px', border: '1.5px solid rgba(255,255,255,0.3)' }}>
+                style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white', borderRadius: '16px', border: '1.5px solid rgba(255,255,255,0.3)' }}>
                 💬 Poser une question
               </a>
             </div>
@@ -96,7 +96,7 @@ export function VisaAssistance() {
       </section>
 
       {/* Services */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -121,7 +121,7 @@ export function VisaAssistance() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: i * 0.15 }}
-                className={`rounded-3xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden ${
+                className={`rounded-[32px] p-8 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden ${
                   s.highlight ? 'border-2' : 'border border-gray-100 bg-white'
                 }`}
                 style={s.highlight ? { borderColor: '#0B84D8', backgroundColor: '#F0F8FF' } : {}}
@@ -154,7 +154,7 @@ export function VisaAssistance() {
                 </ul>
                 <Link
                   to="/devis"
-                  className="mt-6 inline-flex items-center gap-1 text-sm font-semibold hover:gap-2 transition-all"
+                  className="mt-6 inline-flex items-center gap-1 text-sm font-semibold hover:gap-2 transition-all rounded-2xl"
                   style={{ color: '#0B84D8' }}
                 >
                   Demander ce service <ArrowRight className="w-4 h-4" />
@@ -166,7 +166,7 @@ export function VisaAssistance() {
       </section>
 
       {/* Process */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: '#F8FAFC' }}>
+      <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: '#F8FAFC' }}>
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -194,7 +194,7 @@ export function VisaAssistance() {
                 className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 text-center hover:shadow-lg transition-all"
               >
                 <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 font-bold text-white"
+                  className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4 font-bold text-white"
                   style={{ backgroundColor: '#0B84D8' }}
                 >
                   {p.step}
@@ -208,7 +208,7 @@ export function VisaAssistance() {
       </section>
 
       {/* Trust + CTA */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-3 gap-6 mb-12">
             {[
@@ -233,13 +233,13 @@ export function VisaAssistance() {
             ))}
           </div>
 
-          <div className="text-center p-10 rounded-3xl" style={{ background: 'linear-gradient(135deg, #072a50 0%, #0B84D8 100%)' }}>
+          <div className="text-center p-10 rounded-2xl" style={{ background: 'linear-gradient(135deg, #072a50 0%, #0B84D8 100%)' }}>
             <h2 className="text-white mb-3" style={{ fontSize: 'clamp(1.5rem, 3.5vw, 2.2rem)', fontWeight: 700 }}>
               Prêt à démarrer votre demande de visa ?
             </h2>
             <p className="text-blue-200 mb-6">Consultation gratuite · Réponse en 24h · Sans engagement</p>
-            <Link to="/devis" className="inline-flex items-center gap-2 px-7 py-4 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5"
-              style={{ backgroundColor: 'white', color: '#0B84D8', borderRadius: '12px' }}>
+            <Link to="/devis" className="inline-flex items-center gap-2 px-7 py-4 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5 rounded-2xl"
+              style={{ backgroundColor: 'white', color: '#0B84D8' }}>
               Démarrer ma demande <ArrowRight className="w-5 h-5" />
             </Link>
           </div>

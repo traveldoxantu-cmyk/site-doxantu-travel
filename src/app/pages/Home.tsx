@@ -230,8 +230,8 @@ export function Home() {
                       <select
                         value={destination}
                         onChange={(e) => setDestination(e.target.value)}
-                        className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:border-transparent bg-gray-50 appearance-none"
-                        style={{ borderRadius: '12px', ['--tw-ring-color' as string]: '#0B84D8' }}
+                        className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:border-transparent bg-gray-50 appearance-none"
+                        style={{ borderRadius: '16px', ['--tw-ring-color' as string]: '#0B84D8' }}
                       >
                         <option value="">Choisir un pays…</option>
                         <option value="france">🇫🇷 France</option>
@@ -304,7 +304,7 @@ export function Home() {
       </section>
 
       {/* ── SERVICES BENTO BOX ───────────────────────────── */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: '#F8FAFC' }}>
+      <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: '#F8FAFC' }}>
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -332,7 +332,7 @@ export function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="lg:col-span-2 relative overflow-hidden rounded-[32px] group cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500"
+              className="lg:col-span-2 relative overflow-hidden rounded-[40px] group cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500"
               style={{ minHeight: '420px' }}
             >
               <img
@@ -367,7 +367,7 @@ export function Home() {
                 <Link
                   to="/services/accompagnement-etudiant"
                   className="inline-flex items-center gap-2 px-5 py-3 text-white font-semibold transition-all hover:shadow-lg group-hover:-translate-y-0.5 self-start"
-                  style={{ backgroundColor: '#0B84D8', borderRadius: '12px' }}
+                  style={{ backgroundColor: '#0B84D8', borderRadius: '16px' }}
                 >
                   En savoir plus <ChevronRight className="w-4 h-4" />
                 </Link>
@@ -380,7 +380,7 @@ export function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.15 }}
-              className="rounded-[32px] p-8 flex flex-col justify-between group hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
+              className="rounded-[40px] p-8 flex flex-col justify-between group hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
               style={{ backgroundColor: '#ffffff', minHeight: '280px' }}
             >
               <article>
@@ -479,7 +479,7 @@ export function Home() {
       </section>
 
       {/* ── TRUST SECTION ────────────────────────────────── */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <motion.div
@@ -590,7 +590,7 @@ export function Home() {
       </section>
 
       {/* ── TÉMOIGNAGES ──────────────────────────────────── */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: '#F8FAFC' }}>
+      <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: '#F8FAFC' }}>
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -644,7 +644,7 @@ export function Home() {
       </section>
 
       {/* ── CONVERSION FORM ──────────────────────────────── */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8" style={{ background: 'linear-gradient(135deg, #072a50 0%, #0B84D8 100%)' }}>
+      <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8" style={{ background: 'linear-gradient(135deg, #072a50 0%, #0B84D8 100%)' }}>
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router';
-import { LayoutDashboard, FolderOpen, BarChart3, Users, Settings, ArrowLeft, LogOut, Bell, CreditCard, AlertTriangle } from 'lucide-react';
+import { LayoutDashboard, FolderOpen, BarChart3, Users, Settings, ArrowLeft, LogOut, Bell, CreditCard, AlertTriangle, Menu as MenuIcon, X } from 'lucide-react';
 import logoImgWhite from '../../assets/logo-doxantu-white.png';
 
 const NAV_ITEMS = [
@@ -12,13 +13,32 @@ const NAV_ITEMS = [
 
 export function AdminLayout() {
     const location = useLocation();
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const urgentCount = 2;
 
     return (
         <div className="flex min-h-screen" style={{ backgroundColor: '#F0F4F8' }}>
+            {/* Overlay mobile */}
+            {isSidebarOpen && (
+                <div 
+                    className="fixed inset-0 bg-black/50 z-50 lg:hidden backdrop-blur-sm"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
+
             {/* ── Sidebar ────────────────────────────────────────────────── */}
-            <aside className="fixed left-0 top-0 bottom-0 w-[250px] flex flex-col z-40 select-none"
+            <aside className={`fixed left-0 top-0 bottom-0 w-[250px] flex flex-col z-[60] select-none transition-transform duration-300 lg:translate-x-0 ${
+                isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+            }`}
                 style={{ backgroundColor: '#0e1929' }}>
+                
+                {/* Bouton Fermer pour Mobile */}
+                <button 
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="lg:hidden absolute top-4 right-4 p-2 text-gray-400 hover:text-white transition-colors"
+                >
+                    <X className="w-5 h-5" />
+                </button>
 
                 {/* Logo */}
                 <div className="px-5 pt-6 pb-5 flex items-center border-b border-white/[0.07]">
@@ -50,6 +70,7 @@ export function AdminLayout() {
                         const isActive = location.pathname === item.to;
                         return (
                             <Link key={item.label} to={item.to}
+                                onClick={() => setIsSidebarOpen(false)}
                                 className={`group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 ${
                                     isActive
                                         ? 'bg-[#0B84D8] text-white'
@@ -84,12 +105,22 @@ export function AdminLayout() {
             </aside>
 
             {/* ── Main ──────────────────────────────────────────────────── */}
-            <main className="flex-1 ml-[250px] flex flex-col min-h-screen">
+            <main className="flex-1 lg:ml-[250px] flex flex-col min-h-screen w-full overflow-x-hidden">
                 {/* Header */}
-                <header className="h-14 bg-white border-b border-gray-100 flex items-center justify-between px-6 sticky top-0 z-30">
-                    <div className="flex items-center gap-2 text-sm text-gray-400">
-                        <div className="w-2 h-2 rounded-full bg-gray-300" />
-                        <span className="font-medium text-gray-500">Admin</span>
+                <header className="h-14 bg-white border-b border-gray-100 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30">
+                    <div className="flex items-center gap-3">
+                        {/* Burger pour Mobile */}
+                        <button 
+                            onClick={() => setIsSidebarOpen(true)}
+                            className="lg:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                            <MenuIcon className="w-5 h-5" />
+                        </button>
+
+                        <div className="flex items-center gap-2 text-sm text-gray-400">
+                            <div className="w-2 h-2 rounded-full bg-gray-300" />
+                            <span className="font-medium text-gray-500 hidden sm:inline">Admin</span>
+                        </div>
                     </div>
                     <div className="flex items-center gap-3">
                         {urgentCount > 0 && (

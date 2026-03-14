@@ -50,9 +50,11 @@ export function Contact() {
     nom: '', email: '', tel: '', service: '', message: '',
   });
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     const message = buildWhatsAppMessage('Nouvelle demande de contact', {
       Nom: form.nom,
       Telephone: form.tel,
@@ -60,8 +62,13 @@ export function Contact() {
       Service: form.service,
       Message: form.message,
     });
-    openWhatsAppSubmission(message);
-    setSent(true);
+    
+    // Simulate API delay for better UX feel
+    setTimeout(() => {
+      openWhatsAppSubmission(message);
+      setSent(true);
+      setLoading(false);
+    }, 1200);
   };
 
   return (
@@ -207,9 +214,14 @@ export function Contact() {
                     </div>
 
                     <button type="submit"
-                      className="w-full py-4 text-white font-bold flex items-center justify-center gap-3 transition-all hover:shadow-xl hover:-translate-y-1 shadow-md shadow-[#0B84D8]/20"
+                      disabled={loading}
+                      className="w-full py-4 text-white font-bold flex items-center justify-center gap-3 transition-all hover:shadow-xl hover:-translate-y-1 shadow-md shadow-[#0B84D8]/20 disabled:opacity-70 disabled:cursor-not-allowed"
                       style={{ backgroundColor: '#0B84D8', borderRadius: '16px' }}>
-                      <Send className="w-5 h-5" /> Envoyer mon message
+                      {loading ? (
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        <><Send className="w-5 h-5" /> Envoyer mon message</>
+                      )}
                     </button>
                   </form>
                 )}

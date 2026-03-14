@@ -121,7 +121,7 @@ export function StudentSupport() {
             <Link
               to="/devis"
               className="inline-flex items-center gap-2 px-7 py-4 text-white font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5"
-              style={{ backgroundColor: '#0B84D8', borderRadius: '12px', fontSize: '1rem' }}
+              style={{ backgroundColor: '#0B84D8', borderRadius: '16px', fontSize: '1rem' }}
             >
               Commencer ma procédure <ArrowRight className="w-5 h-5" />
             </Link>
@@ -130,7 +130,7 @@ export function StudentSupport() {
       </section>
 
       {/* Process Timeline */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -162,7 +162,7 @@ export function StudentSupport() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: i * 0.15 }}
-                className="relative bg-white rounded-3xl p-7 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 z-10"
+                className="relative bg-white rounded-2xl p-7 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100 z-10"
               >
                 {/* Step number */}
                 <div className="flex items-start justify-between mb-5">
@@ -194,7 +194,7 @@ export function StudentSupport() {
       </section>
 
       {/* Documents Required */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: '#F8FAFC' }}>
+      <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: '#F8FAFC' }}>
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-14 items-center">
             <motion.div
@@ -222,7 +222,7 @@ export function StudentSupport() {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.4, delay: i * 0.06 }}
-                    className="flex items-center gap-3 p-3.5 rounded-xl bg-white border border-gray-100 shadow-sm hover:border-[#0B84D8] hover:shadow-md transition-all"
+                    className="flex items-center gap-3 p-3.5 rounded-2xl bg-white border border-gray-100 shadow-sm hover:border-[#0B84D8] hover:shadow-md transition-all"
                   >
                     <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: '#0B84D8' }} />
                     <span className="text-sm text-[#333333]">{doc}</span>
@@ -238,7 +238,7 @@ export function StudentSupport() {
               transition={{ duration: 0.6 }}
             >
               <div
-                className="p-8 rounded-3xl"
+                className="p-8 rounded-2xl"
                 style={{ background: 'linear-gradient(135deg, #072a50 0%, #0B84D8 100%)' }}
               >
                 <h3 className="text-white mb-2" style={{ fontSize: '1.3rem', fontWeight: 700 }}>
@@ -268,8 +268,8 @@ export function StudentSupport() {
 
                 <Link
                   to="/devis"
-                  className="block text-center py-3.5 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5"
-                  style={{ backgroundColor: 'white', color: '#0B84D8', borderRadius: '12px' }}
+                  className="block text-center py-3.5 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5 rounded-2xl"
+                  style={{ backgroundColor: 'white', color: '#0B84D8' }}
                 >
                   Demander un devis gratuit →
                 </Link>
@@ -285,7 +285,7 @@ export function StudentSupport() {
       </section>
 
       {/* FAQ */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -335,7 +335,7 @@ export function StudentSupport() {
       </section>
 
       {/* CTA Final */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8" style={{ background: 'linear-gradient(135deg, #072a50 0%, #0B84D8 100%)' }}>
+      <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8" style={{ background: 'linear-gradient(135deg, #072a50 0%, #0B84D8 100%)' }}>
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -353,8 +353,8 @@ export function StudentSupport() {
             <div className="flex flex-wrap gap-4 justify-center">
               <Link
                 to="/devis"
-                className="inline-flex items-center gap-2 px-8 py-4 text-white font-semibold transition-all hover:shadow-2xl hover:-translate-y-0.5"
-                style={{ backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: '12px', border: '2px solid white' }}
+                className="inline-flex items-center gap-2 px-8 py-4 text-white font-semibold transition-all hover:shadow-2xl hover:-translate-y-0.5 rounded-2xl"
+                style={{ backgroundColor: 'rgba(255,255,255,0.2)', border: '2px solid white' }}
               >
                 Commencer ma procédure <ArrowRight className="w-5 h-5" />
               </Link>
@@ -362,8 +362,8 @@ export function StudentSupport() {
                 href="https://wa.me/221780000000"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-8 py-4 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5"
-                style={{ backgroundColor: '#25D366', color: 'white', borderRadius: '12px' }}
+                className="inline-flex items-center gap-2 px-8 py-4 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5 rounded-2xl"
+                style={{ backgroundColor: '#25D366', color: 'white' }}
               >
                 💬 WhatsApp direct
               </a>

@@ -10,6 +10,7 @@ import { Contact } from './pages/Contact';
 import { QuoteRequest } from './pages/QuoteRequest';
 import { LegalMentions } from './pages/LegalMentions';
 import { Login } from './pages/Login';
+import NotFound from './pages/NotFound';
 // Client dashboard
 import { DashboardLayout } from './layouts/DashboardLayout';
 import { Dashboard } from './pages/Dashboard';
@@ -43,6 +44,7 @@ export const router = createBrowserRouter([
       { path: 'contact', Component: Contact },
       { path: 'devis', Component: QuoteRequest },
       { path: 'mentions-legales', Component: LegalMentions },
+      { path: '*', Component: NotFound },
     ],
   },
 
@@ -50,11 +52,11 @@ export const router = createBrowserRouter([
   { path: '/connexion', Component: Login },
 
   // ─── Espace client ─────────────────────────────────────────────────────────
-  { path: '/mon-espace', Component: Login },
   {
     path: '/mon-espace',
     Component: DashboardLayout,
     children: [
+      { index: true, Component: Dashboard },
       { path: 'dashboard', Component: Dashboard },
       { path: 'dossier', Component: MonDossier },
       { path: 'documents', Component: MesDocuments },
@@ -66,13 +68,11 @@ export const router = createBrowserRouter([
   },
 
   // ─── Espace admin ──────────────────────────────────────────────────────────
-  { path: '/admin', Component: AdminLayout, children: [
-      { index: true, Component: AdminDashboard },
-  ]},
   {
     path: '/admin',
     Component: AdminLayout,
     children: [
+      { index: true, Component: AdminDashboard },
       { path: 'dashboard', Component: AdminDashboard },
       { path: 'clients', Component: AdminClients },
       { path: 'finance', Component: AdminFinance },

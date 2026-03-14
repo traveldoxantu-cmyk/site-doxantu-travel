@@ -1,17 +1,47 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { CreditCard, Download, Search, Filter, TrendingUp, TrendingDown, MoreVertical } from 'lucide-react';
+import { apiFetch } from '../lib/api';
 
-const TRANSACTIONS = [
-  { id: 'TRX-1029', client: 'Fatou Sow', date: '12 Mars 2026', montant: 150000, type: 'Visa Étudiant', statut: 'Payé' },
-  { id: 'TRX-1028', client: 'Amadou Diallo', date: '11 Mars 2026', montant: 500000, type: 'Pack Complet', statut: 'En attente' },
-  { id: 'TRX-1027', client: 'Marie Ndiaye', date: '08 Mars 2026', montant: 75000, type: 'Billet d\'avion', statut: 'Payé' },
-  { id: 'TRX-1026', client: 'Ousmane Fall', date: '05 Mars 2026', montant: 25000, type: 'Légalisation', statut: 'Payé' },
-  { id: 'TRX-1025', client: 'Aminata Bâ', date: '02 Mars 2026', montant: 300000, type: 'Campus France', statut: 'Échoué' },
-];
+interface Transaction {
+  id: string;
+  client: string;
+  date: string;
+  montant: number;
+  type: string;
+  statut: string;
+}
 
 export function AdminFinance() {
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter] = useState('Tous');
+
+  useEffect(() => {
+    apiFetch<Transaction[]>('/transactions')
+      .then(setTransactions)
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filteredTransactions = transactions.filter(t => {
+    const matchSearch = !searchTerm || t.client.toLowerCase().includes(searchTerm.toLowerCase()) || t.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchStatus = statusFilter === 'Tous' || t.statut === statusFilter;
+    return matchSearch && matchStatus;
+  });
+
+  if (loading) {
+    return (
+      <div className="space-y-6 max-w-7xl mx-auto pb-8">
+        <div className="h-20 bg-gray-100 rounded-2xl animate-pulse" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {[1,2,3].map(i => <div key={i} className="h-32 bg-white rounded-2xl border border-gray-100 animate-pulse" />)}
+        </div>
+        <div className="h-[400px] bg-white rounded-2xl border border-gray-100 animate-pulse" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-8">
@@ -21,7 +51,10 @@ export function AdminFinance() {
           <h1 className="text-2xl font-bold text-[#1a2b40]">Pilotage Financier</h1>
           <p className="text-gray-500 text-sm mt-1">Gérez votre trésorerie et le suivi de facturation.</p>
         </div>
-        <button className="bg-[#0B84D8] text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-blue-600 transition-colors shadow-sm">
+        <button 
+          onClick={() => alert("Préparation du rapport financier... L'export sera téléchargé au format PDF.")}
+          className="bg-[#0B84D8] text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-blue-600 transition-colors shadow-sm"
+        >
           <Download className="w-4 h-4" /> Exporter le rapport
         </button>
       </div>
@@ -91,7 +124,7 @@ export function AdminFinance() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {TRANSACTIONS.map((trx, idx) => (
+              {filteredTransactions.map((trx, idx) => (
                 <motion.tr 
                   initial={{ opacity: 0, y: 10 }} 
                   animate={{ opacity: 1, y: 0 }} 

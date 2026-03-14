@@ -10,6 +10,7 @@ export function QuoteRequest() {
   const initialDestination = searchParams.get('destination') || '';
 
   const [currentStep, setCurrentStep] = useState(1);
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     service: initialDestination ? 'campus-france' : '', // Pré-sélection Campus France si destination définie depuis la page Études
     destination: initialDestination,
@@ -31,6 +32,7 @@ export function QuoteRequest() {
   };
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     const message = buildWhatsAppMessage("Nouvelle demande d'accompagnement", {
       "Service": form.service,
       "Destination": form.destination,
@@ -43,8 +45,13 @@ export function QuoteRequest() {
       Email: form.email,
       Message: form.message,
     });
-    openWhatsAppSubmission(message);
-    setCurrentStep(4);
+    
+    // Simulate professional processing delay
+    setTimeout(() => {
+      openWhatsAppSubmission(message);
+      setLoading(false);
+      setCurrentStep(4);
+    }, 1500);
   };
 
   return (
@@ -328,9 +335,14 @@ export function QuoteRequest() {
                     ← Retour
                   </button>
                   <button type="submit"
-                    className="flex-1 py-3.5 text-white font-semibold transition-all hover:shadow-lg"
+                    disabled={loading}
+                    className="flex-1 py-3.5 text-white font-semibold transition-all hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed shadow-md shadow-[#0B84D8]/20"
                     style={{ backgroundColor: '#0B84D8', borderRadius: '12px' }}>
-                    Envoyer ma demande ✓
+                    {loading ? (
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <>Envoyer ma demande ✓</>
+                    )}
                   </button>
                 </div>
               </form>

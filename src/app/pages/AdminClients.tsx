@@ -28,6 +28,9 @@ export function AdminClients() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [activeFilter, setActiveFilter] = useState('Tous');
+    const [clientType, setClientType] = useState('Tous types');
+    const [selectedConseiller, setSelectedConseiller] = useState('Tous conseillers');
+    const [sortBy, setSortBy] = useState('Trier par date');
 
     useEffect(() => {
         apiFetch<Client[]>('/clients').then(setClients).catch(console.error).finally(() => setLoading(false));
@@ -36,8 +39,16 @@ export function AdminClients() {
     const filtered = clients.filter(c => {
         const q = search.toLowerCase();
         const matchSearch = !q || c.nom.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || c.dossierId.toLowerCase().includes(q) || c.destination.toLowerCase().includes(q);
-        const matchFilter = activeFilter === 'Tous' || c.statut === activeFilter;
-        return matchSearch && matchFilter;
+        const matchStatus = activeFilter === 'Tous' || c.statut === activeFilter;
+        const matchType = clientType === 'Tous types' || c.type === clientType.toLowerCase();
+        const matchConseiller = selectedConseiller === 'Tous conseillers' || c.conseillerNom === selectedConseiller;
+        
+        return matchSearch && matchStatus && matchType && matchConseiller;
+    }).sort((a, b) => {
+        if (sortBy === 'Plus récents') return b.id - a.id;
+        if (sortBy === 'Plus anciens') return a.id - b.id;
+        if (sortBy === 'Avancement') return b.avancement - a.avancement;
+        return 0;
     });
 
     const urgentCount = clients.filter(c => c.urgent).length;
@@ -63,17 +74,23 @@ export function AdminClients() {
                     <p className="text-sm text-gray-400 mt-0.5">{filtered.length} dossiers trouvés</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-600 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors shadow-sm">
+                    <button 
+                        onClick={() => alert("Génération de l'export CSV en cours... Le téléchargement commencera dans quelques secondes.")}
+                        className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-600 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors shadow-sm"
+                    >
                         <Download className="w-4 h-4" /> Exporter
                     </button>
-                    <button className="flex items-center gap-2 px-4 py-2.5 bg-[#0B84D8] text-white text-sm font-bold rounded-xl hover:bg-[#0973BD] transition-colors shadow-md shadow-[#0B84D8]/20">
+                    <button 
+                        onClick={() => alert("Ouverture du formulaire de création de dossier...")}
+                        className="flex items-center gap-2 px-4 py-2.5 bg-[#0B84D8] text-white text-sm font-bold rounded-xl hover:bg-[#0973BD] transition-colors shadow-md shadow-[#0B84D8]/20"
+                    >
                         <Plus className="w-4 h-4" /> Nouveau dossier
                     </button>
                 </div>
             </div>
 
             {/* ── Mini KPIs ──────────────────────────────────────────────── */}
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {[
                     { value: clients.length, label: 'Total', color: 'text-[#0B84D8]' },
                     { value: urgentCount, label: 'Urgents', color: 'text-red-500' },
@@ -116,17 +133,42 @@ export function AdminClients() {
                         ))}
                     </div>
                     <div className="flex gap-2">
-                        {['Tous types', 'Tous conseillers', 'Trier par date'].map(d => (
-                            <select key={d} className="text-sm text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none cursor-pointer">
-                                <option>{d}</option>
-                            </select>
-                        ))}
+                        <select 
+                            value={clientType}
+                            onChange={(e) => setClientType(e.target.value)}
+                            className="text-sm text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none cursor-pointer hover:border-[#0B84D8]/30 transition-colors"
+                        >
+                            <option>Tous types</option>
+                            <option value="étudiant">Étudiants</option>
+                            <option value="voyageur">Particuliers</option>
+                        </select>
+                        <select 
+                            value={selectedConseiller}
+                            onChange={(e) => setSelectedConseiller(e.target.value)}
+                            className="text-sm text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none cursor-pointer hover:border-[#0B84D8]/30 transition-colors"
+                        >
+                            <option>Tous conseillers</option>
+                            <option>Fatou Mbaye</option>
+                            <option>Ibrahima Fall</option>
+                            <option>Omar Ba</option>
+                        </select>
+                        <select 
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            className="text-sm text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none cursor-pointer hover:border-[#0B84D8]/30 transition-colors"
+                        >
+                            <option>Trier par date</option>
+                            <option>Plus récents</option>
+                            <option>Plus anciens</option>
+                            <option>Avancement</option>
+                        </select>
                     </div>
                 </div>
             </div>
 
             {/* ── Table ─────────────────────────────────────────────────── */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto">
+                <div className="min-w-[900px]">
                 {/* Table header */}
                 <div className="grid grid-cols-[2fr_1.5fr_1fr_1.5fr_2fr_80px] gap-4 px-5 py-3 text-xs font-bold text-gray-400 uppercase tracking-wide border-b border-gray-50">
                     <span>CLIENT</span>
@@ -233,6 +275,7 @@ export function AdminClients() {
                         })}
                     </div>
                 )}
+                </div>
             </div>
         </div>
     );
