@@ -163,7 +163,7 @@ export function MonDossier() {
             </div>
 
             {/* Bottom Floating Contact Widget */}
-            <div className="fixed bottom-0 left-72 right-0 bg-white border-t border-gray-100 p-4 px-10 z-20 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
+            <div className="fixed bottom-0 left-0 lg:left-72 right-0 bg-white border-t border-gray-100 p-4 px-6 md:px-10 z-20 flex justify-between items-center shadow-[0_-10px_40px_rgba(0,0,0,0.03)]">
                 <div className="flex items-center gap-4 max-w-7xl mx-auto w-full">
                     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex-1 flex items-center justify-between">
                         <div className="flex items-center gap-4">

@@ -30,7 +30,7 @@ export function Header() {
           <Link to="/" className="flex items-center group">
             <div className="group-hover:scale-105 transition-transform duration-300 -ml-4">
               <img
-                src={scrolled ? logoImg : logoImgWhite}
+                src={(scrolled || mobileOpen) ? logoImg : logoImgWhite}
                 alt="Doxantu Travel"
                 className="h-[100px] md:h-[140px] w-auto object-contain block"
               />

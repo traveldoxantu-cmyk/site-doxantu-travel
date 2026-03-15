@@ -128,20 +128,20 @@ export function AdminDashboard() {
 
             {/* ── Welcome banner ───────────────────────────────────────────── */}
             <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                className="rounded-2xl overflow-hidden flex items-center justify-between px-8 py-6"
+                className="rounded-2xl overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between px-6 md:px-8 py-6 gap-6"
                 style={{ background: 'linear-gradient(135deg, #0e1e38 0%, #1a3a5c 100%)' }}>
                 <div>
-                    <h1 className="text-2xl font-extrabold text-white mb-1">Bonjour, Ousmane 👋</h1>
-                    <p className="text-blue-300/70 text-sm">Direction Générale · {today}</p>
+                    <h1 className="text-xl md:text-2xl font-extrabold text-white mb-1">Bonjour, Ousmane 👋</h1>
+                    <p className="text-blue-300/80 text-xs md:text-sm">Direction Générale · {today}</p>
                 </div>
-                <div className="flex gap-8">
-                    <div className="text-right">
-                        <p className="text-blue-300/60 text-xs font-medium uppercase tracking-wide mb-1">CA total</p>
-                        <p className="text-white font-extrabold text-2xl">{((stats?.caTotalAnnuel ?? 0) / 1e6).toFixed(2)}M FCFA</p>
+                <div className="flex gap-6 md:gap-8 w-full md:w-auto border-t border-white/10 md:border-0 pt-4 md:pt-0">
+                    <div className="flex-1 md:text-right">
+                        <p className="text-blue-300/60 text-[10px] md:text-xs font-medium uppercase tracking-wide mb-0.5">CA total</p>
+                        <p className="text-white font-extrabold text-xl md:text-2xl">{((stats?.caTotalAnnuel ?? 0) / 1e6).toFixed(2)}M FCFA</p>
                     </div>
-                    <div className="text-right pl-8 border-l border-white/10">
-                        <p className="text-blue-300/60 text-xs font-medium uppercase tracking-wide mb-1">Clients satisfaits</p>
-                        <p className="text-white font-extrabold text-2xl">{stats?.clientsSatisfaits ?? 0}%</p>
+                    <div className="flex-1 md:text-right md:pl-8 md:border-l md:border-white/10">
+                        <p className="text-blue-300/60 text-[10px] md:text-xs font-medium uppercase tracking-wide mb-0.5">Satisfaction</p>
+                        <p className="text-white font-extrabold text-xl md:text-2xl">{stats?.clientsSatisfaits ?? 0}%</p>
                     </div>
                 </div>
             </motion.div>

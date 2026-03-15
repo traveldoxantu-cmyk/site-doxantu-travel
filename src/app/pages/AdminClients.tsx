@@ -119,11 +119,11 @@ export function AdminClients() {
                 </div>
 
                 {/* Filter pills + dropdowns */}
-                <div className="flex items-center justify-between gap-3 flex-wrap">
+                <div className="flex flex-col gap-4">
                     <div className="flex gap-1.5 flex-wrap">
                         {FILTERS.map(f => (
                             <button key={f} onClick={() => setActiveFilter(f)}
-                                className={`px-3.5 py-1.5 rounded-xl text-sm font-semibold transition-all border ${
+                                className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all border shrink-0 ${
                                     activeFilter === f
                                         ? 'bg-[#1a2b40] text-white border-[#1a2b40]'
                                         : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
@@ -132,11 +132,11 @@ export function AdminClients() {
                             </button>
                         ))}
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap sm:flex-nowrap">
                         <select 
                             value={clientType}
                             onChange={(e) => setClientType(e.target.value)}
-                            className="text-sm text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none cursor-pointer hover:border-[#0B84D8]/30 transition-colors"
+                            className="flex-1 sm:flex-none text-xs sm:text-sm text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none cursor-pointer hover:border-[#0B84D8]/30 transition-colors"
                         >
                             <option>Tous types</option>
                             <option value="étudiant">Étudiants</option>
@@ -145,7 +145,7 @@ export function AdminClients() {
                         <select 
                             value={selectedConseiller}
                             onChange={(e) => setSelectedConseiller(e.target.value)}
-                            className="text-sm text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none cursor-pointer hover:border-[#0B84D8]/30 transition-colors"
+                            className="flex-1 sm:flex-none text-xs sm:text-sm text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none cursor-pointer hover:border-[#0B84D8]/30 transition-colors"
                         >
                             <option>Tous conseillers</option>
                             <option>Fatou Mbaye</option>
@@ -155,7 +155,7 @@ export function AdminClients() {
                         <select 
                             value={sortBy}
                             onChange={(e) => setSortBy(e.target.value)}
-                            className="text-sm text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none cursor-pointer hover:border-[#0B84D8]/30 transition-colors"
+                            className="flex-1 sm:flex-none text-xs sm:text-sm text-gray-500 border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none cursor-pointer hover:border-[#0B84D8]/30 transition-colors"
                         >
                             <option>Trier par date</option>
                             <option>Plus récents</option>
