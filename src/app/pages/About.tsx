@@ -102,7 +102,7 @@ const stats = [
 
 export function About() {
   return (
-    <div className="pt-24 pb-16">
+    <div className="min-h-screen">
       <SEO title="À propos" description="Découvrez l'histoire de Doxantu Travel, l'agence de voyage 100% digitale dédiée aux étudiants sénégalais." />
       {/* Hero Section */}
       <section
