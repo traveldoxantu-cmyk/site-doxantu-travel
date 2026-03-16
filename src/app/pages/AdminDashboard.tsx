@@ -98,15 +98,25 @@ export function AdminDashboard() {
             apiFetch<AdminStats>('/adminStats'),
             apiFetch<ChartPoint[]>('/chartData'),
             apiFetch<StatutItem[]>('/dossiersByStatut'),
-            apiFetch<Paiement[]>('/derniersPaiements'),
-            apiFetch<Client[]>('/clients'),
+            apiFetch<any[]>('/derniersPaiements'),
+            apiFetch<any[]>('/users'),
             apiFetch<Demande[]>('/demandes?_sort=createdAt&_order=desc&_limit=5'),
-        ]).then(([s, c, st, p, cl, dem]) => {
+        ]).then(([s, c, st, p, u, dem]) => {
             const storedUser = localStorage.getItem('user');
             if (storedUser) setUser(JSON.parse(storedUser));
             
             setStats(s); setChart(c); setStatuts(st); setPaiements(p);
-            setUrgent(cl.filter(x => x.urgent));
+            
+            // Transformer les users en format Client pour l'affichage tableau
+            const realClients = u.filter(x => x.role === 'client');
+            setUrgent(realClients.filter(x => x.urgent).map(x => ({
+                ...x,
+                nom: `${x.firstName} ${x.lastName}`,
+                dossierId: `DXT-2026-${x.id}`,
+                destination: 'Non spécifiée',
+                avancement: 0
+            })) as any);
+
             setDemandes(dem);
         }).catch(console.error).finally(() => setLoading(false));
     }, []);

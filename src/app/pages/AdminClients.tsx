@@ -3,12 +3,31 @@ import { motion } from 'motion/react';
 import { Search, Download, Plus, Eye, MessageSquare, GraduationCap, Briefcase, AlertCircle } from 'lucide-react';
 import { apiFetch } from '../lib/api';
 
-interface Client {
-    id: number; nom: string; initiales: string; type: string;
-    email: string; telephone: string; dossierId: string;
-    destination: string; formation: string; statut: string;
-    conseillerNom: string | null; conseillerInitiales: string; conseillerCouleur: string;
-    etapesFaites: number; etapesTotal: number; avancement: number; urgent: boolean;
+interface User {
+    id: string | number;
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    role: string;
+    initiales: string;
+}
+
+interface Client extends User {
+    nom: string;
+    type: string;
+    telephone: string;
+    dossierId: string;
+    destination: string;
+    formation: string;
+    statut: string;
+    conseillerNom: string | null;
+    conseillerInitiales: string;
+    conseillerCouleur: string;
+    etapesFaites: number;
+    etapesTotal: number;
+    avancement: number;
+    urgent: boolean;
 }
 
 const STATUT_STYLE: Record<string, { label: string; border: string; text: string; bg: string }> = {
@@ -33,7 +52,29 @@ export function AdminClients() {
     const [sortBy, setSortBy] = useState('Trier par date');
 
     useEffect(() => {
-        apiFetch<Client[]>('/clients').then(setClients).catch(console.error).finally(() => setLoading(false));
+        apiFetch<any[]>('/users').then(data => {
+            const clientsOnly = data
+                .filter(u => u.role === 'client')
+                .map(u => ({
+                    ...u,
+                    id: String(u.id),
+                    nom: `${u.firstName} ${u.lastName}`,
+                    type: 'étudiant',
+                    telephone: u.phone,
+                    dossierId: u.id ? `DXT-2026-${u.id}` : 'DXT-NEW',
+                    destination: 'À définir',
+                    formation: 'Nouveau compte',
+                    statut: 'Nouveau',
+                    conseillerNom: null,
+                    conseillerInitiales: '?',
+                    conseillerCouleur: '#94a3b8',
+                    etapesFaites: 0,
+                    etapesTotal: 5,
+                    avancement: 0,
+                    urgent: false
+                }));
+            setClients(clientsOnly);
+        }).catch(console.error).finally(() => setLoading(false));
     }, []);
 
     const filtered = clients.filter(c => {
@@ -45,8 +86,8 @@ export function AdminClients() {
         
         return matchSearch && matchStatus && matchType && matchConseiller;
     }).sort((a, b) => {
-        if (sortBy === 'Plus récents') return b.id - a.id;
-        if (sortBy === 'Plus anciens') return a.id - b.id;
+        if (sortBy === 'Plus récents') return Number(b.id) - Number(a.id);
+        if (sortBy === 'Plus anciens') return Number(a.id) - Number(b.id);
         if (sortBy === 'Avancement') return b.avancement - a.avancement;
         return 0;
     });
