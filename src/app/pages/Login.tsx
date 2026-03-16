@@ -73,6 +73,7 @@ export function Login() {
                 // Logique de connexion réelle via le serveur JSON
                 console.log('Tentative de connexion:', email.trim().toLowerCase());
                 const users = await apiFetch<any[]>(`/users?email=${encodeURIComponent(email.trim().toLowerCase())}&password=${encodeURIComponent(password)}`);
+                console.log('Réponse serveur (utilisateurs trouvés):', users.length);
 休产
                 
                 if (users.length > 0) {
