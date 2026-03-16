@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { Link } from 'react-router';
-import { Shield, FileText, Lock, Scale } from 'lucide-react';
+import { Shield, Lock, FileText, Scale } from 'lucide-react';
 import { SEO } from '../components/SEO';
 
 const sections = [
@@ -102,7 +102,9 @@ export function LegalMentions() {
       >
         <div className="max-w-3xl mx-auto text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <div className="text-4xl mb-4">⚖️</div>
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 bg-[#E8F4FD] text-[#0B84D8]">
+              <Scale className="w-8 h-8" />
+            </div>
             <h1 className="text-white mb-4" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 800 }}>
               Mentions Légales
             </h1>

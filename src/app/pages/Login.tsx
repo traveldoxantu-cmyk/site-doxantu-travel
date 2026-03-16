@@ -1,70 +1,86 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { LogIn, ArrowLeft, Mail, Lock, Phone, UserPlus } from 'lucide-react';
+import { LogIn, ArrowLeft, Mail, Lock, Phone, UserPlus, Eye, EyeOff, User } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { SEO } from '../components/SEO';
+import { apiFetch } from '../lib/api';
 
-// Credentials de démonstration
-const DEMO_ACCOUNTS = [
-    { email: 'admin@doxantu.com', password: 'Admin2026!', role: 'admin', redirectTo: '/admin/dashboard' },
-    { email: 'amadou.diallo@edu.sn', password: 'Demo2026!', role: 'client', redirectTo: '/mon-espace/dashboard' },
-];
 
 export function Login() {
     const [searchParams] = useSearchParams();
     const [isRegister, setIsRegister] = useState(false);
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const navigate = useNavigate();
 
-    // Auto-complétion basée sur l'URL (?role=client|admin) en mode Connexion uniquement
+    // Auto-complétion basée sur l'URL (?role=client|admin ou ?mode=register)
     useEffect(() => {
-        if (!isRegister) {
-            const role = searchParams.get('role');
-            if (role) {
-                const demoAccount = DEMO_ACCOUNTS.find(acc => acc.role === role);
-                if (demoAccount) {
-                    setEmail(demoAccount.email);
-                    setPassword(demoAccount.password);
-                }
-            }
-        }
-    }, [searchParams, isRegister]);
+        const mode = searchParams.get('mode');
+        if (mode === 'register') setIsRegister(true);
+    }, [searchParams]);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError('');
 
-        if (isRegister) {
-            // Simulation d'inscription
-            setTimeout(() => {
-                if (!email.includes('@') || phone.length < 8) {
+        try {
+            if (isRegister) {
+                if (!email.includes('@') || phone.length < 8 || !firstName || !lastName) {
                     setError('Veuillez remplir correctement tous les champs.');
                     setLoading(false);
-                } else {
-                    setSuccess(true);
-                    setLoading(false);
-                    setTimeout(() => navigate('/mon-espace/dashboard'), 1500);
+                    return;
                 }
-            }, 1000);
-        } else {
-            // Logique de connexion
-            setTimeout(() => {
-                const account = DEMO_ACCOUNTS.find(
-                    a => a.email === email.trim().toLowerCase() && a.password === password
-                );
-                if (account) {
-                    navigate(account.redirectTo);
+                if (password !== confirmPassword) {
+                    setError('Les mots de passe ne correspondent pas.');
+                    setLoading(false);
+                    return;
+                }
+
+                // Création d'utilisateur sur le serveur JSON
+                const newUser = {
+                    firstName,
+                    lastName,
+                    email: email.trim().toLowerCase(),
+                    phone,
+                    password,
+                    role: 'client',
+                    initiales: `${firstName[0]}${lastName[0]}`.toUpperCase()
+                };
+
+                await apiFetch('/users', {
+                    method: 'POST',
+                    body: JSON.stringify(newUser)
+                });
+
+                setSuccess(true);
+                setTimeout(() => navigate('/mon-espace/dashboard'), 1500);
+            } else {
+                // Logique de connexion réelle via le serveur JSON
+                const users = await apiFetch<any[]>(`/users?email=${encodeURIComponent(email.trim().toLowerCase())}&password=${encodeURIComponent(password)}`);
+                
+                if (users.length > 0) {
+                    const user = users[0];
+                    const redirectTo = user.role === 'admin' ? '/admin/dashboard' : '/mon-espace/dashboard';
+                    navigate(redirectTo);
                 } else {
                     setError('Email ou mot de passe incorrect.');
-                    setLoading(false);
                 }
-            }, 600);
+            }
+        } catch (err) {
+            console.error(err);
+            setError('Une erreur est survenue. Le serveur est-il bien lancé ?');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -155,6 +171,40 @@ export function Login() {
                 ) : (
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-4">
+                            {/* Nom & Prénom (Inscription seulement) */}
+                            <AnimatePresence mode="wait">
+                                {isRegister && (
+                                    <motion.div 
+                                        initial={{ opacity: 0, height: 0, y: -10 }}
+                                        animate={{ opacity: 1, height: 'auto', y: 0 }}
+                                        exit={{ opacity: 0, height: 0, y: -10 }}
+                                        className="grid grid-cols-2 gap-4 overflow-hidden"
+                                    >
+                                        <div className="relative group">
+                                            <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 transition-colors group-focus-within:text-[#0B84D8]" />
+                                            <input
+                                                type="text"
+                                                required={isRegister}
+                                                value={firstName}
+                                                onChange={e => setFirstName(e.target.value)}
+                                                className="block w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#0B84D8]/50 focus:border-[#0B84D8] transition-all"
+                                                placeholder="Prénom"
+                                            />
+                                        </div>
+                                        <div className="relative group">
+                                            <input
+                                                type="text"
+                                                required={isRegister}
+                                                value={lastName}
+                                                onChange={e => setLastName(e.target.value)}
+                                                className="block w-full px-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#0B84D8]/50 focus:border-[#0B84D8] transition-all"
+                                                placeholder="Nom"
+                                            />
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
                             {/* Email */}
                             <div className="relative">
                                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
@@ -191,17 +241,53 @@ export function Login() {
                             </AnimatePresence>
 
                             {/* Password */}
-                            <div className="relative">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
+                            <div className="relative group">
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 transition-colors group-focus-within:text-[#0B84D8]" />
                                 <input
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     required
                                     value={password}
                                     onChange={e => setPassword(e.target.value)}
-                                    className="block w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#0B84D8]/50 focus:border-[#0B84D8] transition-all"
-                                    placeholder="Mot de passe"
+                                    className="block w-full pl-12 pr-12 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#0B84D8]/50 focus:border-[#0B84D8] transition-all"
+                                    placeholder={isRegister ? "Mot de passe" : "Mot de passe"}
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                                >
+                                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                </button>
                             </div>
+
+                            {/* Confirm Password (Inscription seulement) */}
+                            <AnimatePresence>
+                                {isRegister && (
+                                    <motion.div 
+                                        initial={{ opacity: 0, height: 0, y: -10 }}
+                                        animate={{ opacity: 1, height: 'auto', y: 0 }}
+                                        exit={{ opacity: 0, height: 0, y: -10 }}
+                                        className="relative overflow-hidden group"
+                                    >
+                                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500 transition-colors group-focus-within:text-[#0B84D8]" />
+                                        <input
+                                            type={showConfirmPassword ? "text" : "password"}
+                                            required={isRegister}
+                                            value={confirmPassword}
+                                            onChange={e => setConfirmPassword(e.target.value)}
+                                            className="block w-full pl-12 pr-12 py-4 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#0B84D8]/50 focus:border-[#0B84D8] transition-all"
+                                            placeholder="Confirmer le mot de passe"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                                        >
+                                            {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                        </button>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </div>
 
                         {error && (

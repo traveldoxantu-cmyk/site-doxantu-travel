@@ -1,10 +1,11 @@
 import { Link } from 'react-router';
 import { motion } from 'motion/react';
-import { ArrowRight, Target, Eye, Heart, Shield, Users, Award, CheckCircle } from 'lucide-react';
+import { ArrowRight, Target, Eye, Heart, Shield, Users, Award, CheckCircle, History } from 'lucide-react';
 import { SEO } from '../components/SEO';
+const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
 const TEAM_IMG =
-  'https://images.unsplash.com/photo-1578894381163-e72c17f2d45f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBZnJpY2FuJTIwdHJhdmVsJTIwYWdlbmN5JTIwdGVhbSUyMHByb2Zlc3Npb25hbHN8ZW58MXx8fHwxNzcyMzEwMTU5fDA&ixlib=rb-4.1.0&q=80&w=1080';
+  'https://images.unsplash.com/photo-1488646953014-85cb44e25828?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmF2ZWwlMjBwbGFubmluZyUyMGNhbWVyYSUyMHBhc3Nwb3J0fGVufDF8fHwxNzcyMzExODU5fDA&ixlib=rb-4.1.0&q=80&w=1080';
 
 const values = [
   {
@@ -107,17 +108,26 @@ export function About() {
       {/* Hero Section */}
       <section
         className="relative pt-40 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, #072a50 0%, #0B84D8 100%)' }}
       >
-        <div className="max-w-7xl mx-auto">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src={HERO_BG}
+            alt="Dakar Renaissance"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#072a50]/95 via-[#072a50]/80 to-[#0B84D8]/40" style={{ background: 'linear-gradient(102deg, rgba(7,42,80,0.92) 5%, rgba(7,42,80,0.7) 40%, rgba(11,132,216,0.4) 70%, rgba(8,31,62,0.95) 100%)' }}></div>
+        </div>
+        <div className="relative z-10 max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
               <span className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-full mb-6"
                 style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white' }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="inline-block mr-1"><rect x="2" y="7" width="9" height="14" /><rect x="13" y="2" width="9" height="19" /><line x1="9" y1="12" x2="13" y2="12" /></svg> Notre histoire
+                <History className="w-4 h-4 mr-1" /> Notre histoire
               </span>
               <h1 className="text-white mb-10" style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 800, lineHeight: 1.2 }}>
-                <span style={{ color: '#7dd3fc' }}>L'agence qui vous ressemble</span>
+                L'agence qui vous<br />
+                <span style={{ color: '#7dd3fc' }}>ressemble</span>
               </h1>
               <p className="text-blue-100 mb-8" style={{ fontSize: '1.05rem', lineHeight: 1.8 }}>
                 Née à Dakar en 2019, Doxantu Travel est une agence digitale fondée avec une mission claire :
@@ -126,14 +136,20 @@ export function About() {
                 Nos fondateurs, anciens étudiants ayant vécu les difficultés des procédures d'expatriation,
                 ont voulu créer l'agence qu'ils auraient aimé trouver.
               </p>
-              <div
-                className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl"
-                style={{ backgroundColor: 'rgba(255,255,255,0.15)', border: '1.5px solid rgba(255,255,255,0.3)', backdropFilter: 'blur(10px)' }}
-              >
-                <Shield className="w-6 h-6 text-green-300" />
-                <div>
-                  <p className="text-white font-bold text-sm tracking-tight">Agence officielle enregistrée au Sénégal</p>
-                  <p className="text-blue-200 text-xs font-medium">Licence Ministérielle N° 2024-DT-001</p>
+              <div className="flex flex-wrap gap-4 mb-8">
+                <Link to="/devis" className="inline-flex items-center gap-2 px-6 py-3.5 text-white font-semibold transition-all hover:shadow-lg hover:-translate-y-0.5"
+                  style={{ backgroundColor: '#0B84D8', borderRadius: '14px' }}>
+                  Commencer ma demande <ArrowRight className="w-4 h-4" />
+                </Link>
+                <div
+                  className="inline-flex items-center gap-3 px-6 py-3.5 rounded-2xl"
+                  style={{ backgroundColor: 'rgba(255,255,255,0.1)', border: '1.5px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)' }}
+                >
+                  <Shield className="w-5 h-5 text-green-300" />
+                  <div>
+                    <p className="text-white font-bold text-xs tracking-tight">Agence officielle enregistrée au Sénégal</p>
+                    <p className="text-blue-200 text-[10px] font-medium">Licence Ministérielle N° 2024-DT-001</p>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -167,6 +183,13 @@ export function About() {
       {/* Vision / Mission */}
       <section className="pt-20 pb-16 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
+          <div className="max-w-3xl mb-12">
+            <h2 className="text-3xl font-bold text-[#072a50] mb-6">Notre Vision & Mission</h2>
+            <p className="text-gray-600 leading-relaxed text-lg">
+              Chez Doxantu Travel, nous croyons que la mobilité internationale est un puissant levier de
+              développement personnel et professionnel.
+            </p>
+          </div>
           <div className="grid md:grid-cols-2 gap-8 mt-8">
             {[
               {
@@ -177,7 +200,7 @@ export function About() {
               {
                 icon: <Target className="w-7 h-7" />,
                 title: 'Notre Mission',
-                content: 'Simplifier et démocratiser la mobilité internationale pour les étudiants et voyageurs sénégalais. Nous rendons chaque étape, du choix de la destination au retour, transparente, abordable et accompagnée.',
+                content: 'Simplifier et démocratiser la mobilité internationale pour les étudiants et voyageurs sénégalais. Nous rendons chaque étape — du choix de la destination au retour — transparente, abordable et accompagnée.',
               },
             ].map((item, i) => (
               <motion.div
@@ -186,7 +209,7 @@ export function About() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: i * 0.15 }}
-                className="p-10 rounded-[32px] border border-gray-100 hover:shadow-2xl transition-all hover:-translate-y-1 bg-white"
+                className="p-10 rounded-3xl border border-gray-100 hover:shadow-2xl transition-all hover:-translate-y-1 bg-white"
               >
                 <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 text-white shadow-lg shadow-[#0B84D8]/20" style={{ backgroundColor: '#0B84D8' }}>
                   {item.icon}

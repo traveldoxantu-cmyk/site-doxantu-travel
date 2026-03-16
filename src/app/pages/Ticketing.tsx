@@ -13,27 +13,29 @@ import {
   RefreshCw,
   Clock,
   ChevronRight,
+  Globe,
+  Search,
+  Loader2,
 } from 'lucide-react';
 import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission';
-
-const HERO_IMG =
-  'https://images.unsplash.com/photo-1770701502608-f7d49a1134ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhaXJwbGFuZSUyMGZsaWdodCUyMHRyYXZlbCUyMGJsdWUlMjBza3l8ZW58MXx8fHwxNzcyMzEwMTU0fDA&ixlib=rb-4.1.0&q=80&w=1080';
+import { apiFetch } from '../lib/api';
+const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
 const services = [
   {
-    icon: '🌍',
+    icon: <Globe className="w-8 h-8" />,
     title: 'Vols internationaux',
     desc: 'Dakar vers toutes les destinations mondiales. Nous négocions les meilleurs tarifs avec les grandes compagnies.',
     features: ['Air France, Royal Air Maroc, Turkish Airlines', 'Classes économique, affaires et première', 'Flexibilité et assistance 24/7'],
   },
   {
-    icon: '🇸🇳',
+    icon: <MapPin className="w-8 h-8" />,
     title: 'Vols nationaux',
     desc: 'Connexions intérieures au Sénégal et en Afrique de l\'Ouest. Rapide et abordable.',
     features: ['Dakar ↔ Ziguinchor', 'Dakar ↔ Saint-Louis', 'Connexions Afrique de l\'Ouest'],
   },
   {
-    icon: '🔄',
+    icon: <RefreshCw className="w-8 h-8" />,
     title: 'Modification & Annulation',
     desc: 'Un imprévu ? Nous gérons vos modifications et annulations de billets avec réactivité.',
     features: ['Changement de date', 'Remboursement partiel ou total', 'Réservation de vol de remplacement'],
@@ -55,14 +57,20 @@ export function Ticketing() {
   const [passengers, setPassengers] = useState('1');
   const [formSent, setFormSent] = useState(false);
   const [formError, setFormError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (returnDate && departDate && returnDate < departDate) {
       setFormError('La date retour doit être après la date aller.');
       return;
     }
     setFormError('');
+    setIsSubmitting(true);
+    
+    // Simulate slight delay for premium feel
+    await new Promise(resolve => setTimeout(resolve, 800));
+
     const message = buildWhatsAppMessage('Nouvelle demande billetterie', {
       Depart: from,
       Destination: to,
@@ -70,8 +78,25 @@ export function Ticketing() {
       'Date retour': returnDate,
       Passagers: passengers,
     });
-    openWhatsAppSubmission(message);
-    setFormSent(true);
+
+    try {
+      await apiFetch('/demandes', {
+        method: 'POST',
+        body: JSON.stringify({
+          type: 'billetterie',
+          data: { from, to, departDate, returnDate, passengers },
+          status: 'nouveau',
+          createdAt: new Date().toISOString()
+        })
+      });
+      openWhatsAppSubmission(message);
+      setFormSent(true);
+    } catch (err) {
+      console.error(err);
+      setFormError('Erreur lors de l\'enregistrement. Le serveur est-il bien lancé ?');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -79,15 +104,19 @@ export function Ticketing() {
       <SEO title="Billetterie Aérienne" description="Réservation de billets d'avion abordables au Sénégal. Vols pas chers vers la France, Canada, et le monde entier avec Doxantu Travel." />
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center overflow-hidden pt-28">
-        <div className="absolute inset-0">
-          <img src={HERO_IMG} alt="Avion" className="w-full h-full object-cover" />
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(7,42,80,0.94) 0%, rgba(11,132,216,0.76) 100%)' }} />
+        <div className="absolute inset-0 z-0">
+          <img
+            src={HERO_BG}
+            alt="Dakar Aerial View"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(102deg, rgba(7,42,80,0.92) 5%, rgba(7,42,80,0.7) 40%, rgba(11,132,216,0.4) 70%, rgba(8,31,62,0.95) 100%)' }} />
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
             <span className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-full mb-6"
               style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white' }}>
-              ✈️ Billetterie aérienne
+              <Plane className="w-4 h-4 mr-1 text-blue-300" /> Billetterie aérienne
             </span>
             <h1
               className="text-white mb-5"
@@ -107,14 +136,16 @@ export function Ticketing() {
       {/* Search Engine */}
       <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-4xl mx-auto">
-          <div className="p-8 rounded-2xl shadow-2xl border border-gray-100">
-            <h2 className="text-[#333333] mb-6" style={{ fontSize: '1.4rem', fontWeight: 700 }}>
-              🔍 Rechercher un vol
+          <div className="p-8 rounded-3xl shadow-2xl border border-gray-100">
+            <h2 className="text-[#333333] mb-6 flex items-center gap-2" style={{ fontSize: '1.4rem', fontWeight: 700 }}>
+              <Search className="w-5 h-5 text-[#0B84D8]" /> Rechercher un vol
             </h2>
 
             {formSent ? (
               <div className="text-center py-8">
-                <div className="text-5xl mb-4">✅</div>
+                <div className="w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 bg-green-50 text-green-500">
+                  <CheckCircle className="w-8 h-8" />
+                </div>
                 <h3 className="text-[#333333] font-bold mb-2">Demande envoyée !</h3>
                 <p className="text-gray-500 mb-4">Nous vous contacterons avec les meilleures offres disponibles dans les 2h.</p>
                 <button onClick={() => setFormSent(false)} className="px-6 py-3 text-white font-semibold" style={{ backgroundColor: '#0B84D8', borderRadius: '12px' }}>
@@ -210,10 +241,20 @@ export function Ticketing() {
                   <div className="flex items-end">
                     <button
                       type="submit"
-                      className="w-full py-3.5 text-white font-semibold transition-all hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-center gap-2"
-                      style={{ backgroundColor: '#0B84D8', borderRadius: '16px' }}
+                      disabled={isSubmitting}
+                      className="w-full py-3.5 text-white font-semibold transition-all hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                      style={{ backgroundColor: '#0B84D8', borderRadius: '14px' }}
                     >
-                      Obtenir un devis vol <ArrowRight className="w-4 h-4" />
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Traitement...
+                        </>
+                      ) : (
+                        <>
+                          Commencer ma demande <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -253,9 +294,11 @@ export function Ticketing() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: i * 0.15 }}
-                className="bg-white rounded-[32px] p-7 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
+                className="bg-white rounded-3xl p-7 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
               >
-                <div className="text-4xl mb-4">{s.icon}</div>
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 bg-[#E8F4FD] text-[#0B84D8]">
+                  {s.icon}
+                </div>
                 <h3 className="text-[#333333] mb-3" style={{ fontSize: '1.15rem', fontWeight: 700 }}>
                   {s.title}
                 </h3>
@@ -307,20 +350,22 @@ export function Ticketing() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <div className="text-5xl mb-5">✈️</div>
+            <div className="w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-6 bg-white/10 backdrop-blur-sm border border-white/20">
+              <Plane className="w-8 h-8 text-white" />
+            </div>
             <h2 className="text-white mb-4" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 700 }}>
               Votre prochain vol commence ici
             </h2>
             <p className="text-blue-200 mb-8">
               Obtenez votre devis vol personnalisé en moins de 2h. Sans frais cachés, sans stress.
             </p>
-            <Link
-              to="/devis"
-              className="inline-flex items-center gap-2 px-8 py-4 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5"
-              style={{ backgroundColor: 'white', color: '#0B84D8', borderRadius: '12px' }}
-            >
-              Obtenir mon devis vol <ArrowRight className="w-5 h-5" />
-            </Link>
+              <Link
+                to="/devis"
+                className="inline-flex items-center gap-2 px-8 py-4 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5"
+                style={{ backgroundColor: 'white', color: '#0B84D8', borderRadius: '12px' }}
+              >
+                Commencer ma demande <ArrowRight className="w-5 h-5" />
+              </Link>
           </motion.div>
         </div>
       </section>

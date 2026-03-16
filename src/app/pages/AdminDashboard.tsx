@@ -15,6 +15,13 @@ interface ChartPoint { mois: string; valeur: number; }
 interface StatutItem { statut: string; count: number; color: string; }
 interface Paiement { id: number; client: string; montant: number; date: string; statut: string; }
 interface Client { id: number; nom: string; initiales: string; dossierId: string; destination: string; formation: string; statut: string; avancement: number; urgent: boolean; conseillerNom: string | null; }
+interface Demande { 
+    id: number; 
+    type: 'billetterie' | 'accompagnement'; 
+    data: any; 
+    status: string; 
+    createdAt: string; 
+}
 
 // ── SVG Line Chart (inline, no library) ───────────────────────────────────
 function LineChart({ data }: { data: ChartPoint[] }) {
@@ -81,6 +88,7 @@ export function AdminDashboard() {
     const [statuts, setStatuts] = useState<StatutItem[]>([]);
     const [paiements, setPaiements] = useState<Paiement[]>([]);
     const [urgent, setUrgent] = useState<Client[]>([]);
+    const [demandes, setDemandes] = useState<Demande[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -90,9 +98,11 @@ export function AdminDashboard() {
             apiFetch<StatutItem[]>('/dossiersByStatut'),
             apiFetch<Paiement[]>('/derniersPaiements'),
             apiFetch<Client[]>('/clients'),
-        ]).then(([s, c, st, p, cl]) => {
+            apiFetch<Demande[]>('/demandes?_sort=createdAt&_order=desc&_limit=5'),
+        ]).then(([s, c, st, p, cl, dem]) => {
             setStats(s); setChart(c); setStatuts(st); setPaiements(p);
             setUrgent(cl.filter(x => x.urgent));
+            setDemandes(dem);
         }).catch(console.error).finally(() => setLoading(false));
     }, []);
 
@@ -101,7 +111,7 @@ export function AdminDashboard() {
 
     const kpis = stats ? [
         { icon: TrendingUp, label: 'CA ce mois', value: `${(stats.caCurrentMonth / 1e6).toFixed(2)}M FCFA`, sub: `+${stats.caGrowthPercent}% vs mois précédent`, subColor: 'text-emerald-600' },
-        { icon: FolderOpen, label: 'Dossiers actifs', value: `${stats.dossiersActifs}`, sub: `${stats.nouveauxDossiers} nouveaux ce mois`, subColor: 'text-emerald-600' },
+        { icon: FolderOpen, label: 'Nouvelles demandes', value: `${demandes.length}`, sub: `Dernières 24h`, subColor: 'text-emerald-600' },
         { icon: CheckCircle2, label: 'Taux succès visa', value: `${stats.tauxSuccesVisa}%`, sub: `+${stats.tauxSuccesGrowth}pts vs trimestre préc.`, subColor: 'text-emerald-600' },
         { icon: CreditCard, label: 'Paiements en attente', value: `${stats.paiementsEnAttente}`, sub: `${(stats.montantAEncaisser / 1000).toFixed(0)}K FCFA à encaisser`, subColor: 'text-amber-600' },
     ] : [];
@@ -131,7 +141,7 @@ export function AdminDashboard() {
                 className="rounded-2xl overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between px-6 md:px-8 py-6 gap-6"
                 style={{ background: 'linear-gradient(135deg, #0e1e38 0%, #1a3a5c 100%)' }}>
                 <div>
-                    <h1 className="text-xl md:text-2xl font-extrabold text-white mb-1">Bonjour, Ousmane 👋</h1>
+                    <h1 className="text-xl md:text-2xl font-extrabold text-white mb-1">Bonjour, Mouhamed 👋</h1>
                     <p className="text-blue-300/80 text-xs md:text-sm">Direction Générale · {today}</p>
                 </div>
                 <div className="flex gap-6 md:gap-8 w-full md:w-auto border-t border-white/10 md:border-0 pt-4 md:pt-0">
@@ -259,6 +269,66 @@ export function AdminDashboard() {
                             </div>
                         ))}
                     </div>
+                </div>
+            </div>
+
+            {/* ── Dernières Demandes du Site ────────────────────────────── */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 overflow-hidden">
+                <div className="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 className="text-lg font-bold text-[#1a2b40]">Flux des demandes réelles</h2>
+                        <p className="text-xs text-gray-400">Demandes soumises via Billetterie & Devis</p>
+                    </div>
+                    <span className="px-3 py-1 bg-blue-50 text-[#0B84D8] text-[10px] font-bold rounded-full uppercase tracking-wider">Direct API</span>
+                </div>
+                
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-50">
+                                <th className="pb-3 pr-4">Type</th>
+                                <th className="pb-3 pr-4">Client</th>
+                                <th className="pb-3 pr-4">Détails</th>
+                                <th className="pb-3 pr-4">Date</th>
+                                <th className="pb-3">Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50">
+                            {demandes.map((d) => (
+                                <tr key={d.id} className="group hover:bg-gray-50/50 transition-colors">
+                                    <td className="py-4 pr-4">
+                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${d.type === 'billetterie' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}`}>
+                                            {d.type === 'billetterie' ? <ArrowRight className="w-4 h-4 rotate-[-45deg]" /> : <FolderOpen className="w-4 h-4" />}
+                                        </div>
+                                    </td>
+                                    <td className="py-4 pr-4">
+                                        <p className="text-sm font-bold text-[#1a2b40]">{d.data.nom || (d.data.from ? 'Vol : ' + d.data.from : 'Anonyme')}</p>
+                                        <p className="text-[10px] text-gray-400">{d.data.email || d.data.tel || '--'}</p>
+                                    </td>
+                                    <td className="py-4 pr-4">
+                                        <p className="text-xs text-gray-600 truncate max-w-[200px]">
+                                            {d.type === 'billetterie' ? `${d.data.from} → ${d.data.to}` : d.data.service || d.data.destination}
+                                        </p>
+                                    </td>
+                                    <td className="py-4 pr-4">
+                                        <p className="text-[10px] text-gray-400">{new Date(d.createdAt).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
+                                    </td>
+                                    <td className="py-4">
+                                        <span className="px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase">
+                                            {d.status}
+                                        </span>
+                                    </td>
+                                </tr>
+                            ))}
+                            {demandes.length === 0 && (
+                                <tr>
+                                    <td colSpan={5} className="py-12 text-center text-sm text-gray-400 italic">
+                                        Aucune demande réelle enregistrée pour le moment.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

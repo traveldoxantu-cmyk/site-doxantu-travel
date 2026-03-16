@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { Phone, Mail, MapPin, Clock, MessageSquare, Send, CheckCircle } from 'lucide-react';
 import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission';
 import { SEO } from '../components/SEO';
+const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
 const contactInfo = [
   {
@@ -77,13 +78,21 @@ export function Contact() {
       {/* Hero */}
       <section
         className="relative pt-40 pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, #072a50 0%, #0B84D8 100%)' }}
       >
-        <div className="max-w-7xl mx-auto text-center">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src={HERO_BG}
+            alt="Dakar Aerial View"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(102deg, rgba(7,42,80,0.92) 5%, rgba(7,42,80,0.7) 40%, rgba(11,132,216,0.4) 70%, rgba(8,31,62,0.95) 100%)' }} />
+        </div>
+        <div className="relative z-10 max-w-7xl mx-auto text-center">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
             <span className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-full mb-6"
               style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white' }}>
-              📞 Contactez-nous
+              <Phone className="w-3.5 h-3.5" /> Contactez-nous
             </span>
             <h1 className="text-white mb-4" style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 800, lineHeight: 1.2 }}>
               Parlons de votre projet
@@ -134,7 +143,7 @@ export function Contact() {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <div className="bg-white rounded-[32px] p-10 shadow-2xl border border-gray-50">
+            <div className="bg-white rounded-3xl p-10 shadow-2xl border border-gray-50">
                 <div className="mb-8">
                   <h2 className="text-[#333333] mb-2" style={{ fontSize: '1.8rem', fontWeight: 800 }}>
                     Envoyez-nous un message
@@ -165,8 +174,8 @@ export function Contact() {
                         </label>
                         <input type="text" required placeholder="Prénom NOM"
                           value={form.nom} onChange={(e) => setForm({ ...form, nom: e.target.value })}
-                          className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
-                          style={{ borderRadius: '12px' }} />
+                          className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
+                        />
                       </div>
                       <div>
                         <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
@@ -174,8 +183,8 @@ export function Contact() {
                         </label>
                         <input type="tel" required placeholder="+221 7X XXX XX XX"
                           value={form.tel} onChange={(e) => setForm({ ...form, tel: e.target.value })}
-                          className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
-                          style={{ borderRadius: '12px' }} />
+                          className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
+                        />
                       </div>
                     </div>
 
@@ -185,8 +194,8 @@ export function Contact() {
                       </label>
                       <input type="email" placeholder="votre@email.com"
                         value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
-                        style={{ borderRadius: '12px' }} />
+                        className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
+                      />
                     </div>
 
                     <div>
@@ -194,8 +203,8 @@ export function Contact() {
                         Service concerné *
                       </label>
                       <select required value={form.service} onChange={(e) => setForm({ ...form, service: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
-                        style={{ borderRadius: '12px' }}>
+                        className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
+                      >
                         <option value="">Sélectionner…</option>
                         {services.map((s) => (
                           <option key={s} value={s}>{s}</option>
@@ -209,8 +218,8 @@ export function Contact() {
                       </label>
                       <textarea required rows={4} placeholder="Décrivez votre besoin ou posez votre question…"
                         value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2 resize-none"
-                        style={{ borderRadius: '12px' }} />
+                        className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2 resize-none"
+                      />
                     </div>
 
                     <button type="submit"

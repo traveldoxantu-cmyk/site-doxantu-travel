@@ -52,10 +52,10 @@ export function AdminLayout() {
                 <div className="mx-3 mt-4 mb-2 rounded-2xl p-3.5" style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}>
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-[#0B84D8] flex items-center justify-center text-white font-extrabold text-sm shrink-0 border-2 border-[#0B84D8]/40">
-                            ON
+                            MN
                         </div>
                         <div className="min-w-0">
-                            <p className="text-white font-bold text-sm leading-tight truncate">Ousmane Ndiaye</p>
+                            <p className="text-white font-bold text-sm leading-tight truncate">Mouhamed El Fadilou Niang</p>
                             <p className="text-gray-400 text-xs truncate">Direction Générale</p>
                             <span className="inline-flex items-center gap-1 text-amber-400 text-[10px] font-bold mt-0.5">
                                 ⚡ Super Admin
@@ -134,7 +134,7 @@ export function AdminLayout() {
                             <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 border-[1.5px] border-white" />
                         </button>
                         <div className="w-9 h-9 rounded-full bg-[#0B84D8] flex items-center justify-center text-white font-extrabold text-sm cursor-pointer hover:opacity-90 transition-opacity">
-                            ON
+                            MN
                         </div>
                     </div>
                 </header>

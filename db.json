@@ -1,8 +1,9 @@
 {
   "users": [
-    { "id": 1, "email": "admin@doxantu.com", "password": "Admin2026!", "role": "admin", "nom": "Ousmane Ndiaye", "initiales": "ON", "poste": "Direction Générale" },
-    { "id": 2, "email": "amadou.diallo@edu.sn", "password": "Demo2026!", "role": "client", "nom": "Amadou Diallo", "initiales": "AD" }
+    { "id": "1", "email": "admin@doxantu.com", "password": "Admin2026!", "role": "admin", "firstName": "Mouhamed El Fadilou", "lastName": "Niang", "phone": "+221 77 000 00 00", "initiales": "MN", "poste": "Direction Générale" },
+    { "id": "2", "email": "amadou.diallo@edu.sn", "password": "Demo2026!", "role": "client", "firstName": "Amadou", "lastName": "Diallo", "phone": "+221 77 000 00 00", "initiales": "AD" }
   ],
+  "demandes": [],
 
   "adminStats": {
     "caTotalAnnuel": 13840000,

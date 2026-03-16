@@ -12,7 +12,6 @@ import {
   MapPin,
   Calendar,
   Briefcase,
-  ChevronRight,
   Users,
   Award,
   Zap,
@@ -25,7 +24,6 @@ import {
 import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission';
 import { SEO } from '../components/SEO';
 import { submitContactForm } from '../lib/services/contactService';
-
 const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 const STUDENT_IMG = 'https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdHVkZW50cyUyMHN0dWR5aW5nJTIwYWJyb2FkJTIwdW5pdmVyc2l0eSUyMGNhbXB1c3xlbnwxfHx8fDE3NzIzMTAxNTF8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
@@ -125,7 +123,7 @@ export function Home() {
             className="w-full h-full object-cover"
             loading="eager"
           />
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(102deg, rgba(7,42,80,0.96) 5%, rgba(11,132,216,0.72) 58%, rgba(8,31,62,0.92) 100%)' }} />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(102deg, rgba(7,42,80,0.92) 5%, rgba(7,42,80,0.7) 40%, rgba(11,132,216,0.4) 70%, rgba(8,31,62,0.95) 100%)' }} />
         </div>
 
         {/* Floating shapes */}
@@ -168,7 +166,7 @@ export function Home() {
                   className="inline-flex items-center gap-2 px-8 py-4 text-white font-semibold transition-all hover:shadow-2xl hover:-translate-y-0.5"
                   style={{ backgroundColor: '#0B84D8', borderRadius: '14px', fontSize: '1rem' }}
                 >
-                  Commencer ma demande <ArrowRight className="w-4 h-4" />
+                  Évaluer mon profil <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link
                   to="/services/accompagnement-etudiant"
@@ -214,7 +212,7 @@ export function Home() {
               >
                 <div className="mb-6">
                   <h2 className="text-[#333333] font-bold mb-1 flex items-center gap-2" style={{ fontSize: '1.8rem' }}>
-                    <Send className="w-6 h-6 text-[#0B84D8]" /> Démarrer ma demande
+                    <Send className="w-6 h-6 text-[#0B84D8]" /> Commencer ma demande
                   </h2>
                   <p className="text-gray-400 text-sm">En moins de 3 clics</p>
                 </div>
@@ -234,11 +232,11 @@ export function Home() {
                         style={{ borderRadius: '16px', ['--tw-ring-color' as string]: '#0B84D8' }}
                       >
                         <option value="">Choisir un pays…</option>
-                        <option value="france">🇫🇷 France</option>
-                        <option value="canada">🇨🇦 Canada</option>
-                        <option value="maroc">🇲🇦 Maroc</option>
-                        <option value="turquie">🇹🇷 Turquie</option>
-                        <option value="autres">🌍 Autres destinations</option>
+                        <option value="france">France</option>
+                        <option value="canada">Canada</option>
+                        <option value="maroc">Maroc</option>
+                        <option value="turquie">Turquie</option>
+                        <option value="autres">Autres destinations</option>
                       </select>
                     </div>
                   </div>
@@ -285,7 +283,7 @@ export function Home() {
                     className="w-full py-3.5 text-white font-semibold transition-all hover:shadow-lg hover:-translate-y-0.5"
                     style={{ backgroundColor: '#0B84D8', borderRadius: '14px', fontSize: '1rem' }}
                   >
-                    Démarrer ma demande →
+                    Commencer ma demande →
                   </button>
                 </form>
 
@@ -324,156 +322,129 @@ export function Home() {
             </p>
           </motion.div>
 
-          {/* Bento Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {/* Large tile: Accompagnement Étudiant */}
+          {/* Main Services Grid */}
+          <div className="grid lg:grid-cols-2 gap-8 items-stretch">
+            {/* Big Card: Student Support */}
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="lg:col-span-2 relative overflow-hidden rounded-[40px] group cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500"
-              style={{ minHeight: '420px' }}
+              className="group relative overflow-hidden rounded-[32px] bg-sky-900 shadow-2xl min-h-[480px] flex flex-col"
             >
-              <img
-                src={STUDENT_IMG}
-                alt="Groupe d'étudiants souriants sur un campus universitaire, symbolisant la réussite académique à l'étranger"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div
-                className="absolute inset-0"
-                style={{ background: 'linear-gradient(135deg, rgba(7,42,80,0.95) 0%, rgba(11,132,216,0.78) 100%)' }}
-              />
-              <div className="relative p-10 h-full flex flex-col justify-between" style={{ minHeight: '420px' }}>
-                <header>
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }}>
-                    <GraduationCap className="w-7 h-7 text-white" aria-hidden="true" />
-                  </div>
-                  <h3 className="text-white mb-3" style={{ fontSize: '1.5rem', fontWeight: 700 }}>
-                    Accompagnement Étudiant
-                  </h3>
-                  <p className="text-blue-100 mb-5 max-w-sm leading-relaxed">
-                    Spécialiste Campus France au Sénégal. Nous gérons votre dossier de A à Z :
-                    inscription, entretien, visa, billet, tout inclus.
-                  </p>
-                </header>
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    {['Campus France', 'Dossier complet', 'Suivi personnalisé', 'Visa étudiant'].map((tag) => (
-                      <span key={tag} className="text-xs px-3 py-1.5 rounded-full font-medium" style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white' }}>
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                <Link
-                  to="/services/accompagnement-etudiant"
-                  className="inline-flex items-center gap-2 px-5 py-3 text-white font-semibold transition-all hover:shadow-lg group-hover:-translate-y-0.5 self-start"
-                  style={{ backgroundColor: '#0B84D8', borderRadius: '16px' }}
-                >
-                  En savoir plus <ChevronRight className="w-4 h-4" />
-                </Link>
+              <div className="absolute inset-0 z-0">
+                <img
+                  src={STUDENT_IMG}
+                  alt="Étudiants sénégalais"
+                  className="w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-sky-950 via-sky-900/60 to-transparent" />
+              </div>
+
+              <div className="relative z-10 p-8 sm:p-12 flex flex-col h-full justify-end">
+                <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center mb-8">
+                  <GraduationCap className="w-7 h-7 text-white" />
+                </div>
+                <h3 className="text-3xl sm:text-4xl font-bold text-white mb-6">Accompagnement Étudiant</h3>
+                <p className="text-white/80 text-lg leading-relaxed mb-8 max-w-md">
+                  Spécialiste Campus France au Sénégal. Nous gérons votre dossier de A à Z : inscription, entretien, visa, billet, tout inclus.
+                </p>
+                <div className="flex flex-wrap gap-3 mb-10">
+                  {['Campus France', 'Dossier complet', 'Suivi personnalisé', 'Visa étudiant'].map((tag) => (
+                    <span key={tag} className="px-4 py-1.5 rounded-full bg-white/10 text-white text-xs font-medium border border-white/10 backdrop-blur-sm">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+                <div>
+                  <Link
+                    to="/services/accompagnement-etudiant"
+                    className="inline-flex items-center gap-2 px-8 py-4 bg-white text-sky-900 rounded-2xl font-bold hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] transition-all hover:-translate-y-1"
+                  >
+                    En savoir plus <ArrowRight className="w-5 h-5" />
+                  </Link>
+                </div>
               </div>
             </motion.div>
 
-            {/* Medium tile: Billetterie */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.15 }}
-              className="rounded-[40px] p-8 flex flex-col justify-between group hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
-              style={{ backgroundColor: '#ffffff', minHeight: '280px' }}
-            >
-              <article>
-                <header>
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: '#E8F4FD' }}>
-                    <Plane className="w-6 h-6" style={{ color: '#0B84D8' }} aria-hidden="true" />
+            {/* Sub-grid for other services */}
+            <div className="flex flex-col gap-8">
+              {/* Ticketing Card */}
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-xl hover:shadow-2xl transition-all group flex flex-col justify-between h-full"
+              >
+                <div>
+                  <div className="w-14 h-14 rounded-2xl bg-[#E8F4FD] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <Plane className="w-7 h-7 text-[#0B84D8]" />
                   </div>
-                  <h3 className="text-[#333333] mb-2" style={{ fontSize: '1.2rem', fontWeight: 700 }}>
-                    Billetterie
-                  </h3>
-                  <p className="text-gray-500 text-sm leading-relaxed mb-4">
+                  <h3 className="text-2xl font-bold text-[#333333] mb-4">Billetterie</h3>
+                  <p className="text-gray-500 mb-6 text-sm sm:text-base">
                     Vols nationaux & internationaux au meilleur prix. Assistance modification et annulation.
                   </p>
-                </header>
-                <ul className="space-y-1.5">
-                  {['Vols internationaux', 'Vols domestiques', 'Meilleurs tarifs'].map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
-                      <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: '#0B84D8' }} />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-              </article>
-              <Link
-                to="/services/billetterie"
-                className="inline-flex items-center gap-1 text-sm font-semibold mt-4 hover:gap-2 transition-all"
-                style={{ color: '#0B84D8' }}
-              >
-                Obtenir un devis vol <ChevronRight className="w-4 h-4" />
-              </Link>
-            </motion.div>
+                  <ul className="space-y-3 mb-8">
+                    {['Vols internationaux', 'Vols domestiques', 'Meilleurs tarifs'].map((item) => (
+                      <li key={item} className="flex items-center gap-2 text-gray-400 text-sm">
+                        <CheckCircle className="w-4 h-4 text-[#0B84D8]" /> {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <Link to="/services/billetterie" className="text-[#0B84D8] font-bold inline-flex items-center gap-2 group-hover:gap-3 transition-all">
+                  Obtenir un devis vol <ArrowRight className="w-5 h-5" />
+                </Link>
+              </motion.div>
 
-            {/* Medium tile: Assistance Visa */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.25 }}
-              className="rounded-3xl p-7 flex flex-col justify-between group hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-blue-100"
-              style={{ backgroundColor: '#E8F4FD', minHeight: '220px' }}
-            >
-              <article>
-                <header>
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: '#0B84D8', boxShadow: '0 4px 12px rgba(11, 132, 216, 0.25)' }}>
-                    <FileText className="w-6 h-6 text-white" aria-hidden="true" />
+              {/* Bottom twin cards */}
+              <div className="grid sm:grid-cols-2 gap-8">
+                {/* Visa Assistance */}
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-lg hover:shadow-xl transition-all group flex flex-col justify-between h-full"
+                >
+                  <div>
+                    <div className="w-12 h-12 rounded-xl bg-[#E8F4FD] flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                      <FileText className="w-6 h-6 text-[#0B84D8]" />
+                    </div>
+                    <h3 className="text-xl font-bold text-[#333333] mb-3 leading-tight">Assistance Visa & Documents</h3>
+                    <p className="text-gray-500 text-sm mb-6 leading-relaxed">
+                      Visa étudiant, tourisme, légalisation, traduction, on simplifie vos démarches.
+                    </p>
                   </div>
-                  <h3 className="text-[#333333] mb-2" style={{ fontSize: '1.2rem', fontWeight: 700 }}>
-                    Assistance Visa & Documents
-                  </h3>
-                  <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                    Visa étudiant, tourisme, légalisation, traduction, on simplifie vos démarches.
-                  </p>
-                </header>
-              </article>
-              <Link
-                to="/services/visa-documents"
-                className="inline-flex items-center gap-1 text-sm font-semibold hover:gap-2 transition-all"
-                style={{ color: '#0B84D8' }}
-              >
-                En savoir plus <ChevronRight className="w-4 h-4" />
-              </Link>
-            </motion.div>
+                  <Link to="/services/visa-documents" className="text-[#0B84D8] font-bold text-sm inline-flex items-center gap-2 group-hover:gap-3 transition-all">
+                    En savoir plus <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </motion.div>
 
-            {/* Small tile: Études à l'Étranger */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.35 }}
-              className="rounded-3xl p-7 flex flex-col justify-between group hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border border-gray-100"
-              style={{ backgroundColor: '#ffffff', minHeight: '220px' }}
-            >
-              <article>
-                <header>
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 bg-blue-50">
-                    <Globe className="w-6 h-6 text-[#0B84D8]" aria-hidden="true" />
+                {/* Studies Abroad */}
+                <motion.div
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: 0.4 }}
+                  className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-lg hover:shadow-xl transition-all group flex flex-col justify-between h-full"
+                >
+                  <div>
+                    <div className="w-12 h-12 rounded-xl bg-[#E8F4FD] flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                      <Globe className="w-6 h-6 text-[#0B84D8]" />
+                    </div>
+                    <h3 className="text-xl font-bold text-[#333333] mb-3 leading-tight">Études à l'Étranger</h3>
+                    <p className="text-gray-500 text-sm mb-6 leading-relaxed">
+                      France, Canada, Maroc, Turquie, trouvez votre destination et votre programme.
+                    </p>
                   </div>
-                  <h3 className="text-[#333333] mb-2" style={{ fontSize: '1.1rem', fontWeight: 700 }}>
-                    Études à l'Étranger
-                  </h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">
-                    France, Canada, Maroc, Turquie, trouvez votre destination et votre programme.
-                  </p>
-                </header>
-              </article>
-              <Link
-                to="/etudes-etranger"
-                className="inline-flex items-center gap-1 text-sm font-semibold mt-4 hover:gap-2 transition-all"
-                style={{ color: '#0B84D8' }}
-              >
-                Explorer les destinations <ChevronRight className="w-4 h-4" />
-              </Link>
-            </motion.div>
+                  <Link to="/etudes-etranger" className="text-[#0B84D8] font-bold text-sm inline-flex items-center gap-2 group-hover:gap-3 transition-all">
+                    Explorer les destinations <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </motion.div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -570,7 +541,7 @@ export function Home() {
                   className="block w-full py-3.5 text-white font-semibold text-center transition-all hover:shadow-lg hover:-translate-y-0.5"
                   style={{ backgroundColor: '#0B84D8', borderRadius: '12px' }}
                 >
-                  Demander un devis gratuit →
+                  Commencer ma demande →
                 </Link>
               </div>
 
@@ -654,7 +625,7 @@ export function Home() {
             className="text-center mb-12"
           >
             <h2 className="text-white mb-4" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 700 }}>
-              Commencez votre projet maintenant
+              Commencer ma demande
             </h2>
             <p className="text-blue-200">Remplissez ce formulaire rapide, réponse garantie en moins de 24h.</p>
           </motion.div>

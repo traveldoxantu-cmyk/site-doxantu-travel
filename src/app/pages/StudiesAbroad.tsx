@@ -1,6 +1,8 @@
 import { Link } from 'react-router';
 import { motion } from 'motion/react';
-import { ArrowRight, Clock, DollarSign, FileCheck, ChevronRight } from 'lucide-react';
+import { ArrowRight, Clock, DollarSign, FileCheck, ChevronRight, Globe, MapPin } from 'lucide-react';
+import { SEO } from '../components/SEO';
+const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
 const PARIS_IMG = 'https://images.unsplash.com/photo-1720988460120-fc18598bd287?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxQYXJpcyUyMEZyYW5jZSUyMEVpZmZlbCUyMFRvd2VyJTIwbGFuZG1hcmt8ZW58MXx8fHwxNzcyMzEwMTU0fDA&ixlib=rb-4.1.0&q=80&w=1080';
 const CANADA_IMG = 'https://images.unsplash.com/photo-1671513037345-55527c8cba67?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxDYW5hZGElMjBNb250cmVhbCUyMHdpbnRlciUyMGNpdHl8ZW58MXx8fHwxNzcyMzEwMTU1fDA&ixlib=rb-4.1.0&q=80&w=1080';
@@ -97,11 +99,20 @@ const destinations = [
 export function StudiesAbroad() {
   return (
     <div>
+      <SEO title="Études à l'étranger" description="Trouvez votre destination idéale pour vos études supérieures avec Doxantu Travel. Accompagnement Campus France, France, Canada, Maroc, Turquie." />
       {/* Hero */}
       <section
         className="relative pt-40 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, #072a50 0%, #0B84D8 100%)' }}
       >
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src={HERO_BG}
+            alt="Dakar Aerial View"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(102deg, rgba(7,42,80,0.92) 5%, rgba(7,42,80,0.7) 40%, rgba(11,132,216,0.4) 70%, rgba(8,31,62,0.95) 100%)' }} />
+        </div>
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-10 right-10 w-72 h-72 rounded-full opacity-10" style={{ background: 'white', filter: 'blur(80px)' }} />
           <div className="absolute bottom-10 left-10 w-56 h-56 rounded-full opacity-10" style={{ background: 'white', filter: 'blur(60px)' }} />
@@ -110,7 +121,7 @@ export function StudiesAbroad() {
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
             <span className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-full mb-6"
               style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white' }}>
-              🌍 Destinations populaires
+              <Globe className="w-4 h-4 mr-1 text-blue-300" /> Destinations populaires
             </span>
             <h1 className="text-white mb-5" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 800, lineHeight: 1.2 }}>
               Trouvez votre<br />
@@ -122,7 +133,7 @@ export function StudiesAbroad() {
             </p>
             <Link to="/devis" className="inline-flex items-center gap-3 px-8 py-4 font-bold transition-all hover:shadow-2xl hover:-translate-y-1 shadow-lg"
               style={{ backgroundColor: 'white', color: '#0B84D8', borderRadius: '16px' }}>
-              Démarrer mon projet <ArrowRight className="w-5 h-5" />
+              Commencer ma demande <ArrowRight className="w-5 h-5" />
             </Link>
           </motion.div>
         </div>
@@ -138,7 +149,7 @@ export function StudiesAbroad() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7, delay: i * 0.05 }}
-              className="bg-white rounded-[32px] overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 group"
+              className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 group"
             >
               <div className={`grid lg:grid-cols-2 lg:h-[500px] ${i % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}>
                 {/* Image */}
@@ -220,21 +231,21 @@ export function StudiesAbroad() {
                       <p className="text-xs text-gray-400 mb-2 uppercase tracking-wider font-medium">Villes populaires</p>
                       <div className="flex flex-wrap gap-2">
                         {dest.popular.map((city) => (
-                          <span key={city} className="text-xs px-3 py-1 rounded-full font-medium"
+                          <span key={city} className="text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1.5"
                             style={{ backgroundColor: '#E8F4FD', color: '#0B84D8' }}>
-                            📍 {city}
+                            <MapPin className="w-3 h-3" /> {city}
                           </span>
                         ))}
                       </div>
                     </div>
 
-                    <Link
-                      to={`/devis?destination=${dest.country.toLowerCase()}`}
-                      className="inline-flex items-center gap-2 px-6 py-3.5 text-white font-bold text-sm transition-all hover:shadow-xl hover:-translate-y-1 whitespace-nowrap shadow-md shadow-[#0B84D8]/20"
-                      style={{ backgroundColor: '#0B84D8', borderRadius: '16px' }}
-                    >
-                      Démarrer mon projet <ArrowRight className="w-4 h-4" />
-                    </Link>
+                      <Link
+                        to={`/devis?destination=${dest.country.toLowerCase()}`}
+                        className="inline-flex items-center gap-2 px-6 py-3.5 text-white font-bold text-sm transition-all hover:shadow-xl hover:-translate-y-1 whitespace-nowrap shadow-md shadow-[#0B84D8]/20"
+                        style={{ backgroundColor: '#0B84D8', borderRadius: '16px' }}
+                      >
+                        Commencer ma demande <ArrowRight className="w-4 h-4" />
+                      </Link>
                   </div>
                 </div>
               </div>
@@ -252,7 +263,9 @@ export function StudiesAbroad() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <div className="text-5xl mb-5">🌍</div>
+            <div className="w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-6 bg-white/10 backdrop-blur-sm border border-white/20">
+              <Globe className="w-8 h-8 text-white" />
+            </div>
             <h2 className="text-white mb-4" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 700 }}>
               Votre aventure internationale commence ici
             </h2>
@@ -262,7 +275,7 @@ export function StudiesAbroad() {
             <div className="flex flex-wrap gap-4 justify-center">
               <Link to="/devis" className="inline-flex items-center gap-2 px-8 py-4 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5"
                 style={{ backgroundColor: 'white', color: '#0B84D8', borderRadius: '12px' }}>
-                Démarrer mon projet <ArrowRight className="w-5 h-5" />
+                Commencer ma demande <ArrowRight className="w-5 h-5" />
               </Link>
               <Link to="/contact" className="inline-flex items-center gap-2 px-8 py-4 font-semibold transition-all"
                 style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white', borderRadius: '12px', border: '1.5px solid rgba(255,255,255,0.3)' }}>

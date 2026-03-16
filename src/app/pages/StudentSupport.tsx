@@ -13,10 +13,9 @@ import {
   Stamp,
   Shield,
   Clock,
+  GraduationCap
 } from 'lucide-react';
-
-const HERO_IMG =
-  'https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdHVkZW50cyUyMHN0dWR5aW5nJTIwYWJyb2FkJTIwdW5pdmVyc2l0eSUyMGNhbXB1c3xlbnwxfHx8fDE3NzIzMTAxNTF8MA&ixlib=rb-4.1.0&q=80&w=1080';
+import statueHero from '../../assets/statue-renaissance.jpg';
 
 const steps = [
   {
@@ -97,15 +96,19 @@ export function StudentSupport() {
       <SEO title="Études à l'étranger" description="Découvrez nos formules d'accompagnement pour étudier à l'étranger, de la préparation de dossier à l'installation." />
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center overflow-hidden pt-28">
-        <div className="absolute inset-0">
-          <img src={HERO_IMG} alt="Étudiants" className="w-full h-full object-cover" />
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(7,42,80,0.94) 0%, rgba(11,132,216,0.78) 100%)' }} />
+        <div className="absolute inset-0 z-0">
+          <img
+            src={statueHero}
+            alt="Dakar Renaissance"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(102deg, rgba(7,42,80,0.92) 5%, rgba(7,42,80,0.7) 40%, rgba(11,132,216,0.4) 70%, rgba(8,31,62,0.95) 100%)' }} />
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
             <span className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-full mb-6"
               style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white' }}>
-              🎓 Campus France & Études à l'Étranger
+              <GraduationCap className="w-4 h-4 mr-1 text-blue-300" /> Campus France & Études à l'Étranger
             </span>
             <h1
               className="text-white mb-5"
@@ -123,7 +126,7 @@ export function StudentSupport() {
               className="inline-flex items-center gap-2 px-7 py-4 text-white font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5"
               style={{ backgroundColor: '#0B84D8', borderRadius: '16px', fontSize: '1rem' }}
             >
-              Commencer ma procédure <ArrowRight className="w-5 h-5" />
+              Commencer ma demande <ArrowRight className="w-5 h-5" />
             </Link>
           </motion.div>
         </div>
@@ -241,8 +244,8 @@ export function StudentSupport() {
                 className="p-8 rounded-2xl"
                 style={{ background: 'linear-gradient(135deg, #072a50 0%, #0B84D8 100%)' }}
               >
-                <h3 className="text-white mb-2" style={{ fontSize: '1.3rem', fontWeight: 700 }}>
-                  📦 Pack Campus France Complet
+                <h3 className="text-white mb-2 flex items-center gap-2" style={{ fontSize: '1.3rem', fontWeight: 700 }}>
+                  <Shield className="w-6 h-6 text-blue-300" /> Pack Campus France Complet
                 </h3>
                 <p className="text-blue-200 text-sm mb-6">Tout est inclus. Aucune surprise.</p>
 
@@ -271,7 +274,7 @@ export function StudentSupport() {
                   className="block text-center py-3.5 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5 rounded-2xl"
                   style={{ backgroundColor: 'white', color: '#0B84D8' }}
                 >
-                  Demander un devis gratuit →
+                  Commencer ma demande <ArrowRight className="w-4 h-4" />
                 </Link>
 
                 <div className="flex items-center gap-2 mt-4 justify-center">
@@ -343,7 +346,9 @@ export function StudentSupport() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <div className="text-5xl mb-5">🎓</div>
+            <div className="w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-6 bg-white/10 backdrop-blur-sm border border-white/20">
+              <GraduationCap className="w-8 h-8 text-white" />
+            </div>
             <h2 className="text-white mb-4" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 700 }}>
               Prêt à commencer votre procédure ?
             </h2>
@@ -353,10 +358,10 @@ export function StudentSupport() {
             <div className="flex flex-wrap gap-4 justify-center">
               <Link
                 to="/devis"
-                className="inline-flex items-center gap-2 px-8 py-4 text-white font-semibold transition-all hover:shadow-2xl hover:-translate-y-0.5 rounded-2xl"
+                className="inline-flex items-center gap-2 px-8 py-4 text-white font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5 rounded-2xl"
                 style={{ backgroundColor: 'rgba(255,255,255,0.2)', border: '2px solid white' }}
               >
-                Commencer ma procédure <ArrowRight className="w-5 h-5" />
+                Commencer ma demande <ArrowRight className="w-5 h-5" />
               </Link>
               <a
                 href="https://wa.me/221780000000"

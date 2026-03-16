@@ -2,9 +2,7 @@ import { Link } from 'react-router';
 import { motion } from 'motion/react';
 import { CheckCircle, ArrowRight, Shield, Clock, FileText, Globe, BookOpen } from 'lucide-react';
 import { SEO } from '../components/SEO';
-
-const HERO_IMG =
-  'https://images.unsplash.com/photo-1758928807847-ed94f9ed3cad?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYXNzcG9ydCUyMHZpc2ElMjBkb2N1bWVudHMlMjB0cmF2ZWx8ZW58MXx8fHwxNzcyMzEwMTU5fDA&ixlib=rb-4.1.0&q=80&w=1080';
+const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
 const services = [
   {
@@ -58,18 +56,25 @@ const process = [
 export function VisaAssistance() {
   return (
     <div>
-      <SEO title="Assistance Visa & Documents" description="Simplifiez vos démarches administratives avec Doxantu Travel : Visa étudiant, Visa tourisme, Légalisation et traduction de documents." />
+      <SEO 
+        title="Études à l'étranger" 
+        description="Besoin d'un accompagnement Campus France au Sénégal ? Doxantu Travel vous guide pour vos études en France, Canada, Maroc et Turquie. Expertise et transparence garanties." 
+      />
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center overflow-hidden pt-28">
-        <div className="absolute inset-0">
-          <img src={HERO_IMG} alt="Passeport et visa" className="w-full h-full object-cover" />
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(7,42,80,0.94) 0%, rgba(11,132,216,0.78) 100%)' }} />
+        <div className="absolute inset-0 z-0">
+          <img
+            src={HERO_BG}
+            alt="Dakar Aerial View"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(102deg, rgba(7,42,80,0.92) 5%, rgba(7,42,80,0.7) 40%, rgba(11,132,216,0.4) 70%, rgba(8,31,62,0.95) 100%)' }} />
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
             <span className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-full mb-6"
               style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white' }}>
-              📄 Visa & Documents officiels
+              <FileText className="w-4 h-4 mr-1 text-blue-300" /> Visa & Documents officiels
             </span>
             <h1 className="text-white mb-5"
               style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)', fontWeight: 800, lineHeight: 1.2 }}>
@@ -83,7 +88,7 @@ export function VisaAssistance() {
             <div className="flex flex-wrap gap-4">
               <Link to="/devis" className="inline-flex items-center gap-2 px-7 py-4 text-white font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5"
                 style={{ backgroundColor: '#0B84D8', borderRadius: '16px' }}>
-                Démarrer ma demande <ArrowRight className="w-5 h-5" />
+                Commencer ma demande <ArrowRight className="w-5 h-5" />
               </Link>
               <a href="https://wa.me/221780000000" target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-7 py-4 font-semibold transition-all"
@@ -121,7 +126,7 @@ export function VisaAssistance() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: i * 0.15 }}
-                className={`rounded-[32px] p-8 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden ${
+                className={`rounded-3xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden ${
                   s.highlight ? 'border-2' : 'border border-gray-100 bg-white'
                 }`}
                 style={s.highlight ? { borderColor: '#0B84D8', backgroundColor: '#F0F8FF' } : {}}
@@ -157,7 +162,7 @@ export function VisaAssistance() {
                   className="mt-6 inline-flex items-center gap-1 text-sm font-semibold hover:gap-2 transition-all rounded-2xl"
                   style={{ color: '#0B84D8' }}
                 >
-                  Demander ce service <ArrowRight className="w-4 h-4" />
+                  Commencer ma demande <ArrowRight className="w-4 h-4" />
                 </Link>
               </motion.div>
             ))}
@@ -240,7 +245,7 @@ export function VisaAssistance() {
             <p className="text-blue-200 mb-6">Consultation gratuite · Réponse en 24h · Sans engagement</p>
             <Link to="/devis" className="inline-flex items-center gap-2 px-7 py-4 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5 rounded-2xl"
               style={{ backgroundColor: 'white', color: '#0B84D8' }}>
-              Démarrer ma demande <ArrowRight className="w-5 h-5" />
+              Commencer ma demande <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
         </div>
