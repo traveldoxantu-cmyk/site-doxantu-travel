@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import { MapPin, Phone, Mail, Facebook, Instagram } from 'lucide-react';
 import { motion } from 'motion/react';
+import logoImgWhite from '../../assets/logo-doxantu-white.png';
 
 export function Footer() {
 
@@ -12,7 +13,13 @@ export function Footer() {
           {/* Column 1: Branding */}
           <div className="flex flex-col">
             <div>
-              
+              <Link to="/" className="inline-block mb-6">
+                <img
+                  src={logoImgWhite}
+                  alt="Doxantu Travel"
+                  className="h-[100px] sm:h-[120px] w-auto object-contain"
+                />
+              </Link>
               <p className="text-gray-400 text-sm leading-relaxed mb-8 max-w-sm">
                 L'agence digitale de référence pour la mobilité étudiante au Sénégal. Excellence, transparence et accompagnement sans limites.
               </p>
