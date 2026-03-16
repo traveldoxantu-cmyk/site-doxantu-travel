@@ -1,4 +1,4 @@
-const WHATSAPP_NUMBER = "221780000000";
+const WHATSAPP_NUMBER = "221776748596";
 
 type SubmissionPayload = Record<string, string | number | boolean | null | undefined>;
 
@@ -21,7 +21,7 @@ export function buildWhatsAppUrl(message: string) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
-export function openWhatsAppSubmission(message: string) {
-  window.open(buildWhatsAppUrl(message), "_blank", "noopener,noreferrer");
-}
-
+export const openWhatsAppSubmission = (message: string) => {
+  const whatsappUrl = `https://wa.me/221776748596?text=${encodeURIComponent(message)}`;
+  window.open(whatsappUrl, '_blank');
+};

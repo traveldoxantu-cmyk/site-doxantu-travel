@@ -25,14 +25,21 @@ const DEADLINE_STYLES: Record<string, { color: string; bg: string; dot: string }
 };
 
 export function Dashboard() {
+    const [user, setUser]                 = useState<any>(null);
+    const [loading, setLoading]           = useState(true);
     const [quickStats, setQuickStats]     = useState<QuickStat[]>([]);
     const [timeline, setTimeline]         = useState<TimelineItem[]>([]);
     const [deadlines, setDeadlines]       = useState<Deadline[]>([]);
     const [statsWidget, setStatsWidget]   = useState<StatsWidget | null>(null);
     const [conseiller, setConseiller]     = useState<Conseiller | null>(null);
-    const [loading, setLoading]           = useState(true);
 
     useEffect(() => {
+        // Récupération de l'utilisateur connecté
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+        }
+
         Promise.all([
             dashboardService.getQuickStats(),
             dashboardService.getTimeline(),
@@ -90,9 +97,13 @@ export function Dashboard() {
                 <div className="absolute top-[-20%] right-[-10%] w-[300px] h-[300px] rounded-full bg-white/10 blur-3xl pointer-events-none" />
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
-                        <h1 className="text-3xl font-bold mb-2">Bonsoir, Amadou</h1>
-                        <p className="text-blue-100 font-medium mb-1">Dossier <span className="text-white font-bold">DXT-2026-0142</span> - Paris, France</p>
-                        <p className="text-blue-200 text-sm">Master en Intelligence Artificielle – Université Paris-Saclay</p>
+                        <h1 className="text-3xl font-bold mb-2">
+                            {new Date().getHours() > 17 ? 'Bonsoir' : 'Bonjour'}, {user?.firstName || 'Ami'}
+                        </h1>
+                        <p className="text-blue-100 font-medium mb-1">Dossier <span className="text-white font-bold">DXT-2026-0142</span> - {user?.role === 'admin' ? 'Administration' : 'Paris, France'}</p>
+                        <p className="text-blue-200 text-sm">
+                            {user?.role === 'admin' ? 'Gestionnaire de la plateforme Doxantu Travel' : 'Master en Intelligence Artificielle – Université Paris-Saclay'}
+                        </p>
                     </div>
                     <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 w-full md:min-w-[200px]">
                         <div className="flex justify-between items-center mb-2">

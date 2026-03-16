@@ -89,6 +89,7 @@ export function AdminDashboard() {
     const [paiements, setPaiements] = useState<Paiement[]>([]);
     const [urgent, setUrgent] = useState<Client[]>([]);
     const [demandes, setDemandes] = useState<Demande[]>([]);
+    const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -100,6 +101,9 @@ export function AdminDashboard() {
             apiFetch<Client[]>('/clients'),
             apiFetch<Demande[]>('/demandes?_sort=createdAt&_order=desc&_limit=5'),
         ]).then(([s, c, st, p, cl, dem]) => {
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) setUser(JSON.parse(storedUser));
+            
             setStats(s); setChart(c); setStatuts(st); setPaiements(p);
             setUrgent(cl.filter(x => x.urgent));
             setDemandes(dem);
@@ -141,7 +145,7 @@ export function AdminDashboard() {
                 className="rounded-2xl overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between px-6 md:px-8 py-6 gap-6"
                 style={{ background: 'linear-gradient(135deg, #0e1e38 0%, #1a3a5c 100%)' }}>
                 <div>
-                    <h1 className="text-xl md:text-2xl font-extrabold text-white mb-1">Bonjour, Mouhamed 👋</h1>
+                    <h1 className="text-xl md:text-2xl font-extrabold text-white mb-1">Bonjour, {user?.firstName || 'Admin'} 👋</h1>
                     <p className="text-blue-300/80 text-xs md:text-sm">Direction Générale · {today}</p>
                 </div>
                 <div className="flex gap-6 md:gap-8 w-full md:w-auto border-t border-white/10 md:border-0 pt-4 md:pt-0">

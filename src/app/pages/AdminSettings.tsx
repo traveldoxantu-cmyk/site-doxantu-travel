@@ -101,19 +101,19 @@ export function AdminSettings() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Email de contact principal</label>
-                  <input type="email" defaultValue="contact@doxantu-travel.com" className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#0B84D8] focus:ring-1 focus:ring-[#0B84D8] transition-all" />
+                  <input type="email" defaultValue="traveldoxantu@gmail.com" className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#0B84D8] focus:ring-1 focus:ring-[#0B84D8] transition-all" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Téléphone</label>
-                  <input type="tel" defaultValue="+221 33 000 00 00" className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#0B84D8] focus:ring-1 focus:ring-[#0B84D8] transition-all" />
+                  <input type="tel" defaultValue="+221 77 674 85 96" className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#0B84D8] focus:ring-1 focus:ring-[#0B84D8] transition-all" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Numéro WhatsApp</label>
-                  <input type="tel" defaultValue="+221 78 000 00 00" className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#0B84D8] focus:ring-1 focus:ring-[#0B84D8] transition-all" />
+                  <input type="tel" defaultValue="+221 77 674 85 96" className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#0B84D8] focus:ring-1 focus:ring-[#0B84D8] transition-all" />
                 </div>
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Adresse du siège</label>
-                  <textarea rows={2} defaultValue="Sacré-Cœur 3, VDN, Dakar, Sénégal" className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#0B84D8] focus:ring-1 focus:ring-[#0B84D8] transition-all resize-none" />
+                  <textarea rows={2} defaultValue="Fann Hock rue 55 en face Canal 4, Dakar" className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-[#0B84D8] focus:ring-1 focus:ring-[#0B84D8] transition-all resize-none" />
                 </div>
               </div>
 

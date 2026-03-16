@@ -10,7 +10,7 @@ const sections = [
     title: '1. Raison Sociale et Informations Légales',
     content: `
 **Dénomination sociale :** Doxantu Travel SARL
-**Siège social :** Plateau, Rue Carnot, Dakar, Sénégal
+**Siège social :** Fann Hock rue 55 en face Canal 4, Dakar
 **Capital social :** 5 000 000 FCFA
 **Registre du Commerce :** RCCM SN-DKR-2024-B-XXXXX
 **Numéro d'Identification Fiscale :** NINEA XXXXXXXX
@@ -19,8 +19,8 @@ const sections = [
 **Directeur de la publication :** Ibrahima Diallo
 
 **Contact :**
-Email : contact@doxantu-travel.sn
-Téléphone : +221 78 000 00 00
+Email : traveldoxantu@gmail.com
+Téléphone : +221 77 674 85 96
     `,
   },
   {
@@ -82,7 +82,7 @@ Les données collectées sont utilisées exclusivement pour :
 Toutes les données sont stockées de manière sécurisée. Elles ne sont jamais vendues ni cédées à des tiers non autorisés. Certains prestataires techniques peuvent toutefois traiter des données strictement nécessaires au fonctionnement du site (hébergement, carte, messagerie), selon leurs propres politiques.
 
 **4.4 Droits des clients**
-Conformément aux lois sénégalaises en vigueur sur la protection des données personnelles, vous disposez d'un droit d'accès, de rectification et de suppression de vos données. Pour exercer ces droits, contactez-nous à : contact@doxantu-travel.sn
+Conformément aux lois sénégalaises en vigueur sur la protection des données personnelles, vous disposez d'un droit d'accès, de rectification et de suppression de vos données. Pour exercer ces droits, contactez-nous à : traveldoxantu@gmail.com
 
 **4.5 Cookies et services tiers**
 Ce site utilise des cookies techniques nécessaires à son fonctionnement. Aucun cookie de pistage publicitaire n'est utilisé.
@@ -193,11 +193,13 @@ export function LegalMentions() {
               {/* Contact for legal */}
               <div className="p-6 rounded-2xl text-center border-2" style={{ borderColor: '#0B84D8', backgroundColor: '#F0F8FF' }}>
                 <h3 className="text-[#333333] font-bold mb-2">Une question juridique ?</h3>
-                <p className="text-gray-500 text-sm mb-4">
-                  Pour toute question relative à nos mentions légales ou à la protection de vos données,
-                  contactez notre responsable juridique.
-                </p>
-                <Link to="/contact" className="inline-flex items-center gap-2 px-5 py-2.5 text-white font-semibold"
+                <p className="text-gray-600 mb-6">
+              Doxantu Travel est une agence de voyage et de prestation de services enregistrée au Sénégal.<br />
+              <strong>Siège social :</strong> Fann Hock rue 55 en face Canal 4, Dakar<br />
+              <strong>Téléphone :</strong> +221 77 674 85 96<br />
+              <strong>Email :</strong> traveldoxantu@gmail.com
+            </p>
+    <Link to="/contact" className="inline-flex items-center gap-2 px-5 py-2.5 text-white font-semibold"
                   style={{ backgroundColor: '#0B84D8', borderRadius: '12px' }}>
                   Nous contacter
                 </Link>

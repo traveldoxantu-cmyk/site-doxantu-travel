@@ -11,27 +11,39 @@ const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?cr
 export function QuoteRequest() {
   const [searchParams] = useSearchParams();
   const initialDestination = searchParams.get('destination') || '';
+  const initialService = searchParams.get('service') || '';
 
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState((initialDestination || initialService) ? 3 : 1);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
-    service: initialDestination ? 'campus-france' : '', // Pré-sélection Campus France si destination définie depuis la page Études
+    service: initialService || (initialDestination ? 'campus-france' : ''), // Pré-sélection basées sur les paramètres URL
     destination: initialDestination,
     budget: '',
-    visaType: initialDestination ? 'etudes' : '', // Pré-sélectionne le visa étudiant si ça vient de la page études
+    visaType: initialDestination || initialService === 'visa-etudiant' ? 'etudes' : '', // Pré-sélectionne le visa étudiant si ça vient de la page études
     date: '',
     documents: false,
     nom: '',
     email: '',
     tel: '',
     message: '',
+    niveauEtude: '',
   });
 
+  const isProjectMode = searchParams.get('mode') === 'projet';
+
   const handleNext = () => {
-    if (currentStep < 4) setCurrentStep(currentStep + 1);
+    if (currentStep === 1 && isProjectMode) {
+      setCurrentStep(3);
+    } else if (currentStep < 4) {
+      setCurrentStep(currentStep + 1);
+    }
   };
   const handleBack = () => {
-    if (currentStep > 1) setCurrentStep(currentStep - 1);
+    if (currentStep === 3 && isProjectMode) {
+      setCurrentStep(1);
+    } else if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
   };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,16 +58,21 @@ export function QuoteRequest() {
       Nom: form.nom,
       Telephone: form.tel,
       Email: form.email,
+      "Niveau d'etudes": form.niveauEtude || 'Non renseigné',
       Message: form.message,
     });
     
     // Enregistrement sur le serveur JSON
     try {
+      const storedUser = localStorage.getItem('user');
+      const user = storedUser ? JSON.parse(storedUser) : null;
+      
       await apiFetch('/demandes', {
         method: 'POST',
         body: JSON.stringify({
           type: 'accompagnement',
           data: form,
+          userId: user?.id || null,
           status: 'nouveau',
           createdAt: new Date().toISOString()
         })
@@ -73,7 +90,7 @@ export function QuoteRequest() {
   return (
     <div>
       <SEO 
-        title="Commencer ma demande | Doxantu Travel" 
+        title="Faire ma demande | Doxantu Travel" 
         description="Faites une évaluation gratuite de votre profil pour étudier à l'étranger avec Doxantu Travel." 
       />
       {/* Hero */}
@@ -92,7 +109,7 @@ export function QuoteRequest() {
         <div className="relative z-10 max-w-2xl mx-auto text-center">
           <motion.div initial={{ opacity: 0, y: 25 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
             <h1 className="text-white mb-6" style={{ fontSize: 'clamp(2rem, 5vw, 3.2rem)', fontWeight: 800, lineHeight: 1.2 }}>
-              Commencer ma demande
+              {isProjectMode ? 'Lancer mon projet' : 'Faire ma demande'}
             </h1>
             <p className="text-blue-100 max-w-lg mx-auto" style={{ fontSize: '1.05rem', lineHeight: 1.6 }}>
               Renseignez ces informations pour que nos experts évaluent gratuitement votre profil 
@@ -109,10 +126,10 @@ export function QuoteRequest() {
           <div className="flex items-center justify-center mb-10">
             {[
               { id: 1, label: 'Service' },
-              { id: 2, label: 'Détails' },
-              { id: 3, label: 'Coordonnées' },
-              { id: 4, label: 'Confirmation' },
-            ].map((step, i) => (
+              { id: 2, label: 'Détails', hidden: isProjectMode },
+              { id: 3, label: 'Projet' },
+              { id: 4, label: 'Validation' },
+            ].filter(s => !s.hidden).map((step, i, filtered) => (
               <div key={step.id} className="flex items-center">
                 <div className="flex flex-col items-center">
                   <div
@@ -128,7 +145,7 @@ export function QuoteRequest() {
                     {step.label}
                   </span>
                 </div>
-                {i < 3 && (
+                {i < filtered.length - 1 && (
                   <div
                     className="h-0.5 w-12 sm:w-20 mx-2 mb-4 transition-all duration-300"
                     style={{ backgroundColor: currentStep > step.id ? '#0B84D8' : '#E5E7EB' }}
@@ -212,12 +229,12 @@ export function QuoteRequest() {
                       className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
                       style={{ borderRadius: '14px' }}>
                       <option value="">Sélectionner…</option>
-                      <option value="france">France</option>
-                      <option value="canada">Canada</option>
-                      <option value="maroc">Maroc</option>
-                      <option value="turquie">Turquie</option>
-                      <option value="espagne">Espagne</option>
-                      <option value="autres">Autre</option>
+                      <option value="france">🇫🇷 France</option>
+                      <option value="canada">🇨🇦 Canada</option>
+                      <option value="maroc">🇲🇦 Maroc</option>
+                      <option value="turquie">🇹🇷 Turquie</option>
+                      <option value="espagne">🇪🇸 Espagne</option>
+                      <option value="autres">🌍 Autre</option>
                     </select>
                   </div>
 
@@ -305,9 +322,11 @@ export function QuoteRequest() {
             {currentStep === 3 && (
               <form onSubmit={handleSubmit}>
                 <h2 className="text-[#333333] mb-2" style={{ fontSize: '1.3rem', fontWeight: 700 }}>
-                  Vos coordonnées
+                  {isProjectMode ? 'À propos de vous' : 'Vos coordonnées'}
                 </h2>
-                <p className="text-gray-400 text-sm mb-6">Pour vous recontacter avec votre bilan personnalisé.</p>
+                <p className="text-gray-400 text-sm mb-6">
+                  {isProjectMode ? 'Parlez-nous de vous pour démarrer l\'évaluation.' : 'Pour vous recontacter avec votre bilan personnalisé.'}
+                </p>
 
                 <div className="space-y-4">
                   <div>
@@ -338,6 +357,25 @@ export function QuoteRequest() {
                       value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
                       className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
                       style={{ borderRadius: '14px' }} />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                      Niveau d'études actuel *
+                    </label>
+                    <select required value={form.niveauEtude} onChange={(e) => setForm({ ...form, niveauEtude: e.target.value })}
+                      className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
+                      style={{ borderRadius: '14px' }}>
+                      <option value="">Sélectionner votre niveau…</option>
+                      <option value="bac">Baccalauréat</option>
+                      <option value="licence-1">Licence 1</option>
+                      <option value="licence-2">Licence 2</option>
+                      <option value="licence-3">Licence 3</option>
+                      <option value="master-1">Master 1</option>
+                      <option value="master-2">Master 2</option>
+                      <option value="doctorat">Doctorat</option>
+                      <option value="professionnel">Professionnel / Autre</option>
+                    </select>
                   </div>
 
                   <div>
@@ -415,7 +453,7 @@ export function QuoteRequest() {
                     style={{ backgroundColor: '#0B84D8', color: 'white', borderRadius: '12px' }}>
                     Retour à l'accueil
                   </a>
-                  <a href="https://wa.me/221780000000" target="_blank" rel="noopener noreferrer"
+                  <a href="https://wa.me/221776748596" target="_blank" rel="noopener noreferrer"
                     className="px-6 py-3 font-semibold text-sm"
                     style={{ backgroundColor: '#25D366', color: 'white', borderRadius: '12px' }}>
                     💬 WhatsApp direct

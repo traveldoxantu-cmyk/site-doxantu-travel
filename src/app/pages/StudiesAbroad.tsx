@@ -131,10 +131,7 @@ export function StudiesAbroad() {
               France, Canada, Maroc, Turquie, nos experts vous aident à choisir la destination
               adaptée à votre profil et à votre budget.
             </p>
-            <Link to="/devis" className="inline-flex items-center gap-3 px-8 py-4 font-bold transition-all hover:shadow-2xl hover:-translate-y-1 shadow-lg"
-              style={{ backgroundColor: 'white', color: '#0B84D8', borderRadius: '16px' }}>
-              Commencer ma demande <ArrowRight className="w-5 h-5" />
-            </Link>
+
           </motion.div>
         </div>
       </section>
@@ -244,7 +241,7 @@ export function StudiesAbroad() {
                         className="inline-flex items-center gap-2 px-6 py-3.5 text-white font-bold text-sm transition-all hover:shadow-xl hover:-translate-y-1 whitespace-nowrap shadow-md shadow-[#0B84D8]/20"
                         style={{ backgroundColor: '#0B84D8', borderRadius: '16px' }}
                       >
-                        Commencer ma demande <ArrowRight className="w-4 h-4" />
+                        Faire ma demande <ArrowRight className="w-4 h-4" />
                       </Link>
                   </div>
                 </div>
@@ -275,7 +272,7 @@ export function StudiesAbroad() {
             <div className="flex flex-wrap gap-4 justify-center">
               <Link to="/devis" className="inline-flex items-center gap-2 px-8 py-4 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5"
                 style={{ backgroundColor: 'white', color: '#0B84D8', borderRadius: '12px' }}>
-                Commencer ma demande <ArrowRight className="w-5 h-5" />
+                Faire ma demande <ArrowRight className="w-5 h-5" />
               </Link>
               <Link to="/contact" className="inline-flex items-center gap-2 px-8 py-4 font-semibold transition-all"
                 style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white', borderRadius: '12px', border: '1.5px solid rgba(255,255,255,0.3)' }}>

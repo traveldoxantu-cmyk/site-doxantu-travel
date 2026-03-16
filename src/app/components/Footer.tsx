@@ -12,17 +12,17 @@ export function Footer() {
           
           {/* Column 1: Branding */}
           <div className="flex flex-col">
-            <Link to="/" className="group block mb-6 -mt-3"> {/* Negative margin to compensate for logo whitespace/baseline */}
+            <p className="text-[13px] leading-relaxed text-blue-100/40 mb-8 max-w-[300px] font-medium">
+              L'agence digitale de référence pour la mobilité étudiante au Sénégal. Excellence, transparence et accompagnement sans limites.
+            </p>
+            <Link to="/" className="group block mb-10">
               <img
                 src={logoImgWhite}
                 alt="Doxantu Travel"
                 style={{ objectFit: 'contain', objectPosition: 'left center' }}
-                className="h-[100px] sm:h-[130px] w-auto group-hover:scale-105 transition-transform duration-300"
+                className="h-[100px] sm:h-[120px] w-auto group-hover:scale-105 transition-transform duration-300"
               />
             </Link>
-            <p className="text-sm leading-relaxed text-blue-100/40 mb-10 max-w-[280px] font-medium">
-              L'agence digitale de référence pour la mobilité étudiante au Sénégal. Excellence, transparence et accompagnement sans limites.
-            </p>
             <div className="flex gap-4">
               {[
                 { icon: <Facebook className="w-4 h-4" />, label: 'Facebook', href: '#' },
@@ -58,7 +58,7 @@ export function Footer() {
               <li><Link className="hover:text-white transition-colors" to="/services/billetterie">Billetterie</Link></li>
               <li><Link className="hover:text-white transition-colors" to="/services/visa-documents">Assistance Visa & Documents</Link></li>
               <li><Link className="hover:text-white transition-colors" to="/etudes-etranger">Études à l'étranger</Link></li>
-              <li><Link className="hover:text-white transition-colors" to="/devis">Commencer ma demande</Link></li>
+              <li><Link className="hover:text-white transition-colors" to="/devis">Faire ma demande</Link></li>
             </ul>
           </div>
 
@@ -76,18 +76,18 @@ export function Footer() {
           {/* Column 4: Contact */}
           <div>
             <h4 className="font-bold mb-9 text-[11px] tracking-[0.4em] uppercase" style={{ color: '#0B84D8' }}>CONTACT</h4>
-            <ul className="space-y-5 text-[13px] text-blue-100/50 font-medium font-medium">
+            <ul className="space-y-5 text-[13px] text-blue-100/50 font-medium">
               <li className="flex items-center gap-3">
                 <Phone className="w-4 h-4 text-[#0B84D8] shrink-0" />
                 <a href="tel:+221776748596" className="hover:text-white transition-colors">+221 77 674 85 96</a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-[#0B84D8] shrink-0" />
-                <a href="mailto:contact@doxantu-travel.sn" className="hover:text-white transition-colors">contact@doxantu-travel.sn</a>
+                <a href="mailto:traveldoxantu@gmail.com" className="hover:text-white transition-colors">traveldoxantu@gmail.com</a>
               </li>
               <li className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 text-[#0B84D8] shrink-0 mt-0.5" />
-                <span className="leading-relaxed">Dakar, Sénégal · Plateau</span>
+                <span className="leading-relaxed">Fann Hock rue 55 en face Canal 4</span>
               </li>
             </ul>
           </div>
@@ -102,8 +102,8 @@ export function Footer() {
             </p>
             <div className="flex items-center gap-10">
               <Link to="/mentions-legales" className="text-[10px] font-bold text-blue-100/20 hover:text-white transition-colors uppercase tracking-[0.2em]">Mentions légales</Link>
-              <Link to="/politique-confidentialite" className="text-[10px] font-bold text-blue-100/20 hover:text-white transition-colors uppercase tracking-[0.2em]">Politique de confidentialité</Link>
-              <Link to="/cgv" className="text-[10px] font-bold text-blue-100/20 hover:text-white transition-colors uppercase tracking-[0.2em]">CGV</Link>
+              <Link to="/mentions-legales#confidentialite" className="text-[10px] font-bold text-blue-100/20 hover:text-white transition-colors uppercase tracking-[0.2em]">Politique de confidentialité</Link>
+              <Link to="/mentions-legales#conditions" className="text-[10px] font-bold text-blue-100/20 hover:text-white transition-colors uppercase tracking-[0.2em]">CGV</Link>
             </div>
           </div>
         </div>

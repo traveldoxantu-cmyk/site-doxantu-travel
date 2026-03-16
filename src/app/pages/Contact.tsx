@@ -9,30 +9,30 @@ const contactInfo = [
   {
     icon: <Phone className="w-6 h-6" />,
     title: 'Téléphone',
-    value: '+221 78 000 00 00',
+    value: '+221 77 674 85 96',
     sub: 'Lun–Sam : 8h00–20h00',
-    href: 'tel:+221780000000',
+    href: 'tel:+221776748596',
   },
   {
     icon: <Mail className="w-6 h-6" />,
     title: 'Email',
-    value: 'contact@doxantu-travel.sn',
+    value: 'traveldoxantu@gmail.com',
     sub: 'Réponse en moins de 24h',
-    href: 'mailto:contact@doxantu-travel.sn',
+    href: 'mailto:traveldoxantu@gmail.com',
   },
   {
     icon: <MessageSquare className="w-6 h-6" />,
     title: 'WhatsApp',
-    value: '+221 78 000 00 00',
+    value: '+221 77 674 85 96',
     sub: 'Messagerie instantanée',
-    href: 'https://wa.me/221780000000',
+    href: 'https://wa.me/221776748596',
   },
   {
     icon: <MapPin className="w-6 h-6" />,
     title: 'Adresse',
-    value: 'Plateau, Rue Carnot',
-    sub: 'Dakar, Sénégal',
-    href: 'https://maps.google.com/?q=Dakar+Senegal',
+    value: 'Fann Hock rue 55 en face Canal 4',
+    sub: 'Fann Hock, Dakar',
+    href: 'https://maps.google.com/?q=Fann+Hock+Senegal',
   },
 ];
 
@@ -283,7 +283,7 @@ export function Contact() {
 
               {/* WhatsApp CTA */}
               <a
-                href="https://wa.me/221780000000?text=Bonjour%20Doxantu%20Travel%2C%20j%27ai%20une%20question."
+                href="https://wa.me/221776748596?text=Bonjour%20Doxantu%20Travel%2C%20j%27ai%20une%20question."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-4 p-5 rounded-2xl transition-all hover:shadow-lg hover:-translate-y-0.5"

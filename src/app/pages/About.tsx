@@ -137,10 +137,7 @@ export function About() {
                 ont voulu créer l'agence qu'ils auraient aimé trouver.
               </p>
               <div className="flex flex-wrap gap-4 mb-8">
-                <Link to="/devis" className="inline-flex items-center gap-2 px-6 py-3.5 text-white font-semibold transition-all hover:shadow-lg hover:-translate-y-0.5"
-                  style={{ backgroundColor: '#0B84D8', borderRadius: '14px' }}>
-                  Commencer ma demande <ArrowRight className="w-4 h-4" />
-                </Link>
+
                 <div
                   className="inline-flex items-center gap-3 px-6 py-3.5 rounded-2xl"
                   style={{ backgroundColor: 'rgba(255,255,255,0.1)', border: '1.5px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)' }}

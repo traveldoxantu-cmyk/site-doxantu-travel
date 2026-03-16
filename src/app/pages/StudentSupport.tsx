@@ -121,13 +121,6 @@ export function StudentSupport() {
               Notre équipe d'experts vous guide de l'orientation jusqu'à l'obtention de votre visa.
               Chaque dossier est traité avec attention et professionnalisme.
             </p>
-            <Link
-              to="/devis"
-              className="inline-flex items-center gap-2 px-7 py-4 text-white font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5"
-              style={{ backgroundColor: '#0B84D8', borderRadius: '16px', fontSize: '1rem' }}
-            >
-              Commencer ma demande <ArrowRight className="w-5 h-5" />
-            </Link>
           </motion.div>
         </div>
       </section>
@@ -270,11 +263,11 @@ export function StudentSupport() {
                 </ul>
 
                 <Link
-                  to="/devis"
-                  className="block text-center py-3.5 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5 rounded-2xl"
+                  to="/devis?service=campus-france"
+                  className="flex items-center justify-center gap-2 py-3.5 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5 rounded-2xl"
                   style={{ backgroundColor: 'white', color: '#0B84D8' }}
                 >
-                  Commencer ma demande <ArrowRight className="w-4 h-4" />
+                  Faire ma demande <ArrowRight className="w-4 h-4" />
                 </Link>
 
                 <div className="flex items-center gap-2 mt-4 justify-center">
@@ -361,7 +354,7 @@ export function StudentSupport() {
                 className="inline-flex items-center gap-2 px-8 py-4 text-white font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5 rounded-2xl"
                 style={{ backgroundColor: 'rgba(255,255,255,0.2)', border: '2px solid white' }}
               >
-                Commencer ma demande <ArrowRight className="w-5 h-5" />
+                Faire ma demande <ArrowRight className="w-5 h-5" />
               </Link>
               <a
                 href="https://wa.me/221780000000"

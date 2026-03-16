@@ -86,11 +86,7 @@ export function VisaAssistance() {
               pour vous permettre de vous concentrer sur l'essentiel.
             </p>
             <div className="flex flex-wrap gap-4">
-              <Link to="/devis" className="inline-flex items-center gap-2 px-7 py-4 text-white font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5"
-                style={{ backgroundColor: '#0B84D8', borderRadius: '16px' }}>
-                Commencer ma demande <ArrowRight className="w-5 h-5" />
-              </Link>
-              <a href="https://wa.me/221780000000" target="_blank" rel="noopener noreferrer"
+              <a href="https://wa.me/221776748596" target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-7 py-4 font-semibold transition-all"
                 style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white', borderRadius: '16px', border: '1.5px solid rgba(255,255,255,0.3)' }}>
                 💬 Poser une question
@@ -162,7 +158,7 @@ export function VisaAssistance() {
                   className="mt-6 inline-flex items-center gap-1 text-sm font-semibold hover:gap-2 transition-all rounded-2xl"
                   style={{ color: '#0B84D8' }}
                 >
-                  Commencer ma demande <ArrowRight className="w-4 h-4" />
+                  Faire ma demande <ArrowRight className="w-4 h-4" />
                 </Link>
               </motion.div>
             ))}
@@ -245,7 +241,7 @@ export function VisaAssistance() {
             <p className="text-blue-200 mb-6">Consultation gratuite · Réponse en 24h · Sans engagement</p>
             <Link to="/devis" className="inline-flex items-center gap-2 px-7 py-4 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5 rounded-2xl"
               style={{ backgroundColor: 'white', color: '#0B84D8' }}>
-              Commencer ma demande <ArrowRight className="w-5 h-5" />
+              Faire ma demande <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
         </div>

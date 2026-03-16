@@ -13,6 +13,7 @@ import {
   RefreshCw,
   Clock,
   ChevronRight,
+  ChevronDown,
   Globe,
   Search,
   Loader2,
@@ -80,11 +81,15 @@ export function Ticketing() {
     });
 
     try {
+      const storedUser = localStorage.getItem('user');
+      const user = storedUser ? JSON.parse(storedUser) : null;
+
       await apiFetch('/demandes', {
         method: 'POST',
         body: JSON.stringify({
           type: 'billetterie',
           data: { from, to, departDate, returnDate, passengers },
+          userId: user?.id || null,
           status: 'nouveau',
           createdAt: new Date().toISOString()
         })
@@ -160,14 +165,14 @@ export function Ticketing() {
                       Départ
                     </label>
                     <div className="relative">
-                      <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#0B84D8' }} />
+                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#0B84D8' }} />
                       <input
                         type="text"
                         placeholder="Ville de départ (ex: Dakar)"
                         value={from}
                         onChange={(e) => setFrom(e.target.value)}
                         required
-                        className="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
+                        className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
                         style={{ borderRadius: '16px' }}
                       />
                     </div>
@@ -177,14 +182,14 @@ export function Ticketing() {
                       Destination
                     </label>
                     <div className="relative">
-                      <Plane className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#0B84D8' }} />
+                      <Plane className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#0B84D8' }} />
                       <input
                         type="text"
                         placeholder="Destination (ex: Paris)"
                         value={to}
                         onChange={(e) => setTo(e.target.value)}
                         required
-                        className="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
+                        className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
                         style={{ borderRadius: '16px' }}
                       />
                     </div>
@@ -194,13 +199,13 @@ export function Ticketing() {
                       Date aller
                     </label>
                     <div className="relative">
-                      <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#0B84D8' }} />
+                      <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#0B84D8' }} />
                       <input
                         type="date"
                         value={departDate}
                         onChange={(e) => setDepartDate(e.target.value)}
                         required
-                        className="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
+                        className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
                         style={{ borderRadius: '16px' }}
                       />
                     </div>
@@ -210,12 +215,12 @@ export function Ticketing() {
                       Date retour (optionnel)
                     </label>
                     <div className="relative">
-                      <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#0B84D8' }} />
+                      <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#0B84D8' }} />
                       <input
                         type="date"
                         value={returnDate}
                         onChange={(e) => setReturnDate(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
+                        className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
                         style={{ borderRadius: '16px' }}
                       />
                     </div>
@@ -225,17 +230,18 @@ export function Ticketing() {
                       Passagers
                     </label>
                     <div className="relative">
-                      <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#0B84D8' }} />
+                      <Users className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#0B84D8' }} />
                       <select
                         value={passengers}
                         onChange={(e) => setPassengers(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
-                        style={{ borderRadius: '16px' }}
+                        className="w-full pl-12 pr-10 py-3.5 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2 appearance-none"
+                        style={{ borderRadius: '16px', paddingLeft: '3.2rem' }}
                       >
                         {[1, 2, 3, 4, 5, 6].map((n) => (
                           <option key={n} value={n}>{n} passager{n > 1 ? 's' : ''}</option>
                         ))}
                       </select>
+                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                     </div>
                   </div>
                   <div className="flex items-end">
@@ -252,7 +258,7 @@ export function Ticketing() {
                         </>
                       ) : (
                         <>
-                          Commencer ma demande <ArrowRight className="w-4 h-4" />
+                          Faire ma demande <ArrowRight className="w-4 h-4" />
                         </>
                       )}
                     </button>
@@ -364,7 +370,7 @@ export function Ticketing() {
                 className="inline-flex items-center gap-2 px-8 py-4 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5"
                 style={{ backgroundColor: 'white', color: '#0B84D8', borderRadius: '12px' }}
               >
-                Commencer ma demande <ArrowRight className="w-5 h-5" />
+                Faire ma demande <ArrowRight className="w-5 h-5" />
               </Link>
           </motion.div>
         </div>

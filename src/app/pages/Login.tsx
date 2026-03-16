@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { LogIn, ArrowLeft, Mail, Lock, Phone, UserPlus, Eye, EyeOff, User } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
+import { toast } from 'sonner';
 import { SEO } from '../components/SEO';
 import { apiFetch } from '../lib/api';
 
@@ -57,11 +58,15 @@ export function Login() {
                     initiales: `${firstName[0]}${lastName[0]}`.toUpperCase()
                 };
 
-                await apiFetch('/users', {
+                const createdUser = await apiFetch<any>('/users', {
                     method: 'POST',
                     body: JSON.stringify(newUser)
                 });
 
+                // Stockage local après inscription
+                localStorage.setItem('user', JSON.stringify(createdUser));
+
+                toast.success('Bienvenue ! Votre compte a été créé.');
                 setSuccess(true);
                 setTimeout(() => navigate('/mon-espace/dashboard'), 1500);
             } else {
@@ -70,15 +75,28 @@ export function Login() {
                 
                 if (users.length > 0) {
                     const user = users[0];
+                    // Stockage local pour la persistance de session
+                    localStorage.setItem('user', JSON.stringify({
+                        id: user.id,
+                        email: user.email,
+                        firstName: user.firstName,
+                        lastName: user.lastName,
+                        role: user.role,
+                        initiales: user.initiales
+                    }));
+
+                    toast.success(`Heureux de vous revoir, ${user.firstName} !`);
                     const redirectTo = user.role === 'admin' ? '/admin/dashboard' : '/mon-espace/dashboard';
                     navigate(redirectTo);
                 } else {
                     setError('Email ou mot de passe incorrect.');
                 }
             }
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
-            setError('Une erreur est survenue. Le serveur est-il bien lancé ?');
+            const msg = err.message?.includes('404') ? 'Identifiants incorrects.' : 'Une erreur est survenue. Vérifiez votre connexion.';
+            toast.error(msg);
+            setError(msg);
         } finally {
             setLoading(false);
         }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router';
 import { LayoutGrid, FolderOpen, FileText, MessageSquare, Calendar, User, LogOut, GraduationCap, ArrowLeft, CreditCard, Menu as MenuIcon } from 'lucide-react';
+import logoImgWhite from '../../assets/logo-doxantu-white.png';
 
 const sidebarLinks = [
     { icon: LayoutGrid, label: 'Tableau de bord', to: '/mon-espace/dashboard' },
@@ -27,29 +28,24 @@ export function DashboardLayout() {
             )}
 
             {/* Sidebar */}
-            <aside className={`fixed left-0 top-0 bottom-0 w-72 bg-white border-r border-gray-100 flex flex-col z-[60] shadow-[4px_0_24px_rgba(0,0,0,0.02)] transition-transform duration-300 lg:translate-x-0 ${
+            <aside className={`fixed left-0 top-0 bottom-0 w-72 flex flex-col z-[60] shadow-2xl transition-transform duration-300 lg:translate-x-0 ${
                 isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-            }`}>
+            }`}
+            style={{ backgroundColor: '#071626' }}>
                 {/* Logo */}
-                <div className="h-[124px] flex items-center px-8 border-b border-gray-100/50">
-                    <Link to="/" className="flex items-center group -ml-2 hover:scale-105 transition-transform duration-300">
-                        <img
-                            src="/src/assets/logo-doxantu.png"
-                            alt="Doxantu Travel"
-                            style={{ height: '100px', width: 'auto', objectFit: 'contain' }}
-                        />
-                    </Link>
+                <div className="px-6 pt-8 pb-6 border-b border-white/[0.05]">
+                    <img src={logoImgWhite} alt="Doxantu Travel" className="h-[75px] w-auto object-contain" />
                 </div>
 
                 {/* User Card */}
                 <div className="p-6">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 p-4 rounded-2xl" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
                         <div className="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-white text-lg shadow-md" style={{ backgroundColor: '#0B84D8' }}>
                             AD
                         </div>
                         <div>
-                            <p className="font-bold text-[#1a2b40] leading-tight">Amadou Diallo</p>
-                            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#E8F4FD] text-[#0B84D8] text-[10px] font-bold uppercase tracking-wider">
+                            <p className="font-bold text-white leading-tight">Amadou Diallo</p>
+                            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#0B84D8]/20 text-[#0B84D8] text-[10px] font-bold uppercase tracking-wider">
                                 <span className="flex items-center"><GraduationCap className="w-3.5 h-3.5 mr-1" /></span> Étudiant
                             </div>
                         </div>
@@ -66,16 +62,18 @@ export function DashboardLayout() {
                                 to={link.to}
                                 onClick={() => setIsSidebarOpen(false)}
                                 className={`flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-200 font-medium ${isActive
-                                    ? 'bg-[#F0F8FF] text-[#0B84D8] shadow-sm ring-1 ring-[#0B84D8]/10'
-                                    : 'text-gray-500 hover:text-[#0B84D8] hover:bg-gray-50'
+                                    ? 'bg-[#0B84D8] text-white shadow-lg'
+                                    : 'text-gray-400 hover:text-white hover:bg-white/[0.05]'
                                     }`}
                             >
                                 <div className="flex items-center gap-3">
-                                    <link.icon className={`w-5 h-5 ${isActive ? 'text-[#0B84D8]' : 'text-gray-400'}`} />
+                                    <link.icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-white'}`} />
                                     {link.label}
                                 </div>
                                 {link.badge && (
-                                    <span className="w-6 h-6 rounded-full bg-[#0B84D8] text-white text-xs font-bold flex items-center justify-center shadow-sm">
+                                    <span className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center shadow-sm ${
+                                        isActive ? 'bg-white/20 text-white' : 'bg-[#0B84D8] text-white'
+                                    }`}>
                                         {link.badge}
                                     </span>
                                 )}
@@ -85,17 +83,17 @@ export function DashboardLayout() {
                 </nav>
 
                 {/* Footer Actions */}
-                <div className="p-4 border-t border-gray-100/50 space-y-2">
+                <div className="p-4 border-t border-white/[0.05] space-y-2">
                     <Link
                         to="/"
-                        className="flex items-center gap-3 px-4 py-3.5 text-sm font-semibold text-gray-600 hover:text-[#0B84D8] transition-all rounded-xl hover:bg-[#E8F4FD]/50 border border-transparent hover:border-[#0B84D8]/10 group"
+                        className="flex items-center gap-3 px-4 py-3.5 text-sm font-semibold text-gray-400 hover:text-white transition-all rounded-xl hover:bg-white/[0.05] group"
                     >
                         <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
                         Retour au site
                     </Link>
                     <Link
                         to="/connexion"
-                        className="flex items-center gap-3 px-4 py-3.5 text-sm font-bold text-red-500 hover:bg-red-50 hover:text-red-600 transition-all rounded-xl border border-transparent hover:border-red-100"
+                        className="flex items-center gap-3 px-4 py-3.5 text-sm font-bold text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all rounded-xl"
                     >
                         <LogOut className="w-5 h-5" /> Se déconnecter
                     </Link>
