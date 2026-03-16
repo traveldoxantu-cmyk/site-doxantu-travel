@@ -27,8 +27,24 @@ export function Profil() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        const storedUser = localStorage.getItem('user');
+        const sessionUser = storedUser ? JSON.parse(storedUser) : null;
+
         profilService.getProfil()
-            .then(setProfil)
+            .then(data => {
+                if (sessionUser) {
+                    // Fusionner les données réelles de session avec les données métier du profil
+                    setProfil({
+                        ...data,
+                        nom: `${sessionUser.firstName} ${sessionUser.lastName}`,
+                        email: sessionUser.email,
+                        telephone: sessionUser.phone || data.telephone,
+                        initiales: sessionUser.initiales || data.initiales
+                    });
+                } else {
+                    setProfil(data);
+                }
+            })
             .catch(console.error)
             .finally(() => setLoading(false));
     }, []);

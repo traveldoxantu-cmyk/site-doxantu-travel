@@ -30,6 +30,16 @@
       "password": "fallou1",
       "role": "client",
       "initiales": "MB"
+    },
+    {
+      "id": "7899",
+      "firstName": "Baba ",
+      "lastName": "Niang",
+      "email": "babaniang@gmail.com",
+      "phone": "776748596",
+      "password": "Fallou1",
+      "role": "client",
+      "initiales": "BN"
     }
   ],
   "demandes": [
@@ -52,6 +62,26 @@
       "userId": "0e04",
       "status": "nouveau",
       "createdAt": "2026-03-16T22:48:23.640Z"
+    },
+    {
+      "id": "77e0",
+      "type": "accompagnement",
+      "data": {
+        "service": "campus-france",
+        "destination": "france",
+        "budget": "",
+        "visaType": "etudes",
+        "date": "",
+        "documents": false,
+        "nom": "Baba Niang",
+        "email": "babaniang@gmail.com",
+        "tel": "776758493",
+        "message": "",
+        "niveauEtude": "licence-1"
+      },
+      "userId": "7899",
+      "status": "nouveau",
+      "createdAt": "2026-03-16T23:25:25.003Z"
     }
   ],
   "adminStats": {

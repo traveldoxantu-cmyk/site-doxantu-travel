@@ -15,7 +15,7 @@ const NAV_ITEMS = [
 export function AdminLayout() {
     const location = useLocation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [user, setUser] = useState<{ nom: string } | null>(null);
+    const [user, setUser] = useState<{ firstName: string, lastName: string, initiales: string } | null>(null);
     const urgentCount = 2;
 
     useEffect(() => {
@@ -38,8 +38,8 @@ export function AdminLayout() {
         return name.slice(0, 2).toUpperCase();
     };
 
-    const displayName = user?.nom || 'Administrateur';
-    const initials = getInitials(displayName);
+    const displayName = user ? `${user.firstName} ${user.lastName}` : 'Administrateur';
+    const initials = user?.initiales || getInitials(displayName);
 
     return (
         <div className="flex min-h-screen" style={{ backgroundColor: '#F0F4F8' }}>

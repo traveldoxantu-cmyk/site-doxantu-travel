@@ -16,7 +16,7 @@ const sidebarLinks = [
 export function DashboardLayout() {
     const location = useLocation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [user, setUser] = useState<{ nom: string } | null>(null);
+    const [user, setUser] = useState<{ firstName: string, lastName: string, initiales: string } | null>(null);
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
@@ -38,8 +38,8 @@ export function DashboardLayout() {
         return name.slice(0, 2).toUpperCase();
     };
 
-    const displayName = user?.nom || 'Utilisateur';
-    const initials = getInitials(displayName);
+    const displayName = user ? `${user.firstName} ${user.lastName}` : 'Utilisateur';
+    const initials = user?.initiales || getInitials(displayName);
 
     return (
         <div className="flex min-h-screen bg-[#F8FAFC]">
