@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router';
 import { LayoutGrid, FolderOpen, FileText, MessageSquare, Calendar, User, LogOut, GraduationCap, ArrowLeft, CreditCard, Menu as MenuIcon } from 'lucide-react';
 import logoImgWhite from '../../assets/logo-doxantu-white.png';
@@ -16,6 +16,30 @@ const sidebarLinks = [
 export function DashboardLayout() {
     const location = useLocation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [user, setUser] = useState<{ nom: string } | null>(null);
+
+    useEffect(() => {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            try {
+                setUser(JSON.parse(storedUser));
+            } catch (e) {
+                console.error("Failed to parse user from localStorage", e);
+            }
+        }
+    }, []);
+
+    const getInitials = (name: string) => {
+        if (!name) return '??';
+        const names = name.split(' ');
+        if (names.length >= 2) {
+            return (names[0][0] + names[1][0]).toUpperCase();
+        }
+        return name.slice(0, 2).toUpperCase();
+    };
+
+    const displayName = user?.nom || 'Utilisateur';
+    const initials = getInitials(displayName);
 
     return (
         <div className="flex min-h-screen bg-[#F8FAFC]">
@@ -41,10 +65,10 @@ export function DashboardLayout() {
                 <div className="p-6">
                     <div className="flex items-center gap-4 p-4 rounded-2xl" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
                         <div className="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-white text-lg shadow-md" style={{ backgroundColor: '#0B84D8' }}>
-                            AD
+                            {initials}
                         </div>
                         <div>
-                            <p className="font-bold text-white leading-tight">Amadou Diallo</p>
+                            <p className="font-bold text-white leading-tight">{displayName}</p>
                             <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#0B84D8]/20 text-[#0B84D8] text-[10px] font-bold uppercase tracking-wider">
                                 <span className="flex items-center"><GraduationCap className="w-3.5 h-3.5 mr-1" /></span> Étudiant
                             </div>
@@ -125,7 +149,7 @@ export function DashboardLayout() {
                             <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 border border-white"></span>
                         </button>
                         <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white text-sm shadow-md cursor-pointer" style={{ backgroundColor: '#0B84D8' }}>
-                            AD
+                            {initials}
                         </div>
                     </div>
                 </header>

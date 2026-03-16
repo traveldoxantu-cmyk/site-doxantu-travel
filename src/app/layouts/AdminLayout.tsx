@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router';
 import { LayoutDashboard, FolderOpen, BarChart3, Users, Settings, ArrowLeft, LogOut, Bell, CreditCard, AlertTriangle, Menu as MenuIcon, X } from 'lucide-react';
 import logoImgWhite from '../../assets/logo-doxantu-white.png';
@@ -15,7 +15,31 @@ const NAV_ITEMS = [
 export function AdminLayout() {
     const location = useLocation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [user, setUser] = useState<{ nom: string } | null>(null);
     const urgentCount = 2;
+
+    useEffect(() => {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            try {
+                setUser(JSON.parse(storedUser));
+            } catch (e) {
+                console.error("Failed to parse user from localStorage", e);
+            }
+        }
+    }, []);
+
+    const getInitials = (name: string) => {
+        if (!name) return '??';
+        const names = name.split(' ');
+        if (names.length >= 2) {
+            return (names[0][0] + names[1][0]).toUpperCase();
+        }
+        return name.slice(0, 2).toUpperCase();
+    };
+
+    const displayName = user?.nom || 'Administrateur';
+    const initials = getInitials(displayName);
 
     return (
         <div className="flex min-h-screen" style={{ backgroundColor: '#F0F4F8' }}>
@@ -53,10 +77,10 @@ export function AdminLayout() {
                 <div className="mx-3 mt-4 mb-2 rounded-2xl p-3.5" style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}>
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-[#0B84D8] flex items-center justify-center text-white font-extrabold text-sm shrink-0 border-2 border-[#0B84D8]/40">
-                            MN
+                            {initials}
                         </div>
                         <div className="min-w-0">
-                            <p className="text-white font-bold text-sm leading-tight truncate">Mouhamed El Fadilou Niang</p>
+                            <p className="text-white font-bold text-sm leading-tight truncate">{displayName}</p>
                             <p className="text-gray-400 text-xs truncate">Direction Générale</p>
                             <span className="inline-flex items-center gap-1 text-amber-400 text-[10px] font-bold mt-0.5">
                                 ⚡ Super Admin
@@ -135,7 +159,7 @@ export function AdminLayout() {
                             <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 border-[1.5px] border-white" />
                         </button>
                         <div className="w-9 h-9 rounded-full bg-[#0B84D8] flex items-center justify-center text-white font-extrabold text-sm cursor-pointer hover:opacity-90 transition-opacity">
-                            MN
+                            {initials}
                         </div>
                     </div>
                 </header>
