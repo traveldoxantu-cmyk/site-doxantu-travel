@@ -71,7 +71,9 @@ export function Login() {
                 setTimeout(() => navigate('/mon-espace/dashboard'), 1500);
             } else {
                 // Logique de connexion réelle via le serveur JSON
+                console.log('Tentative de connexion:', email.trim().toLowerCase());
                 const users = await apiFetch<any[]>(`/users?email=${encodeURIComponent(email.trim().toLowerCase())}&password=${encodeURIComponent(password)}`);
+休产
                 
                 if (users.length > 0) {
                     const user = users[0];
