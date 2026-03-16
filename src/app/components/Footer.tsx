@@ -12,17 +12,18 @@ export function Footer() {
           
           {/* Column 1: Branding */}
           <div className="flex flex-col">
-            <p className="text-[13px] leading-relaxed text-blue-100/40 mb-8 max-w-[300px] font-medium">
-              L'agence digitale de référence pour la mobilité étudiante au Sénégal. Excellence, transparence et accompagnement sans limites.
-            </p>
-            <Link to="/" className="group block mb-10">
-              <img
-                src={logoImgWhite}
-                alt="Doxantu Travel"
-                style={{ objectFit: 'contain', objectPosition: 'left center' }}
-                className="h-[100px] sm:h-[120px] w-auto group-hover:scale-105 transition-transform duration-300"
-              />
-            </Link>
+            <div>
+              <Link to="/" className="inline-block mb-6">
+                <img
+                  src={logoImgWhite}
+                  alt="Doxantu Travel"
+                  className="h-[100px] sm:h-[120px] w-auto object-contain"
+                />
+              </Link>
+              <p className="text-gray-400 text-sm leading-relaxed mb-8 max-w-sm">
+                L'agence digitale de référence pour la mobilité étudiante au Sénégal. Excellence, transparence et accompagnement sans limites.
+              </p>
+            </div>
             <div className="flex gap-4">
               {[
                 { icon: <Facebook className="w-4 h-4" />, label: 'Facebook', href: '#' },

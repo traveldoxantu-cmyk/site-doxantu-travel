@@ -43,11 +43,11 @@ export function Header() {
       >
         <div className="px-4 sm:px-6 h-[80px] md:h-[90px] flex items-center justify-between">
           <Link to="/" className="flex items-center group">
-            <div className="group-hover:scale-105 transition-transform duration-300 -ml-2 relative">
+            <div className="group-hover:scale-105 transition-transform duration-300 -ml-2 relative flex items-center">
               <img
                 src={(scrolled || mobileOpen) ? logoImg : logoImgWhite}
                 alt="Doxantu Travel"
-                className="h-[105px] md:h-[135px] w-auto object-contain block relative z-10 -mt-1"
+                className="h-[100px] md:h-[125px] w-auto object-contain block relative z-10"
               />
             </div>
           </Link>
