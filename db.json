@@ -20,6 +20,16 @@
       "password": "fadilou18",
       "role": "client",
       "initiales": "FN"
+    },
+    {
+      "id": "8baf",
+      "firstName": "Montana ",
+      "lastName": "Beats",
+      "email": "montana@gmail.com",
+      "phone": "784291760",
+      "password": "fallou1",
+      "role": "client",
+      "initiales": "MB"
     }
   ],
   "demandes": [
