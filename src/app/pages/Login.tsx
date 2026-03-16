@@ -74,7 +74,7 @@ export function Login() {
                 console.log('Tentative de connexion:', email.trim().toLowerCase());
                 const users = await apiFetch<any[]>(`/users?email=${encodeURIComponent(email.trim().toLowerCase())}&password=${encodeURIComponent(password)}`);
                 console.log('Réponse serveur (utilisateurs trouvés):', users.length);
-休产
+
                 
                 if (users.length > 0) {
                     const user = users[0];
@@ -96,8 +96,13 @@ export function Login() {
                 }
             }
         } catch (err: any) {
-            console.error(err);
-            const msg = err.message?.includes('404') ? 'Identifiants incorrects.' : 'Une erreur est survenue. Vérifiez votre connexion.';
+            console.error('Erreur API détaillée:', err);
+            let msg = 'Une erreur est survenue. Vérifiez votre connexion.';
+            if (err.message?.includes('404')) {
+                msg = 'Le serveur de données est introuvable (404).';
+            } else if (err.message?.includes('Failed to fetch') || err.message?.includes('NetworkError')) {
+                msg = 'Impossible de contacter le serveur. Est-il bien lancé ?';
+            }
             toast.error(msg);
             setError(msg);
         } finally {
