@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'motion/react';
-import { TrendingUp, FolderOpen, CheckCircle2, CreditCard, ArrowUpRight, ArrowRight, AlertTriangle } from 'lucide-react';
+import { TrendingUp, FolderOpen, CheckCircle2, CreditCard, ArrowUpRight, ArrowRight, AlertTriangle, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router';
 import { apiFetch } from '../lib/api';
 
@@ -92,7 +92,8 @@ export function AdminDashboard() {
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
+    const fetchData = useCallback(() => {
+        setLoading(true);
         Promise.all([
             apiFetch<AdminStats>('/adminStats'),
             apiFetch<ChartPoint[]>('/chartData'),
@@ -109,6 +110,15 @@ export function AdminDashboard() {
             setDemandes(dem);
         }).catch(console.error).finally(() => setLoading(false));
     }, []);
+
+    useEffect(() => {
+        fetchData();
+        // Polling toutes les 30 secondes
+        const interval = setInterval(() => {
+            fetchData();
+        }, 30000);
+        return () => clearInterval(interval);
+    }, [fetchData]);
 
     const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     const maxStatut = statuts.length ? Math.max(...statuts.map(s => s.count)) : 1;
@@ -283,7 +293,20 @@ export function AdminDashboard() {
                         <h2 className="text-lg font-bold text-[#1a2b40]">Flux des demandes réelles</h2>
                         <p className="text-xs text-gray-400">Demandes soumises via Billetterie & Devis</p>
                     </div>
-                    <span className="px-3 py-1 bg-blue-50 text-[#0B84D8] text-[10px] font-bold rounded-full uppercase tracking-wider">Direct API</span>
+                    <Link to="/admin/demandes" className="text-xs text-[#0B84D8] font-semibold hover:underline flex items-center gap-1">
+                        Voir tout <ArrowRight className="w-3 h-3" />
+                    </Link>
+                    <div className="flex items-center gap-3">
+                        <button 
+                            onClick={() => fetchData()}
+                            disabled={loading}
+                            className="p-2 text-gray-400 hover:text-[#0B84D8] transition-colors rounded-lg hover:bg-blue-50"
+                            title="Rafraîchir les données"
+                        >
+                            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                        </button>
+                        <span className="px-3 py-1 bg-blue-50 text-[#0B84D8] text-[10px] font-bold rounded-full uppercase tracking-wider">Direct API</span>
+                    </div>
                 </div>
                 
                 <div className="overflow-x-auto">

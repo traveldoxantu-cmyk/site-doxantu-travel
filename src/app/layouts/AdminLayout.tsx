@@ -5,6 +5,7 @@ import logoImgWhite from '../../assets/logo-doxantu-white.png';
 
 const NAV_ITEMS = [
     { icon: LayoutDashboard, label: 'Vue d\'ensemble', to: '/admin/dashboard', badge: null },
+    { icon: Bell, label: 'Flux des demandes', to: '/admin/demandes', badge: 'New' },
     { icon: FolderOpen, label: 'Dossiers Clients', to: '/admin/clients', badge: '31' },
     { icon: CreditCard, label: 'Pilotage Financier', to: '/admin/finance', badge: '4' },
     { icon: BarChart3, label: 'Reporting & Stats', to: '/admin/reporting', badge: null },

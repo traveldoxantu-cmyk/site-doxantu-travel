@@ -28,6 +28,7 @@ import { AdminFinance } from './pages/AdminFinance';
 import { AdminReporting } from './pages/AdminReporting';
 import { AdminTeam } from './pages/AdminTeam';
 import { AdminSettings } from './pages/AdminSettings';
+import { AdminDemandes } from './pages/AdminDemandes';
 
 export const router = createBrowserRouter([
   // ─── Site public ───────────────────────────────────────────────────────────
@@ -78,6 +79,7 @@ export const router = createBrowserRouter([
       { path: 'finance', Component: AdminFinance },
       { path: 'reporting', Component: AdminReporting },
       { path: 'conseillers', Component: AdminTeam },
+      { path: 'demandes', Component: AdminDemandes },
       { path: 'parametres', Component: AdminSettings },
     ],
   },
