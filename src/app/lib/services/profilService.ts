@@ -7,7 +7,7 @@ export interface Parcours {
 }
 
 export interface Profil {
-    id: number;
+    id: string; // Changement en string pour UUID
     nom: string;
     initiales: string;
     email: string;
@@ -22,8 +22,15 @@ export interface Profil {
     avancement: number;
     etapesTotal: number;
     etapesCompletees: number;
+    avatarUrl?: string;
+    coverUrl?: string;
 }
 
 export const profilService = {
     getProfil: (userId?: string) => apiFetch<Profil>(userId ? `/profil?user_id=${userId}` : '/profil'),
+    updateProfil: (id: string, data: Partial<Profil>) => 
+        apiFetch<Profil>(`/profil?id=${id}`, {
+            method: 'PUT',
+            body: JSON.stringify({ id, ...data })
+        })
 };

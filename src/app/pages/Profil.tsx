@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { User, Mail, Phone, MapPin, Camera, Shield, Bell, CreditCard, ChevronRight, LogOut, GraduationCap, Building2 } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Camera, Shield, Bell, CreditCard, ChevronRight, LogOut, GraduationCap, Building2, Loader2 } from 'lucide-react';
 import { profilService, type Profil } from '../lib/services/profilService';
+import { storageService } from '../lib/services/storageService';
 
 type SectionItem = {
     icon: React.ElementType;
@@ -11,20 +12,21 @@ type SectionItem = {
     bg: string;
 };
 
-const settingsSections = [
+const settingsSections: { title: string; items: SectionItem[] }[] = [
     {
         title: 'Paramètres du compte',
         items: [
             { icon: Shield,     label: 'Sécurité & Mot de passe', desc: 'Gérer votre mot de passe et 2FA',    color: 'text-indigo-600',  bg: 'bg-indigo-50' },
             { icon: Bell,       label: 'Notifications',            desc: 'Alertes par email et SMS',          color: 'text-amber-600',   bg: 'bg-amber-50' },
             { icon: CreditCard, label: 'Paiements & Factures',     desc: 'Historique de vos règlements',      color: 'text-emerald-600', bg: 'bg-emerald-50' },
-        ] as SectionItem[]
+        ]
     }
 ];
 
 export function Profil() {
     const [profil, setProfil] = useState<Profil | null>(null);
     const [loading, setLoading] = useState(true);
+    const [uploading, setUploading] = useState<'avatar' | 'cover' | null>(null);
 
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
@@ -33,7 +35,6 @@ export function Profil() {
         if (sessionUser) {
             profilService.getProfil(sessionUser.id)
                 .then(data => {
-                    // Fusionner les données réelles de session avec les données métier du profil
                     setProfil({
                         ...data,
                         nom: `${sessionUser.firstName} ${sessionUser.lastName}`,
@@ -48,6 +49,32 @@ export function Profil() {
             setLoading(false);
         }
     }, []);
+
+    const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'avatar' | 'cover') => {
+        const file = event.target.files?.[0];
+        if (!file || !profil) return;
+
+        try {
+            setUploading(type);
+            const bucket = type === 'avatar' ? 'avatars' : 'documents'; // couverture dans documents ou avatars public
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${profil.id}_${type}_${Math.random()}.${fileExt}`;
+            const path = `${profil.id}/${fileName}`;
+
+            const publicUrl = await storageService.uploadFile(bucket, path, file);
+
+            // Mise à jour en base
+            const updateData = type === 'avatar' ? { avatarUrl: publicUrl } : { coverUrl: publicUrl };
+            await profilService.updateProfil(profil.id, updateData);
+
+            setProfil(prev => prev ? { ...prev, ...updateData } : null);
+        } catch (error) {
+            console.error('Upload failed:', error);
+            alert("Erreur lors de l'upload de l'image.");
+        } finally {
+            setUploading(null);
+        }
+    };
 
     if (loading || !profil) {
         return (
@@ -66,20 +93,44 @@ export function Profil() {
             {/* Header / Profile Card */}
             <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden relative">
                 {/* Banner Background */}
-                <div className="h-40 bg-gradient-to-r from-[#072a50] to-[#0B84D8] relative">
-                    <div className="absolute top-0 right-0 w-64 h-full bg-white/5 skew-x-[-20deg] translate-x-32" />
+                <div className="h-40 relative overflow-hidden group/cover">
+                    {profil.coverUrl ? (
+                         <img src={profil.coverUrl} alt="Cover" className="w-full h-full object-cover transition-transform duration-500 group-hover/cover:scale-105" />
+                    ) : (
+                        <div className="h-full bg-gradient-to-r from-[#072a50] to-[#0B84D8] relative">
+                            <div className="absolute top-0 right-0 w-64 h-full bg-white/5 skew-x-[-20deg] translate-x-32" />
+                        </div>
+                    )}
+                    
+                    <label className="absolute inset-0 bg-black/20 opacity-0 group-hover/cover:opacity-100 transition-opacity cursor-pointer flex items-center justify-center">
+                        <input type="file" className="hidden" accept="image/*" onChange={(e) => handlePhotoUpload(e, 'cover')} />
+                        <div className="bg-white/90 px-4 py-2 rounded-xl text-[#1a2b40] text-xs font-bold shadow-lg flex items-center gap-2">
+                             {uploading === 'cover' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Camera className="w-4 h-4" />}
+                             Modifier la couverture
+                        </div>
+                    </label>
                 </div>
 
                 <div className="px-8 pb-8 relative">
                     <div className="flex flex-col md:flex-row md:items-end gap-6 -mt-16">
                         {/* Avatar */}
-                        <div className="relative group">
-                            <div className="w-32 h-32 rounded-3xl bg-[#0B84D8] border-8 border-white text-white flex items-center justify-center text-4xl font-black shadow-xl relative z-10 transition-transform group-hover:scale-105">
-                                {profil.initiales}
+                        <div className="relative group/avatar">
+                            <div className="w-32 h-32 rounded-3xl bg-[#0B84D8] border-8 border-white text-white flex items-center justify-center text-4xl font-black shadow-xl relative z-10 transition-transform group-hover/avatar:scale-105 overflow-hidden">
+                                {profil.avatarUrl ? (
+                                    <img src={profil.avatarUrl} alt="Profil" className="w-full h-full object-cover" />
+                                ) : (
+                                    profil.initiales
+                                )}
+                                {uploading === 'avatar' && (
+                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-20">
+                                        <Loader2 className="w-8 h-8 animate-spin text-white" />
+                                    </div>
+                                )}
                             </div>
-                            <button className="absolute bottom-1 right-1 z-20 w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center text-[#1a2b40] hover:text-[#0B84D8] transition-colors border border-gray-50">
+                            <label className="absolute bottom-1 right-1 z-20 w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center text-[#1a2b40] hover:text-[#0B84D8] transition-colors border border-gray-50 cursor-pointer">
+                                <input type="file" className="hidden" accept="image/*" onChange={(e) => handlePhotoUpload(e, 'avatar')} />
                                 <Camera className="w-5 h-5" />
-                            </button>
+                            </label>
                         </div>
 
                         {/* User Info Header */}
@@ -183,11 +234,11 @@ export function Profil() {
 
                 {/* Right Column: Settings & Actions */}
                 <div className="space-y-8">
-                    {settingsSections.map((section, idx) => (
+                    {settingsSections.map((section, idx: number) => (
                         <motion.div key={idx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-[32px] p-6 border border-gray-100 shadow-sm">
                             <h2 className="text-lg font-bold text-[#1a2b40] mb-6">{section.title}</h2>
                             <div className="space-y-2">
-                                {section.items.map((item, i) => (
+                                {section.items.map((item: SectionItem, i: number) => (
                                     <button
                                         key={i}
                                         className="w-full group flex items-center justify-between p-3 rounded-2xl hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100"

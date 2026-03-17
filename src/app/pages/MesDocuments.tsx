@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Upload, FileText, Image as ImageIcon, Eye, Download, Trash2, CheckCircle2, Clock } from 'lucide-react';
+import { Upload, FileText, Image as ImageIcon, Eye, Download, Trash2, CheckCircle2, Clock, Loader2 } from 'lucide-react';
 import { documentsService, type Document } from '../lib/services/documentsService';
+import { storageService } from '../lib/services/storageService';
 
 const filters = ['Tous', 'Identité', 'Académique', 'Visa', 'Assurance', 'Paiement'];
 
@@ -10,12 +11,22 @@ export function MesDocuments() {
     const [activeFilter, setActiveFilter] = useState('Tous');
     const [documents, setDocuments] = useState<Document[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isUploading, setIsUploading] = useState(false);
+    const [user, setUser] = useState<any>(null);
 
     useEffect(() => {
-        documentsService.getDocuments()
-            .then(setDocuments)
-            .catch(console.error)
-            .finally(() => setLoading(false));
+        const storedUser = localStorage.getItem('user');
+        const sessionUser = storedUser ? JSON.parse(storedUser) : null;
+        setUser(sessionUser);
+
+        if (sessionUser) {
+            documentsService.getDocuments(sessionUser.id)
+                .then(setDocuments)
+                .catch(console.error)
+                .finally(() => setLoading(false));
+        } else {
+            setLoading(false);
+        }
     }, []);
 
     const filteredDocs = activeFilter === 'Tous'
@@ -24,9 +35,43 @@ export function MesDocuments() {
 
     const verifiedCount = documents.filter(d => d.status === 'verified').length;
 
-    const handleDelete = async (id: number) => {
-        await documentsService.deleteDocument(id);
-        setDocuments(prev => prev.filter(d => d.id !== id));
+    const handleDelete = async (id: string) => {
+        try {
+            await documentsService.deleteDocument(id);
+            setDocuments(prev => prev.filter(d => d.id !== id));
+        } catch (error) {
+            console.error('Delete failed:', error);
+        }
+    };
+
+    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file || !user) return;
+
+        try {
+            setIsUploading(true);
+            const path = `${user.id}/${Date.now()}_${file.name}`;
+            const publicUrl = await storageService.uploadFile('documents', path, file);
+
+            const newDoc: Partial<Document> & { url: string; userId: string } = {
+                name: file.name,
+                size: (file.size / 1024 / 1024).toFixed(2) + ' MB',
+                date: new Date().toLocaleDateString('fr-FR'),
+                category: activeFilter === 'Tous' ? 'Identité' : activeFilter,
+                type: file.type.includes('pdf') ? 'pdf' : 'image',
+                status: 'pending',
+                url: publicUrl,
+                userId: user.id
+            };
+
+            const savedDoc = await documentsService.uploadDocument(newDoc);
+            setDocuments(prev => [savedDoc, ...prev]);
+        } catch (error) {
+            console.error('Upload failed:', error);
+            alert("Erreur lors de l'envoi du document.");
+        } finally {
+            setIsUploading(false);
+        }
     };
 
     return (
@@ -72,15 +117,31 @@ export function MesDocuments() {
             </div>
 
             {/* Upload Area */}
-            <div className="border-2 border-dashed border-gray-200 rounded-3xl p-10 flex flex-col items-center justify-center bg-gray-50/50 hover:bg-blue-50/30 transition-colors group cursor-pointer">
-                <div className="w-16 h-16 rounded-full bg-blue-50 text-[#0B84D8] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                    <Upload className="w-8 h-8" />
-                </div>
-                <h3 className="text-lg font-bold text-[#1a2b40] mb-2">Glissez-déposez vos fichiers</h3>
-                <p className="text-sm text-gray-500 mb-8 font-medium">ou cliquez pour parcourir • PDF, JPG, PNG, DOC • Max 10 MB</p>
-                <button className="bg-[#0B84D8] hover:bg-[#0973BD] text-white font-bold py-3 px-8 rounded-xl transition-colors text-sm shadow-md flex items-center gap-2">
-                    <span className="text-lg leading-none">+</span> Ajouter un fichier
-                </button>
+            <div className="relative">
+                <input 
+                    type="file" 
+                    id="doc-upload"
+                    className="hidden" 
+                    onChange={handleFileUpload}
+                    disabled={isUploading}
+                />
+                <label 
+                    htmlFor="doc-upload"
+                    className={`border-2 border-dashed border-gray-200 rounded-3xl p-10 flex flex-col items-center justify-center bg-gray-50/50 hover:bg-blue-50/30 transition-colors group cursor-pointer ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                    <div className="w-16 h-16 rounded-full bg-blue-50 text-[#0B84D8] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        {isUploading ? <Loader2 className="w-8 h-8 animate-spin" /> : <Upload className="w-8 h-8" />}
+                    </div>
+                    <h3 className="text-lg font-bold text-[#1a2b40] mb-2">
+                        {isUploading ? 'Chargement en cours...' : 'Glissez-déposez vos fichiers'}
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-8 font-medium italic">
+                        {isUploading ? 'Veuillez patienter' : 'ou cliquez pour parcourir • PDF, JPG, PNG • Max 10 MB'}
+                    </p>
+                    <div className="bg-[#0B84D8] text-white font-bold py-3 px-8 rounded-xl transition-all text-sm shadow-md flex items-center gap-2 hover:shadow-lg active:scale-95">
+                        <span className="text-lg leading-none">+</span> Ajouter un fichier
+                    </div>
+                </label>
             </div>
 
             {/* Filters */}

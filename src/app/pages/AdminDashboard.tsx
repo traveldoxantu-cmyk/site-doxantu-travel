@@ -212,9 +212,9 @@ export function AdminDashboard() {
                             <h2 className="font-bold text-[#1a2b40]">Chiffre d'affaires mensuel</h2>
                             <p className="text-xs text-gray-400">7 derniers mois</p>
                         </div>
-                        <button className="text-xs text-[#0B84D8] font-semibold hover:underline flex items-center gap-1">
+                        <Link to="/admin/reporting" className="text-xs text-[#0B84D8] font-semibold hover:underline flex items-center gap-1">
                             Détails <ArrowRight className="w-3.5 h-3.5" />
-                        </button>
+                        </Link>
                     </div>
                     <LineChart data={chart} />
                 </div>
