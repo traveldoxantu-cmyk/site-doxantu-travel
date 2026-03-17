@@ -40,7 +40,9 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
             'dossiersByStatut': 'dossiers_statut',
             'conseillers': 'conseillers',
             'derniersPaiements': 'paiements',
-            'profil': 'profil'
+            'profil': 'profil',
+            'user_documents': 'user_documents',
+            'userDocuments': 'user_documents'
         };
 
         const table = tableMap[cleanPath];
