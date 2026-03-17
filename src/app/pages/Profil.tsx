@@ -30,23 +30,23 @@ export function Profil() {
         const storedUser = localStorage.getItem('user');
         const sessionUser = storedUser ? JSON.parse(storedUser) : null;
 
-        profilService.getProfil()
-            .then(data => {
-                if (sessionUser) {
+        if (sessionUser) {
+            profilService.getProfil(sessionUser.id)
+                .then(data => {
                     // Fusionner les données réelles de session avec les données métier du profil
                     setProfil({
                         ...data,
                         nom: `${sessionUser.firstName} ${sessionUser.lastName}`,
                         email: sessionUser.email,
-                        telephone: sessionUser.phone || data.telephone,
-                        initiales: sessionUser.initiales || data.initiales
+                        telephone: sessionUser.phone || data?.telephone,
+                        initiales: sessionUser.initiales || data?.initiales
                     });
-                } else {
-                    setProfil(data);
-                }
-            })
-            .catch(console.error)
-            .finally(() => setLoading(false));
+                })
+                .catch(console.error)
+                .finally(() => setLoading(false));
+        } else {
+            setLoading(false);
+        }
     }, []);
 
     if (loading || !profil) {

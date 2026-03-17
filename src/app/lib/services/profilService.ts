@@ -25,5 +25,5 @@ export interface Profil {
 }
 
 export const profilService = {
-    getProfil: () => apiFetch<Profil>('/profil'),
+    getProfil: (userId?: string) => apiFetch<Profil>(userId ? `/profil?user_id=${userId}` : '/profil'),
 };
