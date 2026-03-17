@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
-import { Search, Download, Plus, Eye, MessageSquare, GraduationCap, Briefcase, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Search, Plus, Eye, MessageSquare, GraduationCap, Briefcase, AlertCircle, X, UserPlus, Mail, Phone, MapPin, Loader2 } from 'lucide-react';
 import { apiFetch } from '../lib/api';
+import { supabase } from '../lib/supabase';
 
 interface User {
     id: string | number;
@@ -50,32 +51,93 @@ export function AdminClients() {
     const [clientType, setClientType] = useState('Tous types');
     const [selectedConseiller, setSelectedConseiller] = useState('Tous conseillers');
     const [sortBy, setSortBy] = useState('Trier par date');
+    
+    // Create Modal state
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isCreating, setIsCreating] = useState(false);
+    const [newClient, setNewClient] = useState({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        destination: '',
+        type: 'étudiant'
+    });
 
-    useEffect(() => {
-        apiFetch<any[]>('/users').then(data => {
+    const fetchClients = useCallback(async () => {
+        setLoading(true);
+        try {
+            const data = await apiFetch<any[]>('/users');
             const clientsOnly = data
                 .filter(u => u.role === 'client')
                 .map(u => ({
                     ...u,
                     id: String(u.id),
                     nom: `${u.firstName} ${u.lastName}`,
-                    type: 'étudiant',
+                    type: u.clientType || 'étudiant',
                     telephone: u.phone,
                     dossierId: u.id ? `DXT-2026-${u.id}` : 'DXT-NEW',
-                    destination: 'À définir',
-                    formation: 'Nouveau compte',
-                    statut: 'Nouveau',
-                    conseillerNom: null,
-                    conseillerInitiales: '?',
+                    destination: u.destination || 'À définir',
+                    formation: u.formation || 'En attente',
+                    statut: u.statut || 'Nouveau',
+                    conseillerNom: u.conseillerNom || null,
+                    conseillerInitiales: u.conseillerNom ? u.conseillerNom.split(' ').map((n: string) => n[0]).join('') : '?',
                     conseillerCouleur: '#94a3b8',
-                    etapesFaites: 0,
+                    etapesFaites: u.etapesFaites || 0,
                     etapesTotal: 5,
-                    avancement: 0,
-                    urgent: false
+                    avancement: u.avancement || 0,
+                    urgent: u.urgent || false
                 }));
             setClients(clientsOnly);
-        }).catch(console.error).finally(() => setLoading(false));
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
     }, []);
+
+    useEffect(() => {
+        fetchClients();
+
+        if (supabase) {
+            const channel = supabase
+                .channel('admin_clients_realtime')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, () => {
+                    fetchClients();
+                })
+                .subscribe();
+            return () => { 
+                if (supabase) {
+                    supabase.removeChannel(channel); 
+                }
+            };
+        }
+    }, [fetchClients]);
+
+    const handleCreateClient = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsCreating(true);
+        try {
+            const payload = {
+                ...newClient,
+                role: 'client',
+                initiales: `${newClient.firstName[0]}${newClient.lastName[0]}`.toUpperCase(),
+                createdAt: new Date().toISOString()
+            };
+            await apiFetch('/users', {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+            setIsCreateModalOpen(false);
+            setNewClient({ firstName: '', lastName: '', email: '', phone: '', destination: '', type: 'étudiant' });
+            fetchClients();
+        } catch (err) {
+            console.error('Create error:', err);
+            alert('Erreur lors de la création du dossier');
+        } finally {
+            setIsCreating(false);
+        }
+    };
 
     const filtered = clients.filter(c => {
         const q = search.toLowerCase();
@@ -96,7 +158,7 @@ export function AdminClients() {
     const nonAssignesCount = clients.filter(c => !c.conseillerNom).length;
     const validesCount = clients.filter(c => c.statut === 'Validé').length;
 
-    if (loading) {
+    if (loading && clients.length === 0) {
         return (
             <div className="space-y-4 animate-pulse">
                 <div className="h-10 bg-gray-200 rounded-xl w-48" />
@@ -107,25 +169,102 @@ export function AdminClients() {
 
     return (
         <div className="space-y-5 pb-8 max-w-7xl mx-auto">
+            {/* Create Client Modal */}
+            <AnimatePresence>
+                {isCreateModalOpen && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="bg-white rounded-[40px] w-full max-w-2xl overflow-hidden shadow-2xl"
+                        >
+                            <div className="p-8 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-[#0B84D8] text-white flex items-center justify-center shadow-lg shadow-[#0B84D8]/20">
+                                        <UserPlus className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-2xl font-black text-[#1a2b40]">Nouveau Dossier</h3>
+                                        <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-0.5">Création manuelle d'un client</p>
+                                    </div>
+                                </div>
+                                <button onClick={() => setIsCreateModalOpen(false)} className="p-2.5 hover:bg-white rounded-2xl transition-all shadow-sm group">
+                                    <X className="w-6 h-6 text-gray-400 group-hover:text-red-500 transition-colors" />
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleCreateClient} className="p-10 space-y-8">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Prénom</label>
+                                        <div className="relative">
+                                            <input required type="text" value={newClient.firstName} onChange={e => setNewClient({...newClient, firstName: e.target.value})} className="w-full pl-5 pr-5 py-4 bg-gray-50/50 border border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-50 outline-none transition-all" placeholder="Ex: Baye Karim" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Nom</label>
+                                        <div className="relative">
+                                            <input required type="text" value={newClient.lastName} onChange={e => setNewClient({...newClient, lastName: e.target.value})} className="w-full pl-5 pr-5 py-4 bg-gray-50/50 border border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-50 outline-none transition-all" placeholder="Ex: NDIAYE" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Email professionnel</label>
+                                        <div className="relative flex items-center">
+                                            <Mail className="absolute left-5 w-4 h-4 text-gray-400" />
+                                            <input required type="email" value={newClient.email} onChange={e => setNewClient({...newClient, email: e.target.value})} className="w-full pl-12 pr-5 py-4 bg-gray-50/50 border border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-50 outline-none transition-all" placeholder="client@exemple.com" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Téléphone</label>
+                                        <div className="relative flex items-center">
+                                            <Phone className="absolute left-5 w-4 h-4 text-gray-400" />
+                                            <input type="tel" value={newClient.phone} onChange={e => setNewClient({...newClient, phone: e.target.value})} className="w-full pl-12 pr-5 py-4 bg-gray-50/50 border border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-50 outline-none transition-all" placeholder="+221 ..." />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Destination</label>
+                                        <div className="relative flex items-center">
+                                            <MapPin className="absolute left-5 w-4 h-4 text-gray-400" />
+                                            <input type="text" value={newClient.destination} onChange={e => setNewClient({...newClient, destination: e.target.value})} className="w-full pl-12 pr-5 py-4 bg-gray-50/50 border border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-50 outline-none transition-all" placeholder="Ex: Paris, France" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Type de client</label>
+                                        <select value={newClient.type} onChange={e => setNewClient({...newClient, type: e.target.value})} className="w-full px-5 py-4 bg-gray-50/50 border border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:ring-4 focus:ring-blue-50 outline-none transition-all appearance-none cursor-pointer">
+                                            <option value="étudiant">Étudiant</option>
+                                            <option value="voyageur">Particulier / Voyageur</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-4 pt-4 border-t border-gray-100">
+                                    <button type="button" onClick={() => setIsCreateModalOpen(false)} className="flex-1 px-8 py-4 bg-gray-50 text-gray-500 font-bold rounded-2xl hover:bg-gray-100 transition-all font-sans">
+                                        Annuler
+                                    </button>
+                                    <button disabled={isCreating} type="submit" className="flex-2 px-8 py-4 bg-[#0B84D8] text-white font-bold rounded-2xl hover:bg-[#0973BD] shadow-lg shadow-[#0B84D8]/30 transition-all flex items-center justify-center gap-3 min-w-[200px] font-sans">
+                                        {isCreating ? <Loader2 className="w-5 h-5 animate-spin" /> : <UserPlus className="w-5 h-5" />}
+                                        {isCreating ? 'Création...' : 'Créer le dossier'}
+                                    </button>
+                                </div>
+                            </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
 
             {/* ── Header ─────────────────────────────────────────────────── */}
             <div className="flex items-start justify-between">
                 <div>
-                    <h1 className="text-2xl font-black text-[#1a2b40]">Gestion des dossiers</h1>
-                    <p className="text-sm text-gray-400 mt-0.5">{filtered.length} dossiers trouvés</p>
+                    <h1 className="text-3xl font-black text-[#1a2b40] tracking-tight">Gestion des Clients</h1>
+                    <p className="text-sm text-gray-400 font-medium mt-0.5">{filtered.length} dossiers actifs sur la plateforme</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <button 
-                        onClick={() => alert("Génération de l'export CSV en cours... Le téléchargement commencera dans quelques secondes.")}
-                        className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-600 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors shadow-sm"
+                        onClick={() => setIsCreateModalOpen(true)}
+                        className="flex items-center gap-3 px-6 py-3.5 bg-[#0B84D8] text-white text-sm font-black rounded-2xl hover:bg-[#0973BD] transition-all shadow-xl shadow-[#0B84D8]/20"
                     >
-                        <Download className="w-4 h-4" /> Exporter
-                    </button>
-                    <button 
-                        onClick={() => alert("Ouverture du formulaire de création de dossier...")}
-                        className="flex items-center gap-2 px-4 py-2.5 bg-[#0B84D8] text-white text-sm font-bold rounded-xl hover:bg-[#0973BD] transition-colors shadow-md shadow-[#0B84D8]/20"
-                    >
-                        <Plus className="w-4 h-4" /> Nouveau dossier
+                        <Plus className="w-5 h-5" /> Nouveau dossier
                     </button>
                 </div>
             </div>

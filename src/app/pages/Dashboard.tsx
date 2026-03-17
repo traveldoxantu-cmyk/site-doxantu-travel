@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { FolderOpen, FileText, MessageSquare, Calendar as CalendarIcon, Clock, CheckCircle2, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router';
 import { apiFetch } from '../lib/api';
+import { supabase } from '../lib/supabase';
 import {
     type QuickStat,
     type TimelineItem,
@@ -39,23 +40,47 @@ export function Dashboard() {
             const parsedUser = JSON.parse(storedUser);
             setUser(parsedUser);
             
-            // On ne lance les appels que si on a un utilisateur
             const userId = parsedUser.id;
             
-            Promise.all([
-                apiFetch<QuickStat[]>(`/quick_stats?user_id=${userId}`),
-                apiFetch<TimelineItem[]>(`/timeline?user_id=${userId}`),
-                apiFetch<Deadline[]>(`/deadlines?user_id=${userId}`),
-                apiFetch<any[]>(`/stats_widget?user_id=${userId}`),
-                apiFetch<Conseiller[]>('/conseillers?limit=1'),
-            ]).then(([stats, tl, dl, sw, cons]) => {
-                setQuickStats(stats || []);
-                setTimeline(tl || []);
-                setDeadlines(dl || []);
-                if (sw && sw.length > 0) setStatsWidget(sw[0].data || sw[0]);
-                if (cons && cons.length > 0) setConseiller(cons[0]);
-            }).catch(console.error)
-              .finally(() => setLoading(false));
+            const loadData = () => {
+                Promise.all([
+                    apiFetch<QuickStat[]>(`/quick_stats?user_id=${userId}`),
+                    apiFetch<TimelineItem[]>(`/timeline?user_id=${userId}`),
+                    apiFetch<Deadline[]>(`/deadlines?user_id=${userId}`),
+                    apiFetch<any[]>(`/stats_widget?user_id=${userId}`),
+                    apiFetch<Conseiller[]>('/conseillers?limit=1'),
+                ]).then(([stats, tl, dl, sw, cons]) => {
+                    setQuickStats(stats || []);
+                    setTimeline(tl || []);
+                    setDeadlines(dl || []);
+                    if (sw && sw.length > 0) setStatsWidget(sw[0].data || sw[0]);
+                    if (cons && cons.length > 0) setConseiller(cons[0]);
+                }).catch(console.error)
+                  .finally(() => setLoading(false));
+            };
+
+            loadData();
+
+            // Real-time subscription for student dashboard
+            if (supabase) {
+                const channel = supabase
+                    .channel(`dashboard_realtime_${userId}`)
+                    .on('postgres_changes', { 
+                        event: '*', 
+                        schema: 'public', 
+                        table: 'demandes',
+                        filter: `userId=eq.${userId}` 
+                    }, () => {
+                        loadData(); // Re-fetch all dashboard data when a demand changes
+                    })
+                    .subscribe();
+
+                return () => {
+                    if (supabase) {
+                        supabase.removeChannel(channel);
+                    }
+                };
+            }
         } else {
             setLoading(false);
         }
