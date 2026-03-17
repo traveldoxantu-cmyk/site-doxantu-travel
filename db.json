@@ -40,6 +40,16 @@
       "password": "Fallou1",
       "role": "client",
       "initiales": "BN"
+    },
+    {
+      "id": "9ae5",
+      "firstName": "Montana",
+      "lastName": "Beats",
+      "email": "montana@gmail.com",
+      "phone": "776748596",
+      "password": "montana1",
+      "role": "client",
+      "initiales": "MB"
     }
   ],
   "demandes": [
@@ -82,6 +92,26 @@
       "userId": "7899",
       "status": "nouveau",
       "createdAt": "2026-03-16T23:25:25.003Z"
+    },
+    {
+      "id": "1ff9",
+      "type": "accompagnement",
+      "data": {
+        "service": "campus-france",
+        "destination": "canada",
+        "budget": "",
+        "visaType": "etudes",
+        "date": "",
+        "documents": false,
+        "nom": "Montana Betas",
+        "email": "montana@gmail.com",
+        "tel": "784291760",
+        "message": "",
+        "niveauEtude": "licence-3"
+      },
+      "userId": "9ae5",
+      "status": "nouveau",
+      "createdAt": "2026-03-16T23:31:03.363Z"
     }
   ],
   "adminStats": {
