@@ -104,15 +104,15 @@ export function Profil() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-8 border-t border-gray-50">
                         <div>
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Dossier ID</p>
-                            <p className="font-bold text-[#1a2b40]">{profil.dossierId}</p>
+                            <p className="font-bold text-[#1a2b40]">{profil?.dossierId || 'Non défini'}</p>
                         </div>
                         <div>
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Destination</p>
-                            <p className="font-bold text-[#1a2b40]">{profil.destination}</p>
+                            <p className="font-bold text-[#1a2b40]">{profil?.destination || 'Non définie'}</p>
                         </div>
                         <div>
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Membre depuis</p>
-                            <p className="font-bold text-[#1a2b40]">{profil.membreDepuis}</p>
+                            <p className="font-bold text-[#1a2b40]">{profil?.membreDepuis || 'Récemment'}</p>
                         </div>
                         <div>
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Dernière activité</p>
@@ -136,14 +136,14 @@ export function Profil() {
                                     <label className="text-xs font-black text-gray-400 uppercase tracking-widest block mb-2">Nom complet</label>
                                     <div className="flex items-center gap-3 p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
                                         <User className="w-4 h-4 text-gray-400" />
-                                        <span className="text-sm font-bold text-[#1a2b40]">{profil.nom}</span>
+                                        <span className="text-sm font-bold text-[#1a2b40]">{profil?.nom || 'Chargement...'}</span>
                                     </div>
                                 </div>
                                 <div>
                                     <label className="text-xs font-black text-gray-400 uppercase tracking-widest block mb-2">Email</label>
                                     <div className="flex items-center gap-3 p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
                                         <Mail className="w-4 h-4 text-gray-400" />
-                                        <span className="text-sm font-bold text-[#1a2b40]">{profil.email}</span>
+                                        <span className="text-sm font-bold text-[#1a2b40]">{profil?.email || 'non renseigné'}</span>
                                     </div>
                                 </div>
                             </div>
@@ -153,14 +153,14 @@ export function Profil() {
                                     <label className="text-xs font-black text-gray-400 uppercase tracking-widest block mb-2">Téléphone</label>
                                     <div className="flex items-center gap-3 p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
                                         <Phone className="w-4 h-4 text-gray-400" />
-                                        <span className="text-sm font-bold text-[#1a2b40]">{profil.telephone}</span>
+                                        <span className="text-sm font-bold text-[#1a2b40]">{profil?.telephone || 'non renseigné'}</span>
                                     </div>
                                 </div>
                                 <div>
                                     <label className="text-xs font-black text-gray-400 uppercase tracking-widest block mb-2">Adresse</label>
                                     <div className="flex items-center gap-3 p-4 bg-gray-50/50 rounded-2xl border border-gray-100">
                                         <MapPin className="w-4 h-4 text-gray-400" />
-                                        <span className="text-sm font-bold text-[#1a2b40]">{profil.adresse}</span>
+                                        <span className="text-sm font-bold text-[#1a2b40]">{profil?.adresse || 'non renseignée'}</span>
                                     </div>
                                 </div>
                             </div>
@@ -173,8 +173,8 @@ export function Profil() {
                                     <Building2 className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <p className="font-bold text-[#1a2b40] text-sm">{profil.parcours.universite}</p>
-                                    <p className="text-xs text-gray-500 font-medium">{profil.parcours.diplome} • Promotion {profil.parcours.promotion}</p>
+                                    <p className="font-bold text-[#1a2b40] text-sm">{profil?.parcours?.universite || 'Parcours non renseigné'}</p>
+                                    <p className="text-xs text-gray-500 font-medium">{profil?.parcours?.diplome || '--'} • Promotion {profil?.parcours?.promotion || '--'}</p>
                                 </div>
                             </div>
                         </div>
