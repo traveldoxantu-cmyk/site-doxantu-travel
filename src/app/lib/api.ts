@@ -73,8 +73,18 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
                 const specialTables = ['admin_stats', 'profil', 'stats_widget'];
                 if (specialTables.includes(table)) {
                     if (data.length > 0) {
-                        const item = data[0];
-                        const content = item.value !== undefined ? item.value : (item.data !== undefined ? item.data : item);
+                        const item = data[0] as any;
+                        let content = item.value !== undefined ? item.value : (item.data !== undefined ? item.data : item);
+                        
+                        // Fusionner les colonnes spécifiques pour profil (avatar_url, cover_url)
+                        if (table === 'profil') {
+                            content = {
+                                ...content,
+                                avatarUrl: item.avatar_url,
+                                coverUrl: item.cover_url
+                            };
+                        }
+                        
                         return toCamel(content) as T;
                     }
                     return null as unknown as T;
