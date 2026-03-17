@@ -73,11 +73,12 @@ async function migrate() {
       clients_count: c.clients
     });
 
-    // 4. Client Tables (Mapped to a default client for existing demo data)
-    const targetUserId = clientUser?.id;
-    if (targetUserId) {
-        console.log(`🏠 Client Data (for user ${clientUser.email})...`);
-        
+    // 4. Client Tables (Mapped to ALL clients for demo purposes)
+    const clientUsers = realUsers.filter(u => u.role === 'client');
+    console.log(`🏠 Populating data for ${clientUsers.length} clients...`);
+    
+    for (const user of clientUsers) {
+        const targetUserId = user.id;
         if (dbData.quickStats) {
             for (const q of dbData.quickStats) await supabase.from('quick_stats').insert({ label: q.label, value: q.value, category: q.category, user_id: targetUserId });
         }
@@ -91,7 +92,7 @@ async function migrate() {
             await supabase.from('stats_widget').insert({ user_id: targetUserId, data: dbData.statsWidget });
         }
         if (dbData.profil) {
-            await supabase.from('profil').insert({ user_id: targetUserId, data: dbData.profil });
+            await supabase.from('profil').upsert({ user_id: targetUserId, data: dbData.profil }, { onConflict: 'user_id' });
         }
     }
 

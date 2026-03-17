@@ -71,10 +71,13 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
             if (!error && data) {
                 // Tables spéciales qui stockent leur contenu dans une colonne JSONB (data ou value)
                 const specialTables = ['admin_stats', 'profil', 'stats_widget'];
-                if (specialTables.includes(table) && data.length > 0) {
-                    const item = data[0];
-                    const content = item.value !== undefined ? item.value : (item.data !== undefined ? item.data : item);
-                    return toCamel(content) as T;
+                if (specialTables.includes(table)) {
+                    if (data.length > 0) {
+                        const item = data[0];
+                        const content = item.value !== undefined ? item.value : (item.data !== undefined ? item.data : item);
+                        return toCamel(content) as T;
+                    }
+                    return null as unknown as T;
                 }
                 return toCamel(data) as unknown as T;
             }
