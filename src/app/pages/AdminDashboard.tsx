@@ -95,29 +95,34 @@ export function AdminDashboard() {
     const fetchData = useCallback(() => {
         setLoading(true);
         Promise.all([
-            apiFetch<AdminStats>('/adminStats'),
-            apiFetch<ChartPoint[]>('/chartData'),
-            apiFetch<StatutItem[]>('/dossiersByStatut'),
-            apiFetch<any[]>('/derniersPaiements'),
+            apiFetch<AdminStats>('/admin_stats?key=general_stats'),
+            apiFetch<ChartPoint[]>('/chart_data'),
+            apiFetch<StatutItem[]>('/dossiers_statut'),
+            apiFetch<any[]>('/paiements?limit=5'),
             apiFetch<any[]>('/users'),
-            apiFetch<Demande[]>('/demandes?_sort=createdAt&_order=desc&_limit=5'),
+            apiFetch<Demande[]>('/demandes?limit=5'),
         ]).then(([s, c, st, p, u, dem]) => {
             const storedUser = localStorage.getItem('user');
             if (storedUser) setUser(JSON.parse(storedUser));
             
-            setStats(s); setChart(c); setStatuts(st); setPaiements(p);
+            // Extraction des stats si c'est un tableau de un élément (clé unique)
+            const statsObj = Array.isArray(s) ? s[0]?.value : (s as any)?.value || s;
+            setStats(statsObj); 
+            setChart(c || []); 
+            setStatuts(st || []); 
+            setPaiements(p || []);
             
             // Transformer les users en format Client pour l'affichage tableau
-            const realClients = u.filter(x => x.role === 'client');
+            const realClients = (u || []).filter(x => x.role === 'client');
             setUrgent(realClients.filter(x => x.urgent).map(x => ({
                 ...x,
                 nom: `${x.firstName} ${x.lastName}`,
-                dossierId: `DXT-2026-${x.id}`,
+                dossierId: `DXT-2026-${x.id.toString().slice(0, 8)}`,
                 destination: 'Non spécifiée',
                 avancement: 0
             })) as any);
 
-            setDemandes(dem);
+            setDemandes(dem || []);
         }).catch(console.error).finally(() => setLoading(false));
     }, []);
 

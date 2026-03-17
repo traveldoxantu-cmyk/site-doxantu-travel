@@ -18,32 +18,29 @@ function getEnv() {
 }
 
 const env = getEnv();
-const supabaseUrl = env.VITE_SUPABASE_URL;
-const supabaseAnonKey = env.VITE_SUPABASE_ANON_KEY;
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabase = createClient(env.VITE_SUPABASE_URL, env.VITE_SUPABASE_ANON_KEY);
 
 async function migrate() {
-  console.log('🚀 Démarrage de la migration (v2)...');
+  console.log('🚀 Migration Exhaustive Vers Supabase...');
 
   try {
-    const dbPath = path.resolve('db.json');
-    const dbData = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+    const dbData = JSON.parse(fs.readFileSync(path.resolve('db.json'), 'utf8'));
 
     // 1. Users
     console.log('👥 Users...');
     for (const u of dbData.users || []) {
       const { id, firstName, lastName, ...rest } = u;
-      const { error } = await supabase.from('users').upsert({
+      await supabase.from('users').upsert({
         first_name: firstName,
         last_name: lastName,
         ...rest
       }, { onConflict: 'email' });
-      if (error) console.error(`Error user ${u.email}:`, error.message);
     }
 
     const { data: realUsers } = await supabase.from('users').select('id, email');
     const userMap = {};
+    const adminUser = realUsers.find(u => u.email === 'admin@doxantu.com');
+    const clientUser = realUsers.find(u => u.email === 'amadou.diallo@edu.sn') || realUsers.find(u => u.role === 'client');
     realUsers?.forEach(u => userMap[u.email] = u.id);
 
     // 2. Demandes
@@ -58,27 +55,47 @@ async function migrate() {
       });
     }
 
-    // 3. Stats
-    console.log('📊 Stats...');
-    if (dbData.adminStats) {
-      await supabase.from('admin_stats').upsert({ key: 'general_stats', value: dbData.adminStats });
+    // 3. Admin Tables
+    console.log('📊 Admin Stats...');
+    if (dbData.adminStats) await supabase.from('admin_stats').upsert({ key: 'general_stats', value: dbData.adminStats }, { onConflict: 'key' });
+
+    console.log('📈 Chart Data...');
+    for (const c of dbData.chartData || []) await supabase.from('chart_data').insert({ mois: c.mois, valeur: c.valeur });
+
+    console.log('📁 Dossiers Statut...');
+    for (const s of dbData.dossiersByStatut || []) await supabase.from('dossiers_statut').insert({ statut: s.statut, count: s.count, color: s.color });
+
+    console.log('👷 Conseillers...');
+    for (const c of dbData.conseillers || []) await supabase.from('conseillers').insert({
+      nom: c.nom,
+      initiales: c.initiales,
+      couleur: c.couleur,
+      clients_count: c.clients
+    });
+
+    // 4. Client Tables (Mapped to a default client for existing demo data)
+    const targetUserId = clientUser?.id;
+    if (targetUserId) {
+        console.log(`🏠 Client Data (for user ${clientUser.email})...`);
+        
+        if (dbData.quickStats) {
+            for (const q of dbData.quickStats) await supabase.from('quick_stats').insert({ label: q.label, value: q.value, category: q.category, user_id: targetUserId });
+        }
+        if (dbData.timeline) {
+            for (const t of dbData.timeline) await supabase.from('timeline').insert({ title: t.title, date: t.date, status: t.status, user_id: targetUserId });
+        }
+        if (dbData.deadlines) {
+            for (const d of dbData.deadlines) await supabase.from('deadlines').insert({ title: d.title, date: d.date, days_remaining: d.daysRemaining, color_class: d.colorClass, user_id: targetUserId });
+        }
+        if (dbData.statsWidget) {
+            await supabase.from('stats_widget').insert({ user_id: targetUserId, data: dbData.statsWidget });
+        }
+        if (dbData.profil) {
+            await supabase.from('profil').insert({ user_id: targetUserId, data: dbData.profil });
+        }
     }
 
-    // 4. Chart
-    console.log('📈 Chart...');
-    for (const c of dbData.chartData || []) {
-      const { id, ...rest } = c;
-      await supabase.from('chart_data').insert(rest);
-    }
-
-    // 5. Statuts
-    console.log('📁 Statuts...');
-    for (const s of dbData.dossiersByStatut || []) {
-      const { id, ...rest } = s;
-      await supabase.from('dossiers_statut').insert(rest);
-    }
-
-    console.log('✅ Migration terminée !');
+    console.log('✅ Migration Exhaustive Terminée !');
   } catch (err) {
     console.error('❌ Erreur:', err);
   }

@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { FolderOpen, FileText, MessageSquare, Calendar as CalendarIcon, Clock, CheckCircle2, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router';
+import { apiFetch } from '../lib/api';
 import {
-    dashboardService,
     type QuickStat,
     type TimelineItem,
     type Deadline,
@@ -34,26 +34,31 @@ export function Dashboard() {
     const [conseiller, setConseiller]     = useState<Conseiller | null>(null);
 
     useEffect(() => {
-        // Récupération de l'utilisateur connecté
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
-            setUser(JSON.parse(storedUser));
+            const parsedUser = JSON.parse(storedUser);
+            setUser(parsedUser);
+            
+            // On ne lance les appels que si on a un utilisateur
+            const userId = parsedUser.id;
+            
+            Promise.all([
+                apiFetch<QuickStat[]>(`/quick_stats?user_id=${userId}`),
+                apiFetch<TimelineItem[]>(`/timeline?user_id=${userId}`),
+                apiFetch<Deadline[]>(`/deadlines?user_id=${userId}`),
+                apiFetch<any[]>(`/stats_widget?user_id=${userId}`),
+                apiFetch<Conseiller[]>('/conseillers?limit=1'),
+            ]).then(([stats, tl, dl, sw, cons]) => {
+                setQuickStats(stats || []);
+                setTimeline(tl || []);
+                setDeadlines(dl || []);
+                if (sw && sw.length > 0) setStatsWidget(sw[0].data || sw[0]);
+                if (cons && cons.length > 0) setConseiller(cons[0]);
+            }).catch(console.error)
+              .finally(() => setLoading(false));
+        } else {
+            setLoading(false);
         }
-
-        Promise.all([
-            dashboardService.getQuickStats(),
-            dashboardService.getTimeline(),
-            dashboardService.getDeadlines(),
-            dashboardService.getStatsWidget(),
-            dashboardService.getConseiller(),
-        ]).then(([stats, tl, dl, sw, cons]) => {
-            setQuickStats(stats);
-            setTimeline(tl);
-            setDeadlines(dl);
-            setStatsWidget(sw);
-            setConseiller(cons);
-        }).catch(console.error)
-          .finally(() => setLoading(false));
     }, []);
 
     if (loading) {
@@ -124,7 +129,7 @@ export function Dashboard() {
                     const Icon = styles.icon;
                     return (
                         <motion.div
-                            key={stat.id}
+                            key={i}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: i * 0.1 }}
