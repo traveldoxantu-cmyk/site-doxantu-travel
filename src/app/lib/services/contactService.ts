@@ -1,4 +1,4 @@
-import { supabase } from "../supabase";
+import { apiFetch } from "../api";
 
 export interface ContactSubmission {
   nom: string;
@@ -8,17 +8,11 @@ export interface ContactSubmission {
 }
 
 export const submitContactForm = async (data: ContactSubmission) => {
-  if (!supabase) {
-    console.warn('Supabase non configuré — formulaire de contact non enregistré en base.');
-    return { success: true, data: null }; // On laisse quand même WhatsApp se déclencher
-  }
-
   try {
-    const { data: result, error } = await supabase
-      .from('submissions')
-      .insert([{ ...data, status: 'new' }]);
-
-    if (error) throw error;
+    const result = await apiFetch<any>('/submissions', {
+      method: 'POST',
+      body: JSON.stringify({ ...data, status: 'new' })
+    });
 
     console.log("Data inserted successfully:", result);
     return { success: true, data: result };

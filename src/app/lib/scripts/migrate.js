@@ -37,7 +37,7 @@ async function migrate() {
       }, { onConflict: 'email' });
     }
 
-    const { data: realUsers } = await supabase.from('users').select('id, email');
+    const { data: realUsers } = await supabase.from('users').select('id, email, role');
     const userMap = {};
     const adminUser = realUsers.find(u => u.email === 'admin@doxantu.com');
     const clientUser = realUsers.find(u => u.email === 'amadou.diallo@edu.sn') || realUsers.find(u => u.role === 'client');
