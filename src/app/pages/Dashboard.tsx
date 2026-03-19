@@ -259,7 +259,7 @@ export function Dashboard() {
                                     {conseiller.initiales}
                                 </div>
                                 <div className="flex-1">
-                                    <p className="font-bold text-[#1a2b40]">{conseiller.nom}</p>
+                                    <p className="font-bold text-[#1a2b40]">{conseiller.nom || (conseiller as any).name}</p>
                                     {conseiller.online && (
                                         <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 mt-0.5">
                                             <span className="relative flex w-2 h-2">

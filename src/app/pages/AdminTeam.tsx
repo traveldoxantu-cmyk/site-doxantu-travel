@@ -24,10 +24,13 @@ export function AdminTeam() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filteredTeam = team.filter(member => 
-    member.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    member.role.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredTeam = team.filter(member => {
+    const name = member.name || (member as any).nom || '';
+    const role = member.role || '';
+    const search = searchTerm.toLowerCase();
+    return name.toLowerCase().includes(search) || 
+           role.toLowerCase().includes(search);
+  });
 
   if (loading) {
     return (

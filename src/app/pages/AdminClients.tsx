@@ -141,7 +141,17 @@ export function AdminClients() {
 
     const filtered = clients.filter(c => {
         const q = search.toLowerCase();
-        const matchSearch = !q || c.nom.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || c.dossierId.toLowerCase().includes(q) || c.destination.toLowerCase().includes(q);
+        const nom = c.nom || '';
+        const email = c.email || '';
+        const dossierId = c.dossierId || '';
+        const destination = c.destination || '';
+        
+        const matchSearch = !q || 
+            nom.toLowerCase().includes(q) || 
+            email.toLowerCase().includes(q) || 
+            dossierId.toLowerCase().includes(q) || 
+            destination.toLowerCase().includes(q);
+            
         const matchStatus = activeFilter === 'Tous' || c.statut === activeFilter;
         const matchType = clientType === 'Tous types' || c.type === clientType.toLowerCase();
         const matchConseiller = selectedConseiller === 'Tous conseillers' || c.conseillerNom === selectedConseiller;
