@@ -1,7 +1,15 @@
-import { Link } from 'react-router';
-import { motion } from 'motion/react';
-import { CheckCircle, ArrowRight, Shield, Clock, FileText, Globe, BookOpen } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { 
+  CheckCircle, ArrowRight, Shield, Clock, FileText, Globe, 
+  BookOpen, X, Loader2, Send, Paperclip, Trash2, UploadCloud 
+} from 'lucide-react';
 import { SEO } from '../components/SEO';
+import { toast } from 'sonner';
+import { apiFetch } from '../lib/api';
+import { supabase } from '../lib/supabase';
+import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission';
+
 const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
 const services = [
@@ -17,6 +25,7 @@ const services = [
       'Suivi jusqu\'à la décision',
     ],
     highlight: true,
+    tag: 'visa-etudiant'
   },
   {
     icon: <Globe className="w-7 h-7" />,
@@ -30,6 +39,7 @@ const services = [
       'Autres destinations',
     ],
     highlight: false,
+    tag: 'visa-tourisme'
   },
   {
     icon: <FileText className="w-7 h-7" />,
@@ -43,6 +53,7 @@ const services = [
       'Copie certifiée conforme',
     ],
     highlight: false,
+    tag: 'legalisation'
   },
 ];
 
@@ -54,12 +65,135 @@ const process = [
 ];
 
 export function VisaAssistance() {
+  const [selectedService, setSelectedService] = useState<typeof services[0] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [form, setForm] = useState({
+    nom: '',
+    tel: '',
+    email: '',
+    destination: '',
+    message: '',
+    extra: {} as Record<string, string>
+  });
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFiles(prev => [...prev, ...Array.from(e.target.files!)]);
+    }
+  };
+
+  const removeFile = (idx: number) => {
+    setFiles(prev => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const storedUser = localStorage.getItem('user');
+      const user = storedUser ? JSON.parse(storedUser) : null;
+
+      // 1. Upload files first if any
+      const fileUrls: string[] = [];
+      if (files.length > 0) {
+        if (!supabase) {
+          console.error("Supabase client non initialisé");
+          toast.error("Le service de stockage est indisponible.");
+          setLoading(false);
+          return;
+        }
+
+        for (const file of files) {
+          // File Size Check (10MB limit)
+          if (file.size > 10 * 1024 * 1024) {
+            toast.error(`Le fichier "${file.name}" est trop volumineux (max 10Mo).`);
+            setLoading(false);
+            return;
+          }
+
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+          const filePath = `visa_requests/${Date.now()}_${fileName}`;
+
+          console.log(`Tentative d'upload: ${filePath}`);
+          const toastId = toast.loading(`Envoi de "${file.name}"...`);
+          
+          const { error: uploadError } = await supabase.storage
+            .from('documents')
+            .upload(filePath, file, { 
+              cacheControl: '3600',
+              upsert: false 
+            });
+
+          toast.dismiss(toastId);
+
+          if (uploadError) {
+            console.error("Erreur Upload Supabase:", uploadError);
+            toast.error(`Échec de l'envoi du fichier "${file.name}".`);
+            throw uploadError;
+          }
+
+          const { data: { publicUrl } } = supabase.storage
+            .from('documents')
+            .getPublicUrl(filePath);
+          fileUrls.push(publicUrl);
+        }
+      }
+
+      // 2. Save demand to DB
+      const demandData = {
+        type: 'visa_request',
+        userId: user?.id || null,
+        status: 'nouveau',
+        data: {
+          service: selectedService?.tag,
+          serviceTitle: selectedService?.title,
+          ...form,
+          files: fileUrls,
+          submittedAt: new Date().toISOString()
+        }
+      };
+
+      await apiFetch('/demandes', {
+        method: 'POST',
+        body: JSON.stringify(demandData)
+      });
+
+      // 3. WhatsApp Message
+      const waMessage = buildWhatsAppMessage(`Nouvelle demande Visa: ${selectedService?.title}`, {
+        Nom: form.nom,
+        Telephone: form.tel,
+        Email: form.email,
+        Destination: form.destination,
+        Service: selectedService?.title || '',
+        ...form.extra,
+        Documents: files.length > 0 ? `${files.length} fichier(s) joint(s)` : 'Aucun',
+        Message: form.message
+      });
+
+      openWhatsAppSubmission(waMessage);
+      toast.success("Votre demande et vos documents ont été envoyés !");
+      setSelectedService(null);
+      setFiles([]);
+      setForm({ nom: '', tel: '', email: '', destination: '', message: '', extra: {} });
+    } catch (err) {
+      console.error(err);
+      toast.error("Erreur lors de l'envoi. Veuillez réessayer.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div>
+    <div className="font-sans">
       <SEO 
-        title="Études à l'étranger" 
-        description="Besoin d'un accompagnement Campus France au Sénégal ? Doxantu Travel vous guide pour vos études en France, Canada, Maroc et Turquie. Expertise et transparence garanties." 
+        title="Visa & Documents Officiels | Doxantu Travel" 
+        description="Besoin d'un visa étudiant, tourisme ou d'une légalisation ? Doxantu Travel vous accompagne au Sénégal pour vos démarches vers la France, Canada et ailleurs." 
       />
+      
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center overflow-hidden pt-28">
         <div className="absolute inset-0 z-0">
@@ -87,17 +221,17 @@ export function VisaAssistance() {
             </p>
             <div className="flex flex-wrap gap-4">
               <a href="https://wa.me/221776748596" target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-7 py-4 font-semibold transition-all"
-                style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white', borderRadius: '16px', border: '1.5px solid rgba(255,255,255,0.3)' }}>
-                💬 Poser une question
+                className="inline-flex items-center gap-2 px-7 py-4 font-semibold transition-all shadow-lg hover:shadow-blue-400/20 active:scale-95"
+                style={{ backgroundColor: 'white', color: '#072a50', borderRadius: '16px' }}>
+                💬 Discuter sur WhatsApp
               </a>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Services */}
-      <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8 bg-white">
+      {/* Services Section */}
+      <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8 bg-white" id="services">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -109,12 +243,12 @@ export function VisaAssistance() {
             <span className="text-sm font-semibold uppercase tracking-widest mb-3 block" style={{ color: '#0B84D8' }}>
               Nos services visa
             </span>
-            <h2 className="text-[#333333]" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 700 }}>
+            <h2 className="text-[#1a2b40]" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 800 }}>
               Une expertise pour chaque besoin
             </h2>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-8">
             {services.map((s, i) => (
               <motion.div
                 key={i}
@@ -122,69 +256,75 @@ export function VisaAssistance() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: i * 0.15 }}
-                className={`rounded-3xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden ${
-                  s.highlight ? 'border-2' : 'border border-gray-100 bg-white'
+                className={`rounded-[40px] p-10 shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 relative overflow-hidden group ${
+                  s.highlight ? 'border-2 border-[#0B84D8] bg-blue-50/30' : 'border border-gray-100 bg-white'
                 }`}
-                style={s.highlight ? { borderColor: '#0B84D8', backgroundColor: '#F0F8FF' } : {}}
               >
                 {s.badge && (
                   <div
-                    className="absolute top-5 right-5 text-xs font-semibold px-3 py-1 rounded-full text-white"
+                    className="absolute top-5 right-5 text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full text-white shadow-lg shadow-blue-500/20"
                     style={{ backgroundColor: '#0B84D8' }}
                   >
                     {s.badge}
                   </div>
                 )}
                 <div
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5"
-                  style={s.highlight ? { backgroundColor: '#0B84D8', color: 'white' } : { backgroundColor: '#E8F4FD', color: '#0B84D8' }}
+                  className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-8 transition-transform group-hover:scale-110 duration-500 ${
+                    s.highlight ? 'bg-[#0B84D8] text-white shadow-lg shadow-blue-500/30' : 'bg-blue-50 text-[#0B84D8]'
+                  }`}
                 >
                   {s.icon}
                 </div>
-                <h3 className="text-[#333333] mb-3" style={{ fontSize: '1.2rem', fontWeight: 700 }}>
+                <h3 className="text-[#1a2b40] mb-4" style={{ fontSize: '1.4rem', fontWeight: 800 }}>
                   {s.title}
                 </h3>
-                <p className="text-gray-500 text-sm leading-relaxed mb-5">{s.desc}</p>
-                <ul className="space-y-2.5">
+                <p className="text-gray-500 text-sm leading-relaxed mb-6 font-medium">{s.desc}</p>
+                <ul className="space-y-3 mb-10">
                   {s.items.map((item, j) => (
-                    <li key={j} className="flex items-center gap-2.5 text-sm">
-                      <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: '#0B84D8' }} />
-                      <span className="text-gray-600">{item}</span>
+                    <li key={j} className="flex items-center gap-3 text-[13px] font-bold text-gray-600">
+                      <div className="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+                        <CheckCircle className="w-3 h-3" style={{ color: '#0B84D8' }} />
+                      </div>
+                      <span>{item}</span>
                     </li>
                   ))}
                 </ul>
-                <Link
-                  to="/devis"
-                  className="mt-6 inline-flex items-center gap-1 text-sm font-semibold hover:gap-2 transition-all rounded-2xl"
-                  style={{ color: '#0B84D8' }}
+                <button
+                  onClick={() => setSelectedService(s)}
+                  className="w-full flex items-center justify-center gap-2 py-4 px-6 rounded-2xl text-sm font-black transition-all group/btn"
+                  style={s.highlight 
+                    ? { backgroundColor: '#0B84D8', color: 'white', boxShadow: '0 10px 20px -5px rgba(11,132,216,0.3)' } 
+                    : { border: '2px solid #F1F5F9', color: '#1a2b40' }
+                  }
                 >
-                  Faire ma demande <ArrowRight className="w-4 h-4" />
-                </Link>
+                  Faire ma demande 
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+                </button>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Process */}
-      <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: '#F8FAFC' }}>
+      {/* Process Section */}
+      <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8 bg-gray-50/50">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-12"
+            className="text-center mb-16"
           >
             <span className="text-sm font-semibold uppercase tracking-widest mb-3 block" style={{ color: '#0B84D8' }}>
               Comment ça marche
             </span>
-            <h2 className="text-[#333333]" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 700 }}>
+            <h2 className="text-[#1a2b40]" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 800 }}>
               Un processus simple en 4 étapes
             </h2>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {process.map((p, i) => (
               <motion.div
                 key={i}
@@ -192,60 +332,296 @@ export function VisaAssistance() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.12 }}
-                className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 text-center hover:shadow-lg transition-all"
+                className="bg-white rounded-[32px] p-8 shadow-sm border border-gray-100 text-center hover:shadow-xl transition-all group"
               >
                 <div
-                  className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4 font-bold text-white"
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-6 font-black text-white text-lg transition-transform group-hover:rotate-12 duration-500 shadow-lg shadow-blue-500/20"
                   style={{ backgroundColor: '#0B84D8' }}
                 >
                   {p.step}
                 </div>
-                <h4 className="text-[#333333] font-bold mb-2">{p.title}</h4>
-                <p className="text-gray-400 text-sm">{p.desc}</p>
+                <h4 className="text-[#1a2b40] font-black mb-3">{p.title}</h4>
+                <p className="text-gray-400 text-sm font-medium leading-relaxed">{p.desc}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Trust + CTA */}
+      {/* Trust & CTA */}
       <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-3 gap-6 mb-12">
+          <div className="grid lg:grid-cols-3 gap-8 mb-20">
             {[
-              { icon: <Shield className="w-6 h-6" />, title: 'Dossier vérifié', desc: 'Chaque document est contrôlé avant soumission pour maximiser vos chances.' },
-              { icon: <Clock className="w-6 h-6" />, title: 'Délais respectés', desc: 'Nous suivons vos délais consulaires avec rigueur pour aucun retard.' },
-              { icon: <CheckCircle className="w-6 h-6" />, title: 'Taux de succès élevé', desc: 'Plus de 95% de nos dossiers obtiennent un résultat positif la première fois.' },
+              { icon: <Shield />, title: 'Dossier vérifié', desc: 'Chaque document est contrôlé avant soumission pour maximiser vos chances.' },
+              { icon: <Clock />, title: 'Délais respectés', desc: 'Nous suivons vos délais consulaires avec rigueur pour aucun retard.' },
+              { icon: <CheckCircle />, title: 'Taux de succès élevé', desc: 'Plus de 95% de nos dossiers obtiennent un résultat positif la première fois.' },
             ].map((t, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="p-6 rounded-2xl border border-gray-100 hover:border-[#0B84D8] transition-all"
+                className="p-8 rounded-[32px] border border-gray-100 hover:border-[#0B84D8]/30 hover:bg-blue-50/10 transition-all flex flex-col items-center text-center group"
               >
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style={{ backgroundColor: '#E8F4FD', color: '#0B84D8' }}>
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 bg-blue-50 text-[#0B84D8] group-hover:scale-110 transition-transform duration-500">
                   {t.icon}
                 </div>
-                <h4 className="text-[#333333] font-bold mb-2">{t.title}</h4>
-                <p className="text-gray-500 text-sm">{t.desc}</p>
+                <h4 className="text-[#1a2b40] font-black mb-3">{t.title}</h4>
+                <p className="text-gray-500 text-sm font-medium leading-relaxed">{t.desc}</p>
               </motion.div>
             ))}
           </div>
 
-          <div className="text-center p-10 rounded-2xl" style={{ background: 'linear-gradient(135deg, #072a50 0%, #0B84D8 100%)' }}>
-            <h2 className="text-white mb-3" style={{ fontSize: 'clamp(1.5rem, 3.5vw, 2.2rem)', fontWeight: 700 }}>
-              Prêt à démarrer votre demande de visa ?
-            </h2>
-            <p className="text-blue-200 mb-6">Consultation gratuite · Réponse en 24h · Sans engagement</p>
-            <Link to="/devis" className="inline-flex items-center gap-2 px-7 py-4 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5 rounded-2xl"
-              style={{ backgroundColor: 'white', color: '#0B84D8' }}>
-              Faire ma demande <ArrowRight className="w-5 h-5" />
-            </Link>
+          <div className="relative p-12 md:p-20 rounded-[48px] overflow-hidden group shadow-2xl">
+            <div className="absolute inset-0 bg-[#072a50]" />
+            <div className="absolute inset-0 opacity-40 mix-blend-overlay bg-[url('https://images.unsplash.com/photo-1539650116574-8efeb43e2750?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center" />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(7,42,80,0.9) 0%, rgba(11,132,216,0.7) 100%)' }} />
+            
+            <div className="relative text-center max-w-2xl mx-auto">
+              <h2 className="text-white mb-6" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 800, lineHeight: 1.2 }}>
+                Prêt à démarrer votre demande ?
+              </h2>
+              <p className="text-blue-100/80 mb-10 text-lg font-medium">Réponse garantie en moins de 24 heures. Consultation gratuite et sans engagement.</p>
+              <div className="flex flex-wrap gap-4 justify-center">
+                <button 
+                  onClick={() => setSelectedService(services[0])}
+                  className="px-10 py-5 bg-white text-[#0B84D8] font-black rounded-2xl hover:scale-105 transition-all shadow-xl active:scale-95"
+                >
+                  Faire ma demande immédiate
+                </button>
+                <a href="https://wa.me/221776748596" target="_blank" rel="noopener noreferrer" className="px-10 py-5 bg-white/10 backdrop-blur-md border border-white/20 text-white font-black rounded-2xl hover:bg-white/20 transition-all active:scale-95">
+                  Parler à un expert
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </section>
+
+      {/* MODAL FORM */}
+      <AnimatePresence>
+        {selectedService && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 lg:p-8 overflow-y-auto">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedService(null)}
+              className="fixed inset-0 bg-[#072a50]/60 backdrop-blur-xl" 
+            />
+            
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-xl bg-white rounded-[40px] shadow-2xl my-auto border border-white/20 overflow-hidden"
+            >
+              <button 
+                onClick={() => setSelectedService(null)}
+                className="absolute top-6 right-6 w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-[#0B84D8] hover:text-white transition-all z-10"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="p-8 sm:p-10 max-h-[90vh] overflow-y-auto custom-scrollbar">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-[#0B84D8]">
+                    {selectedService.icon}
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-[#1a2b40] leading-none">Demande de {selectedService.title}</h3>
+                    <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-1.5">Action Recommandée</p>
+                  </div>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Common Fields */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Nom complet</label>
+                      <input 
+                        required 
+                        type="text" 
+                        placeholder="Ex: Amadou Diallo"
+                        value={form.nom}
+                        onChange={(e) => setForm({...form, nom: e.target.value})}
+                        className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Téléphone</label>
+                      <input 
+                        required 
+                        type="tel" 
+                        placeholder="+221 7X XXX XX XX"
+                        value={form.tel}
+                        onChange={(e) => setForm({...form, tel: e.target.value})}
+                        className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Contextual Fields */}
+                  <div className="space-y-6 pt-2 border-t border-gray-100">
+                    {selectedService.tag === 'legalisation' && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Langue cible</label>
+                          <select 
+                            value={form.extra.langue || "Francais"}
+                            className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
+                            onChange={(e) => setForm({...form, extra: {...form.extra, langue: e.target.value}})}
+                          >
+                            <option value="Francais">Français</option>
+                            <option value="Anglais">Anglais</option>
+                            <option value="Arabe">Arabe</option>
+                            <option value="Autre">Autre</option>
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Nombre de pages</label>
+                          <input 
+                            type="number" 
+                            min="1"
+                            placeholder="1"
+                            onChange={(e) => setForm({...form, extra: {...form.extra, pages: e.target.value}})}
+                            className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedService.tag === 'visa-etudiant' && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Niveau d'études</label>
+                          <select 
+                            value={form.extra.niveau || "Licence"}
+                            className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
+                            onChange={(e) => setForm({...form, extra: {...form.extra, niveau: e.target.value}})}
+                          >
+                            <option value="Licence">Licence</option>
+                            <option value="Master">Master</option>
+                            <option value="Doctorat">Doctorat</option>
+                            <option value="Autre">Autre</option>
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Destination</label>
+                          <input 
+                            type="text" 
+                            placeholder="Ex: France, Canada..."
+                            value={form.destination}
+                            onChange={(e) => setForm({...form, destination: e.target.value})}
+                            className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedService.tag === 'visa-tourisme' && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Motif du voyage</label>
+                          <select 
+                            className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
+                            onChange={(e) => setForm({...form, extra: {...form.extra, motif: e.target.value}})}
+                          >
+                            <option value="Tourisme">Tourisme</option>
+                            <option value="Visite familiale">Visite familiale</option>
+                            <option value="Affaires">Affaires</option>
+                          </select>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Durée stay</label>
+                          <input 
+                            type="text" 
+                            placeholder="Ex: 15 jours"
+                            onChange={(e) => setForm({...form, extra: {...form.extra, duree: e.target.value}})}
+                            className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* File Upload Section */}
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">
+                      {selectedService.tag === 'legalisation' ? 'Documents à traduire / légaliser' : 'Documents complémentaires (Optionnel)'}
+                    </label>
+                    <div 
+                      onClick={() => fileInputRef.current?.click()}
+                      className="group cursor-pointer border-2 border-dashed border-gray-200 rounded-3xl p-8 flex flex-col items-center justify-center transition-all hover:border-[#0B84D8] hover:bg-blue-50/30"
+                    >
+                      <input 
+                        type="file" 
+                        multiple 
+                        ref={fileInputRef}
+                        className="hidden" 
+                        onChange={handleFileChange}
+                      />
+                      <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-[#0B84D8] group-hover:text-white transition-all mb-3">
+                        <UploadCloud className="w-6 h-6" />
+                      </div>
+                      <p className="text-xs font-bold text-gray-500">Cliquez pour ajouter vos documents</p>
+                      <p className="text-[9px] text-gray-300 mt-1 uppercase font-black tracking-widest">PDF, JPG, PNG (Max 10MB)</p>
+                    </div>
+
+                    {/* File List */}
+                    <AnimatePresence>
+                      {files.length > 0 && (
+                        <motion.div 
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          className="space-y-2 mt-4"
+                        >
+                          {files.map((f, i) => (
+                            <motion.div 
+                              key={i}
+                              initial={{ x: -10, opacity: 0 }}
+                              animate={{ x: 0, opacity: 1 }}
+                              className="flex items-center justify-between p-3 bg-gray-50 rounded-xl"
+                            >
+                              <div className="flex items-center gap-3">
+                                <Paperclip className="w-4 h-4 text-[#0B84D8]" />
+                                <span className="text-[11px] font-bold text-gray-600 truncate max-w-[200px]">{f.name}</span>
+                              </div>
+                              <button 
+                                type="button"
+                                onClick={() => removeFile(i)}
+                                className="p-1.5 hover:bg-red-50 text-gray-400 hover:text-red-500 transition-all rounded-lg"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </motion.div>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  <div className="pt-4">
+                    <button 
+                      disabled={loading}
+                      className="w-full py-5 bg-[#0B84D8] text-white font-black rounded-2xl flex items-center justify-center gap-3 shadow-xl shadow-blue-500/20 hover:bg-black transition-all active:scale-95 disabled:opacity-50"
+                    >
+                      {loading ? (
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                      ) : (
+                        <>
+                          Soumettre mon dossier <Send className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                    <p className="text-[9px] text-gray-400 text-center font-bold uppercase tracking-widest mt-4">
+                      🔐 Vos données sont sécurisées et traitées sous 24h
+                    </p>
+                  </div>
+                </form>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

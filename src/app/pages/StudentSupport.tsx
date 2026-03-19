@@ -357,7 +357,7 @@ export function StudentSupport() {
                 Faire ma demande <ArrowRight className="w-5 h-5" />
               </Link>
               <a
-                href="https://wa.me/221780000000"
+                href="https://wa.me/221776748596"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-8 py-4 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5 rounded-2xl"
