@@ -70,7 +70,14 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
 
     // Gestion des requêtes GET
     if (!options || options.method === 'GET' || !options.method) {
-        let query = supabase.from(table).select('*');
+        let query: any;
+        
+        // Optimisation pour les vues admin qui ont besoin du profil
+        if (table === 'users' || table === 'clients') {
+            query = supabase.from('users').select('*, profil(*)');
+        } else {
+            query = supabase.from(table).select('*');
+        }
         
         if (recordId) {
             query = query.eq('id', recordId);
@@ -106,19 +113,22 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
                 return toCamel(data[0]) as T;
             }
 
-            // Tables spéciales qui stockent leur contenu dans une colonne JSONB (data ou value)
-            const specialTables = ['admin_stats', 'profil', 'stats_widget'];
+            // Tables spéciales qui stockent leur contenu dans une colonne JSONB (value)
+            const specialTables = ['admin_stats', 'stats_widget'];
             if (specialTables.includes(table)) {
                 if (data.length > 0) {
                     const item = data[0] as any;
-                    let content = item.value !== undefined ? item.value : (item.data !== undefined ? item.data : item);
-                    if (table === 'profil') {
-                        content = { ...content, avatarUrl: item.avatar_url, coverUrl: item.cover_url };
-                    }
+                    const content = item.value !== undefined ? item.value : item.data !== undefined ? item.data : item;
                     return toCamel(content) as T;
                 }
                 return null as unknown as T;
             }
+
+            // Pour 'profil', on traite le record normalement (toCamel s'occupe de avatar_url -> avatarUrl)
+            if (table === 'profil') {
+                return (data.length > 0 ? toCamel(data[0]) : null) as unknown as T;
+            }
+
             return toCamel(data) as unknown as T;
         }
     }

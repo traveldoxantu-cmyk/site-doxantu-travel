@@ -160,10 +160,10 @@ export function AdminDashboard() {
     const maxStatut = statuts.length ? Math.max(...statuts.map(s => s.count)) : 1;
 
     const kpis = stats ? [
-        { icon: TrendingUp, label: 'CA ce mois', value: `${(stats.caCurrentMonth / 1e6).toFixed(2)}M FCFA`, sub: `+${stats.caGrowthPercent}% vs mois précédent`, subColor: 'text-emerald-600' },
-        { icon: FolderOpen, label: 'Nouvelles demandes', value: `${demandes.length}`, sub: `Dernières 24h`, subColor: 'text-emerald-600' },
-        { icon: CheckCircle2, label: 'Taux succès visa', value: `${stats.tauxSuccesVisa}%`, sub: `+${stats.tauxSuccesGrowth}pts vs trimestre préc.`, subColor: 'text-emerald-600' },
-        { icon: CreditCard, label: 'Paiements en attente', value: `${stats.paiementsEnAttente}`, sub: `${(stats.montantAEncaisser / 1000).toFixed(0)}K FCFA à encaisser`, subColor: 'text-amber-600' },
+        { icon: TrendingUp, label: 'CA ce mois', value: `${(stats.caCurrentMonth / 1e6).toFixed(2)}M FCFA`, sub: `+${stats.caGrowthPercent}% vs mois précédent`, subColor: 'text-emerald-600', to: '/admin/finance' },
+        { icon: FolderOpen, label: 'Nouvelles demandes', value: `${demandes.length}`, sub: `Dernières 24h`, subColor: 'text-emerald-600', to: '/admin/demandes' },
+        { icon: CheckCircle2, label: 'Taux succès visa', value: `${stats.tauxSuccesVisa}%`, sub: `+${stats.tauxSuccesGrowth}pts vs trimestre préc.`, subColor: 'text-emerald-600', to: '/admin/reporting' },
+        { icon: CreditCard, label: 'Paiements en attente', value: `${stats.paiementsEnAttente}`, sub: `${(stats.montantAEncaisser / 1000).toFixed(0)}K FCFA à encaisser`, subColor: 'text-amber-600', to: '/admin/finance' },
     ] : [];
 
     if (loading) {
@@ -209,18 +209,20 @@ export function AdminDashboard() {
             {/* ── 4 KPI Cards ──────────────────────────────────────────────── */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {kpis.map((k, idx) => (
-                    <motion.div key={idx} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.07 }}
-                        className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden">
-                        <div className="absolute top-4 right-4 text-emerald-500 opacity-60">
-                            <ArrowUpRight className="w-4 h-4" />
-                        </div>
-                        <div className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center mb-3 border border-gray-100">
-                            <k.icon className="w-4 h-4 text-[#0B84D8]" />
-                        </div>
-                        <p className="text-xl font-black text-[#1a2b40]">{k.value}</p>
-                        <p className="text-xs text-gray-400 font-medium mb-2">{k.label}</p>
-                        <p className={`text-xs font-semibold ${k.subColor}`}>{k.sub}</p>
-                    </motion.div>
+                    <Link key={idx} to={k.to}>
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.07 }}
+                            className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm relative overflow-hidden h-full hover:shadow-md transition-shadow">
+                            <div className="absolute top-4 right-4 text-emerald-500 opacity-60">
+                                <ArrowUpRight className="w-4 h-4" />
+                            </div>
+                            <div className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center mb-3 border border-gray-100">
+                                <k.icon className="w-4 h-4 text-[#0B84D8]" />
+                            </div>
+                            <p className="text-xl font-black text-[#1a2b40]">{k.value}</p>
+                            <p className="text-xs text-gray-400 font-medium mb-2">{k.label}</p>
+                            <p className={`text-xs font-semibold ${k.subColor}`}>{k.sub}</p>
+                        </motion.div>
+                    </Link>
                 ))}
             </div>
 
@@ -278,16 +280,18 @@ export function AdminDashboard() {
                     </div>
                     <div className="space-y-3">
                         {urgent.map(c => (
-                            <div key={c.id} className="flex items-center gap-3 p-3 bg-red-50 border border-red-100 rounded-xl">
-                                <div className="w-8 h-8 rounded-lg bg-red-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
-                                    {c.initiales}
+                            <Link key={c.id} to="/admin/clients" className="block w-full">
+                                <div className="flex items-center gap-3 p-3 bg-red-50 border border-red-100 rounded-xl hover:bg-red-100 transition-colors">
+                                    <div className="w-8 h-8 rounded-lg bg-red-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                                        {c.initiales}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-bold text-red-800 truncate">{c.nom}</p>
+                                        <p className="text-xs text-red-400">{c.dossierId} · {c.destination}</p>
+                                    </div>
+                                    <span className="text-xs font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded-lg shrink-0">{c.avancement}%</span>
                                 </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-bold text-red-800 truncate">{c.nom}</p>
-                                    <p className="text-xs text-red-400">{c.dossierId} · {c.destination}</p>
-                                </div>
-                                <span className="text-xs font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded-lg shrink-0">{c.avancement}%</span>
-                            </div>
+                            </Link>
                         ))}
                         {urgent.length === 0 && (
                             <p className="text-sm text-gray-400 text-center py-4">✅ Aucun dossier urgent</p>

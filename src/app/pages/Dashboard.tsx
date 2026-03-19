@@ -152,20 +152,26 @@ export function Dashboard() {
                 {quickStats.map((stat, i) => {
                     const styles = STAT_STYLES[stat.category] ?? STAT_STYLES.dossier;
                     const Icon = styles.icon;
+                    const targetLink = stat.category === 'dossier' ? '/mon-espace/dossier' : 
+                                     stat.category === 'documents' ? '/mon-espace/documents' :
+                                     stat.category === 'messagerie' ? '/mon-espace/messagerie' :
+                                     stat.category === 'echeances' ? '/mon-espace/echeances' : '/mon-espace/dashboard';
+
                     return (
-                        <motion.div
-                            key={i}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: i * 0.1 }}
-                            className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                        >
-                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${styles.bg} ${styles.color}`}>
-                                <Icon className="w-5 h-5" />
-                            </div>
-                            <h3 className="font-bold text-[#1a2b40] mb-1">{stat.label}</h3>
-                            <p className="text-sm text-gray-500 font-medium">{stat.value}</p>
-                        </motion.div>
+                        <Link key={i} to={targetLink}>
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: i * 0.1 }}
+                                className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow cursor-pointer h-full"
+                            >
+                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${styles.bg} ${styles.color}`}>
+                                    <Icon className="w-5 h-5" />
+                                </div>
+                                <h3 className="font-bold text-[#1a2b40] mb-1">{stat.label}</h3>
+                                <p className="text-sm text-gray-500 font-medium">{stat.value}</p>
+                            </motion.div>
+                        </Link>
                     );
                 })}
             </div>

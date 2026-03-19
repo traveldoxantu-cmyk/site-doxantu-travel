@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Upload, FileText, Image as ImageIcon, Eye, Download, Trash2, CheckCircle2, Clock, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { documentsService, type Document } from '../lib/services/documentsService';
 import { storageService } from '../lib/services/storageService';
 
@@ -66,9 +67,10 @@ export function MesDocuments() {
 
             const savedDoc = await documentsService.uploadDocument(newDoc);
             setDocuments(prev => [savedDoc, ...prev]);
+            toast.success("Document envoyé avec succès ! Il est en cours de vérification.");
         } catch (error) {
             console.error('Upload failed:', error);
-            alert("Erreur lors de l'envoi du document.");
+            toast.error("Erreur lors de l'envoi du document. Veuillez vérifier votre connexion.");
         } finally {
             setIsUploading(false);
         }

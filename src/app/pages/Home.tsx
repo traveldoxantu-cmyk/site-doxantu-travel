@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission';
 import { SEO } from '../components/SEO';
+import { toast } from 'sonner';
 import { submitContactForm } from '../lib/services/contactService';
 const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 const STUDENT_IMG = 'https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdHVkZW50cyUyMHN0dWR5aW5nJTIwYWJyb2FkJTIwdW5pdmVyc2l0eSUyMGNhbXB1c3xlbnwxfHx8fDE3NzIzMTAxNTF8MA&ixlib=rb-4.1.0&q=80&w=1080';
@@ -102,8 +103,9 @@ export function Home() {
       });
       openWhatsAppSubmission(message);
       setFormSent(true);
+      toast.success("Votre demande a été enregistrée avec succès ! Redirection vers WhatsApp...");
     } else {
-      alert("Une erreur est survenue lors de l'envoi. Veuillez réessayer ou nous contacter directement via WhatsApp.");
+      toast.error("Une erreur est survenue lors de l'envoi. Veuillez réessayer ou nous contacter directement via WhatsApp.");
     }
     setIsSubmitting(false);
   };

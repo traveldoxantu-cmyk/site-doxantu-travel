@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, Plus, Eye, MessageSquare, GraduationCap, Briefcase, AlertCircle, X, UserPlus, Mail, Phone, MapPin, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { apiFetch } from '../lib/api';
 import { supabase } from '../lib/supabase';
 
@@ -29,6 +30,7 @@ interface Client extends User {
     etapesTotal: number;
     avancement: number;
     urgent: boolean;
+    avatarUrl?: string;
 }
 
 const STATUT_STYLE: Record<string, { label: string; border: string; text: string; bg: string }> = {
@@ -63,6 +65,31 @@ export function AdminClients() {
         destination: '',
         type: 'étudiant'
     });
+    
+    // Document Viewer state
+    const [selectedClientDocs, setSelectedClientDocs] = useState<Client | null>(null);
+    const [clientDocs, setClientDocs] = useState<any[]>([]);
+    const [loadingDocs, setLoadingDocs] = useState(false);
+
+    useEffect(() => {
+        if (selectedClientDocs) {
+            const fetchDocs = async () => {
+                setLoadingDocs(true);
+                try {
+                    const data = await apiFetch<any[]>(`/user_documents?user_id=${selectedClientDocs.id}`);
+                    setClientDocs(data);
+                } catch (err) {
+                    console.error('Error fetching docs:', err);
+                    toast.error('Impossible de charger les documents.');
+                } finally {
+                    setLoadingDocs(false);
+                }
+            };
+            fetchDocs();
+        } else {
+            setClientDocs([]);
+        }
+    }, [selectedClientDocs]);
 
     const fetchClients = useCallback(async () => {
         setLoading(true);
@@ -70,24 +97,28 @@ export function AdminClients() {
             const data = await apiFetch<any[]>('/users');
             const clientsOnly = data
                 .filter(u => u.role === 'client')
-                .map(u => ({
-                    ...u,
-                    id: String(u.id),
-                    nom: `${u.firstName} ${u.lastName}`,
-                    type: u.clientType || 'étudiant',
-                    telephone: u.phone,
-                    dossierId: u.id ? `DXT-2026-${u.id}` : 'DXT-NEW',
-                    destination: u.destination || 'À définir',
-                    formation: u.formation || 'En attente',
-                    statut: u.statut || 'Nouveau',
-                    conseillerNom: u.conseillerNom || null,
-                    conseillerInitiales: u.conseillerNom ? u.conseillerNom.split(' ').map((n: string) => n[0]).join('') : '?',
-                    conseillerCouleur: '#94a3b8',
-                    etapesFaites: u.etapesFaites || 0,
-                    etapesTotal: 5,
-                    avancement: u.avancement || 0,
-                    urgent: u.urgent || false
-                }));
+                .map(u => {
+                    const p = u.profil;
+                    return {
+                        ...u,
+                        id: String(u.id),
+                        nom: `${u.firstName} ${u.lastName}`,
+                        type: u.clientType || p?.destination ? 'étudiant' : 'voyageur',
+                        telephone: u.phone,
+                        dossierId: p?.dossierId || `DXT-2026-${u.id.slice(0,4)}`,
+                        destination: p?.destination || 'À définir',
+                        formation: p?.formation || 'En attente',
+                        statut: u.statut || 'Nouveau',
+                        avatarUrl: p?.avatarUrl,
+                        conseillerNom: u.conseillerNom || null,
+                        conseillerInitiales: u.conseillerNom ? u.conseillerNom.split(' ').map((n: string) => n[0]).join('') : '?',
+                        conseillerCouleur: '#94a3b8',
+                        etapesFaites: p?.etapesCompletees || 0,
+                        etapesTotal: p?.etapesTotal || 5,
+                        avancement: p?.avancement || 0,
+                        urgent: u.urgent || false
+                    };
+                });
             setClients(clientsOnly);
         } catch (err) {
             console.error(err);
@@ -133,7 +164,7 @@ export function AdminClients() {
             fetchClients();
         } catch (err) {
             console.error('Create error:', err);
-            alert('Erreur lors de la création du dossier');
+            toast.error('Erreur lors de la création du dossier. Veuillez vérifier la connexion.');
         } finally {
             setIsCreating(false);
         }
@@ -262,6 +293,85 @@ export function AdminClients() {
                     </div>
                 )}
             </AnimatePresence>
+            
+            {/* Document Viewer Modal */}
+            <AnimatePresence>
+                {selectedClientDocs && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            className="bg-white rounded-[40px] w-full max-w-3xl overflow-hidden shadow-2xl"
+                        >
+                            <div className="p-8 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center shadow-lg shadow-purple-600/20">
+                                        <Briefcase className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-2xl font-black text-[#1a2b40]">Documents : {selectedClientDocs.nom}</h3>
+                                        <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-0.5">{clientDocs.length} fichiers trouvés</p>
+                                    </div>
+                                </div>
+                                <button onClick={() => setSelectedClientDocs(null)} className="p-2.5 hover:bg-white rounded-2xl transition-all shadow-sm group">
+                                    <X className="w-6 h-6 text-gray-400 group-hover:text-red-500 transition-colors" />
+                                </button>
+                            </div>
+
+                            <div className="p-8 max-h-[60vh] overflow-y-auto">
+                                {loadingDocs ? (
+                                    <div className="py-20 flex flex-col items-center justify-center gap-4 text-gray-400">
+                                        <Loader2 className="w-10 h-10 animate-spin text-[#0B84D8]" />
+                                        <p className="font-bold">Chargement des documents...</p>
+                                    </div>
+                                ) : clientDocs.length === 0 ? (
+                                    <div className="py-20 text-center space-y-4">
+                                        <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto">
+                                            <AlertCircle className="w-10 h-10 text-gray-200" />
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-500 font-bold">Aucun document déposé</p>
+                                            <p className="text-sm text-gray-400">Ce client n'a pas encore téléchargé de pièces jointes.</p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {clientDocs.map((doc) => (
+                                            <div key={doc.id} className="group p-5 bg-gray-50/50 hover:bg-white border border-transparent hover:border-blue-100 rounded-3xl transition-all flex items-center gap-4 hover:shadow-xl hover:shadow-blue-500/5">
+                                                <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm text-[#0B84D8] group-hover:bg-[#0B84D8] group-hover:text-white transition-all">
+                                                    <Briefcase className="w-7 h-7" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="font-black text-[#1a2b40] truncate text-sm">{doc.name}</p>
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">{doc.type || 'Fichier'} • {doc.size ? `${(doc.size / 1024 / 1024).toFixed(2)} MB` : 'Taille inconnue'}</p>
+                                                </div>
+                                                <a 
+                                                    href={doc.url} 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer"
+                                                    className="p-3 bg-white text-[#0B84D8] hover:bg-[#0B84D8] hover:text-white rounded-xl shadow-sm transition-all active:scale-90"
+                                                >
+                                                    <Search className="w-5 h-5" />
+                                                </a>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="p-8 border-t border-gray-100 bg-gray-50/30">
+                                <button 
+                                    onClick={() => setSelectedClientDocs(null)}
+                                    className="w-full py-4 bg-white border border-gray-200 text-gray-600 font-black rounded-2xl hover:bg-gray-50 transition-all font-sans"
+                                >
+                                    Fermer la vue documents
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
 
             {/* ── Header ─────────────────────────────────────────────────── */}
             <div className="flex items-start justify-between">
@@ -386,11 +496,19 @@ export function AdminClients() {
                                     {/* Client */}
                                     <div className="flex items-center gap-3 min-w-0">
                                         <div className="relative shrink-0">
-                                            <div className="w-10 h-10 rounded-full bg-[#0B84D8] flex items-center justify-center text-white text-sm font-bold">
-                                                {c.initiales}
-                                            </div>
+                                            {c.avatarUrl ? (
+                                                <img 
+                                                    src={c.avatarUrl} 
+                                                    alt={c.nom}
+                                                    className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm"
+                                                />
+                                            ) : (
+                                                <div className="w-10 h-10 rounded-full bg-[#0B84D8] flex items-center justify-center text-white text-sm font-bold shadow-sm">
+                                                    {c.initiales}
+                                                </div>
+                                            )}
                                             {c.urgent && (
-                                                <span className="absolute -top-0.5 -left-0.5 w-3 h-3 rounded-full bg-red-500 border-2 border-white" />
+                                                <span className="absolute -top-0.5 -left-0.5 w-3.5 h-3.5 rounded-full bg-red-500 border-2 border-white shadow-sm" />
                                             )}
                                         </div>
                                         <div className="min-w-0">
@@ -453,10 +571,16 @@ export function AdminClients() {
 
                                     {/* Actions */}
                                     <div className="flex items-center justify-end gap-2">
-                                        <button className="p-1.5 text-gray-400 hover:text-[#0B84D8] hover:bg-blue-50 rounded-lg transition-colors">
+                                        <button 
+                                            onClick={() => setSelectedClientDocs(c)}
+                                            className="p-1.5 text-gray-400 hover:text-[#0B84D8] hover:bg-blue-50 rounded-lg transition-colors"
+                                        >
                                             <Eye className="w-4 h-4" />
                                         </button>
-                                        <button className="p-1.5 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors">
+                                        <button 
+                                            onClick={() => toast.info(`Démarrer une conversation avec ${c.nom}`)}
+                                            className="p-1.5 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                                        >
                                             <MessageSquare className="w-4 h-4" />
                                         </button>
                                     </div>

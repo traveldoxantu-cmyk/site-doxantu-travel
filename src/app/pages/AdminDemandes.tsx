@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Search, RefreshCw, FolderOpen, Calendar, Mail, Plane, ChevronRight, X, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { Search, RefreshCw, FolderOpen, Calendar, Mail, Plane, ChevronRight, X, CheckCircle, Clock, AlertCircle, Eye } from 'lucide-react';
 import { apiFetch } from '../lib/api';
+import { toast } from 'sonner';
 import { supabase } from '../lib/supabase';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -66,9 +67,10 @@ export function AdminDemandes() {
             });
             setSelectedDemande(null);
             fetchDemandes();
+            toast.success(`Statut mis à jour : ${newStatus}`);
         } catch (err) {
             console.error('Update failed:', err);
-            alert('Échec de la mise à jour');
+            toast.error("Échec de la mise à jour du statut.");
         } finally {
             setUpdating(false);
         }
@@ -107,9 +109,24 @@ export function AdminDemandes() {
 
                             <div className="p-8 space-y-6">
                                 <div className="p-4 bg-blue-50/50 rounded-2xl border border-blue-100/50">
-                                    <p className="text-xs font-bold text-[#0B84D8] uppercase mb-2">Détails Client</p>
-                                    <p className="text-lg font-bold text-[#1a2b40]">{selectedDemande.data?.nom || 'Client Anonyme'}</p>
-                                    <p className="text-sm text-gray-600">{selectedDemande.data?.email}</p>
+                                    <div className="flex justify-between items-center">
+                                        <div>
+                                            <p className="text-lg font-bold text-[#1a2b40]">{selectedDemande.data?.nom || 'Client Anonyme'}</p>
+                                            <p className="text-sm text-gray-600">{selectedDemande.data?.email}</p>
+                                        </div>
+                                        {selectedDemande.userId && (
+                                            <button 
+                                                onClick={() => {
+                                                    // Rediriger ou ouvrir une vue document (simplifié ici par un toast pour l'instant ou une navigation)
+                                                    toast.info("Accès aux documents du client... redirection vers la gestion client.");
+                                                    // On pourrait aussi fetch les docs ici
+                                                }}
+                                                className="flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-600 rounded-xl text-xs font-bold hover:bg-purple-100 transition-all border border-purple-100"
+                                            >
+                                                <Eye className="w-4 h-4" /> Voir les pièces jointes
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
 
                                 <div className="space-y-3">

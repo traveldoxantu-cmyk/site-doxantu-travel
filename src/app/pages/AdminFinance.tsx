@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { CreditCard, Download, Search, Filter, TrendingUp, TrendingDown, MoreVertical } from 'lucide-react';
+import { toast } from 'sonner';
 import { apiFetch } from '../lib/api';
 
 interface Transaction {
@@ -52,7 +53,7 @@ export function AdminFinance() {
           <p className="text-gray-500 text-sm mt-1">Gérez votre trésorerie et le suivi de facturation.</p>
         </div>
         <button 
-          onClick={() => alert("Préparation du rapport financier... L'export sera téléchargé au format PDF.")}
+          onClick={() => toast.info("Préparation du rapport financier... L'export sera téléchargé au format PDF dès que prêt.")}
           className="bg-[#0B84D8] text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-blue-600 transition-colors shadow-sm"
         >
           <Download className="w-4 h-4" /> Exporter le rapport

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { UserPlus, Search, Mail, Phone, ExternalLink } from 'lucide-react';
+import { toast } from 'sonner';
 import { apiFetch } from '../lib/api';
 
 interface TeamMember {
@@ -52,7 +53,7 @@ export function AdminTeam() {
           <p className="text-gray-500 text-sm mt-1">Annuaire de l'équipe et suivi des performances.</p>
         </div>
         <button 
-          onClick={() => alert("Ouverture du formulaire d'ajout de nouveau membre de l'équipe...")}
+          onClick={() => toast.info("Le formulaire d'ajout de conseiller sera disponible dans la prochaine mise à jour.")}
           className="bg-[#0B84D8] text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-blue-600 transition-colors shadow-sm"
         >
           <UserPlus className="w-4 h-4" /> Ajouter un conseiller
@@ -92,13 +93,13 @@ export function AdminTeam() {
 
             <div className="flex justify-center gap-2 mb-5">
               <button 
-                onClick={() => alert(`Envoyer un mail à ${member.name}`)}
+                onClick={() => toast.info(`L'envoi de mail à ${member.name} est en attente de configuration serveur.`)}
                 className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 hover:text-[#0B84D8] hover:bg-blue-50 transition-colors border border-gray-100"
               >
                 <Mail className="w-4 h-4" />
               </button>
               <button 
-                onClick={() => alert(`Appeler ${member.name}`)}
+                onClick={() => toast.info(`La fonction d'appel pour ${member.name} sera bientôt disponible.`)}
                 className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 hover:text-[#0B84D8] hover:bg-blue-50 transition-colors border border-gray-100"
               >
                 <Phone className="w-4 h-4" />
@@ -106,7 +107,7 @@ export function AdminTeam() {
             </div>
 
             <button 
-              onClick={() => alert(`Ouverture du profil complet de ${member.name}...`)}
+              onClick={() => toast.info(`Le profil détaillé de ${member.name} sera disponible prochainement.`)}
               className="w-full mt-auto py-2.5 bg-gray-50 border border-gray-100 text-[#1a2b40] rounded-xl text-xs font-bold hover:bg-blue-50 hover:text-[#0B84D8] hover:border-blue-100 transition-all flex items-center justify-center gap-1"
             >
               Voir profil détaillé <ExternalLink className="w-3 h-3" />

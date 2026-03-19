@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { User, Mail, Phone, MapPin, Camera, Shield, Bell, CreditCard, ChevronRight, LogOut, GraduationCap, Building2, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import Cropper, { Area } from 'react-easy-crop';
 import { profilService, type Profil } from '../lib/services/profilService';
 import { storageService } from '../lib/services/storageService';
@@ -97,9 +98,10 @@ export function Profil() {
 
             setProfil(prev => prev ? { ...prev, ...updateData } : null);
             setImageSrc(null);
+            toast.success("Photo de profil mise à jour avec succès !");
         } catch (error) {
             console.error('Upload failed:', error);
-            alert("Erreur lors de l'upload de l'image.");
+            toast.error("Erreur lors de l'upload de l'image. Veuillez réessayer.");
         } finally {
             setUploading(false);
         }

@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { BarChart3, Download, ArrowUpRight, Calendar } from 'lucide-react';
+import { toast } from 'sonner';
 
 const KPIS = [
   { label: 'Taux de succès Global', value: '89%', trend: '+2.4%', status: 'up' },
@@ -25,13 +26,13 @@ export function AdminReporting() {
         </div>
         <div className="flex gap-3">
           <button 
-            onClick={() => alert("Sélection de la période (Année, Mois, Semaine)...")}
+            onClick={() => toast.info("Sélection de la période (Année, Mois, Semaine)... Bientôt disponible.")}
             className="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-gray-50 transition-colors shadow-sm"
           >
             <Calendar className="w-4 h-4" /> Cette Année
           </button>
           <button 
-            onClick={() => alert("Exportation de tous les rapports statistiques... format Excel/PDF.")}
+            onClick={() => toast.info("Exportation des rapports statistiques... Génération du PDF en cours.")}
             className="bg-[#0B84D8] text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-blue-600 transition-colors shadow-sm"
           >
             <Download className="w-4 h-4" /> Export complet

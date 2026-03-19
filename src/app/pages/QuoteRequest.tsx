@@ -4,6 +4,7 @@ import { Upload, ArrowRight, CheckCircle, Shield, GraduationCap, Plane, FileText
 import { useSearchParams } from 'react-router';
 import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission';
 import { SEO } from '../components/SEO';
+import { toast } from 'sonner';
 import { apiFetch } from '../lib/api';
 
 const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
@@ -81,7 +82,7 @@ export function QuoteRequest() {
       setCurrentStep(4);
     } catch (err) {
       console.error(err);
-      alert('Erreur lors de l\'enregistrement de votre demande. Veuillez vérifier votre connexion au serveur.');
+      toast.error("Erreur lors de l'enregistrement de votre demande. Veuillez vérifier votre connexion au serveur.");
     } finally {
       setLoading(false);
     }
