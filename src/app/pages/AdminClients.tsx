@@ -5,7 +5,7 @@ import { apiFetch } from '../lib/api';
 import { supabase } from '../lib/supabase';
 
 interface User {
-    id: string | number;
+    id: string;
     firstName: string;
     lastName: string;
     email: string;
@@ -148,8 +148,8 @@ export function AdminClients() {
         
         return matchSearch && matchStatus && matchType && matchConseiller;
     }).sort((a, b) => {
-        if (sortBy === 'Plus récents') return Number(b.id) - Number(a.id);
-        if (sortBy === 'Plus anciens') return Number(a.id) - Number(b.id);
+        if (sortBy === 'Plus récents') return b.id.localeCompare(a.id);
+        if (sortBy === 'Plus anciens') return a.id.localeCompare(b.id);
         if (sortBy === 'Avancement') return b.avancement - a.avancement;
         return 0;
     });

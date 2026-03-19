@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface Demande {
-    id: number;
+    id: string;
     type: 'billetterie' | 'accompagnement';
     data: any;
     status: string;
@@ -57,7 +57,7 @@ export function AdminDemandes() {
         }
     }, [fetchDemandes]);
 
-    const handleUpdateStatus = async (id: number, newStatus: string) => {
+    const handleUpdateStatus = async (id: string, newStatus: string) => {
         setUpdating(true);
         try {
             await apiFetch(`/demandes?id=${id}`, {

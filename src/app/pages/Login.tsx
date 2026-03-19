@@ -70,7 +70,7 @@ export function Login() {
                 setSuccess(true);
                 setTimeout(() => navigate('/mon-espace/dashboard'), 1500);
             } else {
-                // Logique de connexion réelle via le serveur JSON
+                // Logique de connexion via Supabase
                 console.log('Tentative de connexion:', email.trim().toLowerCase());
                 const users = await apiFetch<any[]>(`/users?email=${encodeURIComponent(email.trim().toLowerCase())}&password=${encodeURIComponent(password)}`);
                 console.log('Réponse serveur (utilisateurs trouvés):', users.length);
@@ -93,15 +93,18 @@ export function Login() {
                     navigate(redirectTo);
                 } else {
                     setError('Email ou mot de passe incorrect.');
+                    toast.error('Identifiants invalides.');
                 }
             }
         } catch (err: any) {
             console.error('Erreur API détaillée:', err);
-            let msg = 'Une erreur est survenue. Vérifiez votre connexion.';
+            let msg = 'Erreur de connexion au serveur Doxantu.';
             if (err.message?.includes('404')) {
-                msg = 'Le serveur de données est introuvable (404).';
+                msg = 'La base de données est actuellement inaccessible.';
             } else if (err.message?.includes('Failed to fetch') || err.message?.includes('NetworkError')) {
-                msg = 'Impossible de contacter le serveur. Est-il bien lancé ?';
+                msg = 'Problème réseau détecté. Vérifiez votre connexion internet.';
+            } else if (err.status === 401) {
+                msg = 'Session expirée ou non autorisée.';
             }
             toast.error(msg);
             setError(msg);

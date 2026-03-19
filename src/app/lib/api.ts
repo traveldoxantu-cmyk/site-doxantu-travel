@@ -61,7 +61,8 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
         'transactions': 'paiements',
         'notifications': 'notifications',
         'messages': 'messages',
-        'conversations': 'conversations'
+        'conversations': 'conversations',
+        'dossierSteps': 'timeline'
     };
 
     // Auto-fallback: use path as table name if not in map (convert to snake_case)

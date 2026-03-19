@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { TrendingUp, FolderOpen, CheckCircle2, CreditCard, ArrowUpRight, ArrowRight, AlertTriangle, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router';
 import { apiFetch } from '../lib/api';
+import { supabase } from '../lib/supabase';
 
 interface AdminStats {
     caTotalAnnuel: number; clientsSatisfaits: number;
@@ -128,11 +129,31 @@ export function AdminDashboard() {
 
     useEffect(() => {
         fetchData();
-        // Polling toutes les 30 secondes
-        const interval = setInterval(() => {
-            fetchData();
-        }, 30000);
-        return () => clearInterval(interval);
+        
+        // Configuration du Temps Réel avec Supabase
+        const channel = supabase
+            ?.channel('admin_dashboard_realtime')
+            .on('postgres_changes', { 
+                event: '*', 
+                schema: 'public', 
+                table: 'demandes' 
+            }, () => {
+                fetchData(); // Rafraîchit les données dès qu'une demande change
+            })
+            .on('postgres_changes', { 
+                event: '*', 
+                schema: 'public', 
+                table: 'paiements' 
+            }, () => {
+                fetchData(); // Rafraîchit les données dès qu'un paiement change
+            })
+            .subscribe();
+
+        return () => {
+            if (channel) {
+                supabase?.removeChannel(channel);
+            }
+        };
     }, [fetchData]);
 
     const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });

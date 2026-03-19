@@ -8,7 +8,7 @@ export interface DossierDetails {
 }
 
 export interface DossierStep {
-    id: number;
+    id: string;
     title: string;
     date: string;
     status: 'completed' | 'current' | 'upcoming';
