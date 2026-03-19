@@ -1,21 +1,21 @@
 import { apiFetch } from '../api';
 
 export interface QuickStat {
-    id: number;
+    id: string;
     label: string;
     value: string;
     category: string;
 }
 
 export interface TimelineItem {
-    id: number;
+    id: string;
     title: string;
     date: string;
     status: 'completed' | 'current' | 'upcoming';
 }
 
 export interface Deadline {
-    id: number;
+    id: string;
     title: string;
     date: string;
     daysRemaining: number;
@@ -29,7 +29,7 @@ export interface StatsWidget {
 }
 
 export interface Conseiller {
-    id: number;
+    id: string;
     nom: string;
     initiales: string;
     online: boolean;

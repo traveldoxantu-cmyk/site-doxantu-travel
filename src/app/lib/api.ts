@@ -31,7 +31,14 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
         throw new Error('Supabase client not initialized. Ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set.');
     }
 
-    const cleanPath = path.split('?')[0].replace(/^\//, '');
+    // Support for /table/id structure
+    let urlPath = path.split('?')[0].replace(/^\//, '');
+    let recordId: string | null = null;
+    const pathParts = urlPath.split('/');
+    if (pathParts.length > 1) {
+        urlPath = pathParts[0];
+        recordId = pathParts[1];
+    }
     
     const tableMap: Record<string, string> = {
         'users': 'users',
@@ -40,6 +47,7 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
         'chartData': 'chart_data',
         'dossiersByStatut': 'dossiers_statut',
         'conseillers': 'conseillers',
+        'conseillers_full': 'conseillers',
         'derniersPaiements': 'paiements',
         'profil': 'profil',
         'user_documents': 'user_documents',
@@ -49,19 +57,24 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
         'deadlines': 'deadlines',
         'statsWidget': 'stats_widget',
         'submissions': 'submissions',
-        'clients': 'clients'
+        'clients': 'clients',
+        'transactions': 'paiements',
+        'notifications': 'notifications',
+        'messages': 'messages',
+        'conversations': 'conversations'
     };
 
-    const table = tableMap[cleanPath];
-
-    if (!table) {
-        throw new Error(`Table mapping not found for path: ${cleanPath}`);
-    }
+    // Auto-fallback: use path as table name if not in map (convert to snake_case)
+    const table = tableMap[urlPath] || urlPath.replace(/[A-Z]/g, (l) => `_${l.toLowerCase()}`);
 
     // Gestion des requêtes GET
     if (!options || options.method === 'GET' || !options.method) {
         let query = supabase.from(table).select('*');
         
+        if (recordId) {
+            query = query.eq('id', recordId);
+        }
+
         if (path.includes('?')) {
             const params = new URLSearchParams(path.split('?')[1]);
             params.forEach((val, key) => {
@@ -87,21 +100,20 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
         if (error) throw error;
 
         if (data) {
+            // Special handling for single records or /table/id
+            if (recordId && data.length > 0) {
+                return toCamel(data[0]) as T;
+            }
+
             // Tables spéciales qui stockent leur contenu dans une colonne JSONB (data ou value)
             const specialTables = ['admin_stats', 'profil', 'stats_widget'];
             if (specialTables.includes(table)) {
                 if (data.length > 0) {
                     const item = data[0] as any;
                     let content = item.value !== undefined ? item.value : (item.data !== undefined ? item.data : item);
-                    
                     if (table === 'profil') {
-                        content = {
-                            ...content,
-                            avatarUrl: item.avatar_url,
-                            coverUrl: item.cover_url
-                        };
+                        content = { ...content, avatarUrl: item.avatar_url, coverUrl: item.cover_url };
                     }
-                    
                     return toCamel(content) as T;
                 }
                 return null as unknown as T;
@@ -110,24 +122,30 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
         }
     }
     
-    // Gestion des requêtes POST / PUT
-    if (options && (options.method === 'POST' || options.method === 'PUT')) {
-        const body = toSnake(JSON.parse(options.body as string));
+    // Gestion des requêtes POST / PUT / PATCH / DELETE
+    const method = options?.method || 'GET';
+    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+        const body = options?.body ? toSnake(JSON.parse(options.body as string)) : {};
         let result;
-        if (options.method === 'POST') {
+
+        if (method === 'POST') {
             result = await supabase.from(table).insert(body).select();
+        } else if (method === 'DELETE') {
+            const deleteId = recordId || new URLSearchParams(path.split('?')[1] || '').get('id');
+            if (!deleteId) throw new Error("ID required for DELETE request");
+            result = await supabase.from(table).delete().eq('id', deleteId);
+            return {} as T;
         } else {
+            // PUT or PATCH
             const { id, ...updateData } = body;
-            const params = new URLSearchParams(path.split('?')[1] || '');
-            const targetId = id || params.get('id');
-            
-            if (!targetId) throw new Error("ID required for PUT request");
-            
+            const targetId = recordId || id || new URLSearchParams(path.split('?')[1] || '').get('id');
+            if (!targetId) throw new Error("ID required for UPDATE request");
             result = await supabase.from(table).update(updateData).eq('id', targetId).select();
         }
+
         if (result.error) throw result.error;
         if (result.data) return toCamel(result.data[0]) as T;
     }
 
-    throw new Error(`Unsupported request: ${options?.method || 'GET'} to ${path}`);
+    throw new Error(`Unsupported request: ${method} to ${path}`);
 }

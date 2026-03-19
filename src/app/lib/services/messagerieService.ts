@@ -1,7 +1,7 @@
 import { apiFetch } from '../api';
 
 export interface Conversation {
-    id: number;
+    id: string;
     name: string;
     role: string;
     avatar: string;
@@ -12,9 +12,9 @@ export interface Conversation {
 }
 
 export interface Message {
-    id: number;
-    conversationId: number;
-    senderId: number | 'me';
+    id: string;
+    conversationId: string;
+    senderId: string | 'me';
     text: string;
     time: string;
     status: 'read' | 'unread';
@@ -22,6 +22,6 @@ export interface Message {
 
 export const messagerieService = {
     getConversations: () => apiFetch<Conversation[]>('/conversations'),
-    getMessages: (conversationId: number) =>
+    getMessages: (conversationId: string) =>
         apiFetch<Message[]>(`/messages?conversationId=${conversationId}`),
 };

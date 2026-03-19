@@ -8,7 +8,7 @@ export interface AdminStats {
 }
 
 export interface Client {
-  id: number;
+  id: string;
   nom: string;
   initiales: string;
   email: string;
@@ -27,5 +27,5 @@ export interface Client {
 export const adminService = {
   getStats: () => apiFetch<AdminStats>('/adminStats'),
   getClients: () => apiFetch<Client[]>('/clients'),
-  getClientById: (id: number) => apiFetch<Client>(`/clients/${id}`),
+  getClientById: (id: string) => apiFetch<Client>(`/clients/${id}`),
 };

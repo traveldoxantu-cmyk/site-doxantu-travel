@@ -1,7 +1,7 @@
 import { apiFetch } from '../api';
 
 export interface Echeance {
-    id: number;
+    id: string;
     title: string;
     date: string;
     time: string;

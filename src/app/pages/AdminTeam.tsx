@@ -4,7 +4,7 @@ import { UserPlus, Search, Mail, Phone, ExternalLink } from 'lucide-react';
 import { apiFetch } from '../lib/api';
 
 interface TeamMember {
-  id: number;
+  id: string;
   name: string;
   role: string;
   initials: string;
