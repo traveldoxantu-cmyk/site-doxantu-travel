@@ -31,6 +31,7 @@ export function QuoteRequest() {
   });
 
   const isProjectMode = searchParams.get('mode') === 'projet';
+  const needsStudyLevel = ['campus-france', 'visa-etudiant', 'pack-complet'].includes(form.service);
 
   const handleNext = () => {
     if (currentStep === 1 && isProjectMode) {
@@ -72,10 +73,17 @@ export function QuoteRequest() {
         method: 'POST',
         body: JSON.stringify({
           type: 'accompagnement',
-          data: form,
-          userId: user?.id || null,
+          nom: form.nom,
+          email: form.email,
+          tel: form.tel,
+          service: form.service,
           status: 'nouveau',
-          createdAt: new Date().toISOString()
+          user_id: user?.id || null,
+          data: {
+            ...form,
+            recipient: 'traveldoxantu@gmail.com',
+            createdAt: new Date().toISOString()
+          }
         })
       });
       openWhatsAppSubmission(message);
@@ -362,9 +370,9 @@ export function QuoteRequest() {
 
                   <div>
                     <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                      Niveau d'études actuel *
+                      Niveau d'études actuel {needsStudyLevel ? '*' : '(optionnel)'}
                     </label>
-                    <select required value={form.niveauEtude} onChange={(e) => setForm({ ...form, niveauEtude: e.target.value })}
+                    <select required={needsStudyLevel} value={form.niveauEtude} onChange={(e) => setForm({ ...form, niveauEtude: e.target.value })}
                       className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
                       style={{ borderRadius: '14px' }}>
                       <option value="">Sélectionner votre niveau…</option>

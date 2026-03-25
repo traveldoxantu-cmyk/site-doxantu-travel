@@ -78,7 +78,7 @@ export function Home() {
   const navigate = useNavigate();
   const [destination, setDestination] = useState('');
   const [service, setService] = useState('');
-  const [formData, setFormData] = useState({ nom: '', tel: '', service: '', message: '' });
+  const [formData, setFormData] = useState({ nom: '', tel: '', email: '', service: '', message: '' });
   const [formSent, setFormSent] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -258,10 +258,16 @@ export function Home() {
 
                   <button
                     type="submit"
-                    className="w-full py-3.5 text-white font-semibold transition-all hover:shadow-lg hover:-translate-y-0.5"
-                    style={{ backgroundColor: '#0B84D8', borderRadius: '14px', fontSize: '1rem' }}
+                    disabled={!destination && !service}
+                    className="w-full py-4 text-white font-bold transition-all hover:shadow-2xl hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95"
+                    style={{ 
+                      background: 'linear-gradient(135deg, #0B84D8 0%, #0861a1 100%)', 
+                      borderRadius: '16px', 
+                      fontSize: '1rem',
+                      boxShadow: '0 10px 25px -5px rgba(11, 132, 216, 0.4)'
+                    }}
                   >
-                    Faire ma demande →
+                    🚀 Faire ma demande →
                   </button>
                 </form>
 
@@ -275,7 +281,9 @@ export function Home() {
 
         {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/70 animate-bounce">
-          <Plane className="w-8 h-8 opacity-80 md:w-10 md:h-10 rotate-180 transition-transform" />
+          <svg className="w-6 h-6 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
         </div>
       </section>
 

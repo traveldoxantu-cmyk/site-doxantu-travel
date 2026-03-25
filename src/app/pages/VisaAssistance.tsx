@@ -146,13 +146,17 @@ export function VisaAssistance() {
       // 2. Save demand to DB
       const demandData = {
         type: 'visa_request',
-        userId: user?.id || null,
+        nom: form.nom,
+        email: form.email,
+        tel: form.tel,
+        service: selectedService?.title || 'Visa',
         status: 'nouveau',
+        user_id: user?.id || null,
         data: {
-          service: selectedService?.tag,
-          serviceTitle: selectedService?.title,
+          serviceTag: selectedService?.tag,
           ...form,
           files: fileUrls,
+          recipient: 'traveldoxantu@gmail.com',
           submittedAt: new Date().toISOString()
         }
       };
@@ -428,7 +432,7 @@ export function VisaAssistance() {
                   </div>
                   <div>
                     <h3 className="text-xl font-black text-[#1a2b40] leading-none">Demande de {selectedService.title}</h3>
-                    <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-1.5">Action Recommandée</p>
+                    <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mt-1.5">Formulaire confidentiel</p>
                   </div>
                 </div>
 
@@ -531,7 +535,7 @@ export function VisaAssistance() {
                           </select>
                         </div>
                         <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Durée stay</label>
+                          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Durée du séjour</label>
                           <input 
                             type="text" 
                             placeholder="Ex: 15 jours"

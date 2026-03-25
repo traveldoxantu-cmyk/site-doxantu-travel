@@ -47,7 +47,7 @@ export function Header() {
               <img
                 src={(scrolled || mobileOpen) ? logoImg : logoImgWhite}
                 alt="Doxantu Travel"
-                className="h-[100px] md:h-[125px] w-auto object-contain block relative z-10"
+                className="h-14 md:h-20 w-auto object-contain block relative z-10"
               />
             </div>
           </Link>

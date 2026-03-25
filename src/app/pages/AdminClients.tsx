@@ -94,34 +94,40 @@ export function AdminClients() {
     const fetchClients = useCallback(async () => {
         setLoading(true);
         try {
-            const data = await apiFetch<any[]>('/users');
-            const clientsOnly = data
+            // Récupérer les profils et les dossiers en parallèle
+            const [profiles, dossiers] = await Promise.all([
+                apiFetch<any[]>('/profiles'),
+                apiFetch<any[]>('/dossiers')
+            ]);
+
+            const clientsOnly = profiles
                 .filter(u => u.role === 'client')
                 .map(u => {
-                    const p = u.profil;
+                    // Trouver le dossier correspondant à cet utilisateur
+                    const d = dossiers.find(dos => dos.userId === u.id);
                     return {
                         ...u,
                         id: String(u.id),
-                        nom: `${u.firstName} ${u.lastName}`,
-                        type: u.clientType || p?.destination ? 'étudiant' : 'voyageur',
-                        telephone: u.phone,
-                        dossierId: p?.dossierId || `DXT-2026-${u.id.slice(0,4)}`,
-                        destination: p?.destination || 'À définir',
-                        formation: p?.formation || 'En attente',
-                        statut: u.statut || 'Nouveau',
-                        avatarUrl: p?.avatarUrl,
-                        conseillerNom: u.conseillerNom || null,
-                        conseillerInitiales: u.conseillerNom ? u.conseillerNom.split(' ').map((n: string) => n[0]).join('') : '?',
+                        nom: `${u.prenom || ''} ${u.nom || ''}`.trim() || u.email,
+                        type: d?.formation ? 'étudiant' : 'voyageur',
+                        telephone: u.tel || '',
+                        dossierId: d?.numeroDossier || `DXT-2026-${String(u.id).slice(0,4)}`,
+                        destination: d?.destination || 'À définir',
+                        formation: d?.formation || 'En attente',
+                        statut: d?.statut || 'Nouveau',
+                        avatarUrl: u.avatarUrl,
+                        conseillerNom: d?.conseillerNom || null,
+                        conseillerInitiales: d?.conseillerNom ? d.conseillerNom.split(' ').map((n: string) => n[0]).join('') : '?',
                         conseillerCouleur: '#94a3b8',
-                        etapesFaites: p?.etapesCompletees || 0,
-                        etapesTotal: p?.etapesTotal || 5,
-                        avancement: p?.avancement || 0,
-                        urgent: u.urgent || false
+                        etapesFaites: d?.etapesFaites || 0,
+                        etapesTotal: d?.etapesTotal || 8,
+                        avancement: d?.avancement || 0,
+                        urgent: d?.urgent || false
                     };
                 });
             setClients(clientsOnly);
         } catch (err) {
-            console.error(err);
+            console.error("Erreur lors de la récupération des clients:", err);
         } finally {
             setLoading(false);
         }
@@ -132,11 +138,15 @@ export function AdminClients() {
 
         if (supabase) {
             const channel = supabase
-                .channel('admin_clients_realtime')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, () => {
+                .channel('admin_clients_db_changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+                    fetchClients();
+                })
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'dossiers' }, () => {
                     fetchClients();
                 })
                 .subscribe();
+                
             return () => { 
                 if (supabase) {
                     supabase.removeChannel(channel); 

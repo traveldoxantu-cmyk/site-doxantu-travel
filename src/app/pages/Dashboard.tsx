@@ -35,55 +35,87 @@ export function Dashboard() {
     const [conseiller, setConseiller]     = useState<Conseiller | null>(null);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            const parsedUser = JSON.parse(storedUser);
-            setUser(parsedUser);
-            
-            const userId = parsedUser.id;
-            
-            const loadData = () => {
-                Promise.all([
-                    apiFetch<QuickStat[]>(`/quick_stats?user_id=${userId}`),
-                    apiFetch<TimelineItem[]>(`/timeline?user_id=${userId}`),
-                    apiFetch<Deadline[]>(`/deadlines?user_id=${userId}`),
-                    apiFetch<any[]>(`/stats_widget?user_id=${userId}`),
-                    apiFetch<Conseiller[]>('/conseillers?limit=1'),
-                ]).then(([stats, tl, dl, sw, cons]) => {
-                    setQuickStats(stats || []);
-                    setTimeline(tl || []);
-                    setDeadlines(dl || []);
-                    if (sw && sw.length > 0) setStatsWidget(sw[0].data || sw[0]);
-                    if (cons && cons.length > 0) setConseiller(cons[0]);
-                }).catch(console.error)
-                  .finally(() => setLoading(false));
-            };
-
-            loadData();
-
-            // Real-time subscription for student dashboard
-            if (supabase) {
-                const channel = supabase
-                    .channel(`dashboard_realtime_${userId}`)
-                    .on('postgres_changes', { 
-                        event: '*', 
-                        schema: 'public', 
-                        table: 'demandes',
-                        filter: `userId=eq.${userId}` 
-                    }, () => {
-                        loadData(); // Re-fetch all dashboard data when a demand changes
-                    })
-                    .subscribe();
-
-                return () => {
-                    if (supabase) {
-                        supabase.removeChannel(channel);
+        const loadUserAndData = async () => {
+            let currentUser = user;
+            if (!currentUser) {
+                const storedUser = localStorage.getItem('user');
+                if (storedUser) {
+                    currentUser = JSON.parse(storedUser);
+                    setUser(currentUser);
+                } else {
+                    const { data: { session } } = await supabase!.auth.getSession();
+                    if (session) {
+                        const { data: profile } = await supabase!
+                            .from('profiles')
+                            .select('*')
+                            .eq('id', session.user.id)
+                            .single();
+                        if (profile) {
+                            currentUser = { id: profile.id, firstName: profile.prenom, lastName: profile.nom, role: profile.role };
+                            setUser(currentUser);
+                        }
                     }
-                };
+                }
             }
-        } else {
-            setLoading(false);
-        }
+
+            if (currentUser) {
+                const userId = currentUser.id;
+                
+                Promise.all([
+                    apiFetch<any[]>(`/dossiers?user_id=${userId}`),
+                    apiFetch<any[]>(`/notifications?user_id=${userId}&_limit=5`),
+                    apiFetch<Conseiller[]>('/conseillers?_limit=1'),
+                ]).then(([dossiers, , cons]) => {
+                    const myDossier = dossiers && dossiers.length > 0 ? dossiers[0] : null;
+                    
+                    if (myDossier) {
+                        // Mapper le dossier vers les widgets
+                        setQuickStats([
+                            { id: '1', label: 'Mon Dossier', value: `Étape ${myDossier.etapesFaites}/${myDossier.etapesTotal}`, category: 'dossier' },
+                            { id: '2', label: 'Documents', value: `${myDossier.etapesFaites} validés`, category: 'documents' },
+                            { id: '3', label: 'Messagerie', value: '12 messages', category: 'messagerie' },
+                            { id: '4', label: 'Échéances', value: '3 à venir', category: 'echeances' }
+                        ]);
+                        
+                        setStatsWidget({
+                            documents: { fait: myDossier.etapesFaites, total: myDossier.etapesTotal },
+                            messages: 12,
+                            joursRestants: 198
+                        });
+
+                        // Données mock pour le moment si pas en base
+                        setTimeline(myDossier.timeline || [
+                            { id: '1', title: 'Soumission', date: '10 jan. 2026', status: 'completed' },
+                            { id: '2', title: 'Entretien', date: '15 fév. 2026', status: 'completed' },
+                            { id: '3', title: 'Campus France', date: 'En cours', status: 'current' }
+                        ]);
+                        
+                        setDeadlines(myDossier.deadlines || [
+                            { id: '1', title: 'Campus France', date: '7 mars 2026', daysRemaining: 5, colorClass: 'red' }
+                        ]);
+                    }
+                    
+                    if (cons && cons.length > 0) setConseiller(cons[0]);
+                }).catch(err => {
+                    console.error("Erreur Dashboard:", err);
+                }).finally(() => setLoading(false));
+            } else {
+                setLoading(false);
+            }
+        };
+
+        loadUserAndData();
+
+        // Real-time subscription for student dashboard
+        const channel = supabase?.channel('dashboard_updates')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'dossiers' }, () => {
+                loadUserAndData();
+            })
+            .subscribe();
+
+        return () => {
+            if (channel) supabase?.removeChannel(channel);
+        };
     }, []);
 
     if (loading) {

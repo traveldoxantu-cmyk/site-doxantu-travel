@@ -148,9 +148,9 @@ export function StudiesAbroad() {
               transition={{ duration: 0.7, delay: i * 0.05 }}
               className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100 group"
             >
-              <div className={`grid lg:grid-cols-2 lg:h-[500px] ${i % 2 === 1 ? 'lg:flex-row-reverse' : ''}`}>
+              <div className="grid lg:grid-cols-2 lg:h-[500px]">
                 {/* Image */}
-                <div className={`relative h-72 lg:h-full overflow-hidden ${i % 2 === 1 ? 'lg:order-2' : ''}`}>
+                <div className={`relative h-72 lg:h-full overflow-hidden ${i % 2 === 1 ? 'lg:order-2' : 'lg:order-1'}`}>
                   <img
                     src={dest.image}
                     alt={dest.country}
@@ -169,7 +169,7 @@ export function StudiesAbroad() {
                 </div>
 
                 {/* Content */}
-                <div className={`p-8 flex flex-col h-full ${i % 2 === 1 ? 'lg:order-1' : ''}`}>
+                <div className={`p-8 flex flex-col h-full ${i % 2 === 1 ? 'lg:order-1' : 'lg:order-2'}`}>
                   <div className="flex-grow">
                     {/* Key info */}
                   <div className="grid grid-cols-2 gap-4 mb-6">

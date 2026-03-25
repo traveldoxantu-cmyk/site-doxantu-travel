@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Outlet, Link, useLocation } from 'react-router';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router';
 import { LayoutGrid, FolderOpen, FileText, MessageSquare, Calendar, User, LogOut, GraduationCap, ArrowLeft, CreditCard, Menu as MenuIcon } from 'lucide-react';
 import logoImgWhite from '../../assets/logo-doxantu-white.png';
 
@@ -13,33 +13,63 @@ const sidebarLinks = [
     { icon: User, label: 'Mon Profil', to: '/mon-espace/profil' },
 ];
 
+import { supabase } from '../lib/supabase';
+
 export function DashboardLayout() {
     const location = useLocation();
+    const navigate = useNavigate();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [user, setUser] = useState<{ firstName: string, lastName: string, initiales: string } | null>(null);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            try {
-                setUser(JSON.parse(storedUser));
-            } catch (e) {
-                console.error("Failed to parse user from localStorage", e);
+        const checkUser = async () => {
+            const { data: { session } } = await supabase?.auth.getSession() || { data: { session: null } };
+            
+            if (!session) {
+                navigate('/connexion');
+                return;
             }
-        }
-    }, []);
 
-    const getInitials = (name: string) => {
-        if (!name) return '??';
-        const names = name.split(' ');
-        if (names.length >= 2) {
-            return (names[0][0] + names[1][0]).toUpperCase();
-        }
-        return name.slice(0, 2).toUpperCase();
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) {
+                setUser(JSON.parse(storedUser));
+            } else {
+                // Si pas de localStorage, on récupère via Supabase
+                const { data: profile } = await supabase!
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', session.user.id)
+                    .single();
+                
+                if (profile) {
+                    const userObj = {
+                        firstName: profile.prenom,
+                        lastName: profile.nom,
+                        initiales: profile.initiales
+                    };
+                    setUser(userObj);
+                    localStorage.setItem('user', JSON.stringify(userObj));
+                }
+            }
+        };
+
+        checkUser();
+
+        const { data: { subscription } } = supabase?.auth.onAuthStateChange((_event: any, session: any) => {
+            if (!session) navigate('/connexion');
+        }) || { data: { subscription: null } };
+
+        return () => subscription?.unsubscribe();
+    }, [navigate]);
+
+    const handleLogout = async () => {
+        await supabase?.auth.signOut();
+        localStorage.removeItem('user');
+        navigate('/connexion');
     };
 
     const displayName = user ? `${user.firstName} ${user.lastName}` : 'Utilisateur';
-    const initials = user?.initiales || getInitials(displayName);
+    const initials = user?.initiales || '??';
 
     return (
         <div className="flex min-h-screen bg-[#F8FAFC]">
@@ -115,12 +145,12 @@ export function DashboardLayout() {
                         <ArrowLeft className="w-5 h-5 transition-transform group-hover:-translate-x-1" />
                         Retour au site
                     </Link>
-                    <Link
-                        to="/connexion"
-                        className="flex items-center gap-3 px-4 py-3.5 text-sm font-bold text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all rounded-xl"
+                    <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 px-4 py-3.5 text-sm font-bold text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all rounded-xl"
                     >
                         <LogOut className="w-5 h-5" /> Se déconnecter
-                    </Link>
+                    </button>
                 </div>
             </aside>
 

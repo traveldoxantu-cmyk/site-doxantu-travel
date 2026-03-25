@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Outlet, Link, useLocation } from 'react-router';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router';
 import { LayoutDashboard, FolderOpen, BarChart3, Users, Settings, ArrowLeft, LogOut, Bell, CreditCard, AlertTriangle, Menu as MenuIcon, X } from 'lucide-react';
+import { toast } from 'sonner';
+import { supabase } from '../lib/supabase';
 import logoImgWhite from '../../assets/logo-doxantu-white.png';
 
 const NAV_ITEMS = [
@@ -14,32 +16,65 @@ const NAV_ITEMS = [
 
 export function AdminLayout() {
     const location = useLocation();
+    const navigate = useNavigate();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [user, setUser] = useState<{ firstName: string, lastName: string, initiales: string } | null>(null);
+    const [user, setUser] = useState<{ firstName: string, lastName: string, initiales: string, role: string } | null>(null);
     const urgentCount = 2;
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (storedUser) {
-            try {
-                setUser(JSON.parse(storedUser));
-            } catch (e) {
-                console.error("Failed to parse user from localStorage", e);
+        const checkAdmin = async () => {
+            const { data: { session } } = await supabase?.auth.getSession() || { data: { session: null } };
+            
+            if (!session) {
+                navigate('/connexion');
+                return;
             }
-        }
-    }, []);
 
-    const getInitials = (name: string) => {
-        if (!name) return '??';
-        const names = name.split(' ');
-        if (names.length >= 2) {
-            return (names[0][0] + names[1][0]).toUpperCase();
-        }
-        return name.slice(0, 2).toUpperCase();
+            const storedUser = localStorage.getItem('user');
+            let currentUser = storedUser ? JSON.parse(storedUser) : null;
+
+            if (!currentUser || currentUser.role !== 'admin') {
+                const { data: profile } = await supabase!
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', session.user.id)
+                    .single();
+                
+                if (!profile || profile.role !== 'admin') {
+                    toast.error("Accès refusé. Vous n'êtes pas administrateur.");
+                    navigate('/mon-espace/dashboard');
+                    return;
+                }
+
+                currentUser = {
+                    firstName: profile.prenom,
+                    lastName: profile.nom,
+                    role: profile.role,
+                    initiales: profile.initiales
+                };
+                localStorage.setItem('user', JSON.stringify(currentUser));
+            }
+            
+            setUser(currentUser);
+        };
+
+        checkAdmin();
+
+        const { data: { subscription } } = supabase?.auth.onAuthStateChange((_event: any, session: any) => {
+            if (!session) navigate('/connexion');
+        }) || { data: { subscription: null } };
+
+        return () => subscription?.unsubscribe();
+    }, [navigate]);
+
+    const handleLogout = async () => {
+        await supabase?.auth.signOut();
+        localStorage.removeItem('user');
+        navigate('/connexion');
     };
 
     const displayName = user ? `${user.firstName} ${user.lastName}` : 'Administrateur';
-    const initials = user?.initiales || getInitials(displayName);
+    const initials = user?.initiales || 'AD';
 
     return (
         <div className="flex min-h-screen" style={{ backgroundColor: '#F0F4F8' }}>
@@ -123,9 +158,12 @@ export function AdminLayout() {
                     <Link to="/" className="flex items-center gap-3 px-3.5 py-2.5 text-gray-500 hover:text-gray-300 hover:bg-white/[0.07] rounded-xl text-sm font-medium transition-all">
                         <ArrowLeft className="w-4 h-4" /> Retour au site
                     </Link>
-                    <Link to="/connexion" className="flex items-center gap-3 px-3.5 py-2.5 text-red-400/80 hover:text-red-400 hover:bg-red-500/10 rounded-xl text-sm font-semibold transition-all">
+                    <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 px-3.5 py-2.5 text-red-400/80 hover:text-red-400 hover:bg-red-500/10 rounded-xl text-sm font-semibold transition-all"
+                    >
                         <LogOut className="w-4 h-4" /> Se déconnecter
-                    </Link>
+                    </button>
                 </div>
             </aside>
 

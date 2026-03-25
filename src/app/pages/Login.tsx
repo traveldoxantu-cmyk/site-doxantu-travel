@@ -4,8 +4,7 @@ import { LogIn, ArrowLeft, Mail, Lock, Phone, UserPlus, Eye, EyeOff, User } from
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 import { SEO } from '../components/SEO';
-import { apiFetch } from '../lib/api';
-
+import { supabase } from '../lib/supabase';
 
 export function Login() {
     const [searchParams] = useSearchParams();
@@ -31,6 +30,10 @@ export function Login() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!supabase) {
+            toast.error("Supabase n'est pas configuré.");
+            return;
+        }
         setLoading(true);
         setError('');
 
@@ -47,65 +50,97 @@ export function Login() {
                     return;
                 }
 
-                // Création d'utilisateur sur le serveur JSON
-                const newUser = {
-                    firstName,
-                    lastName,
+                // 1. Création du compte dans Supabase Auth
+                const { data: authData, error: authError } = await supabase.auth.signUp({
                     email: email.trim().toLowerCase(),
-                    phone,
                     password,
-                    role: 'client',
-                    initiales: `${firstName[0]}${lastName[0]}`.toUpperCase()
-                };
-
-                const createdUser = await apiFetch<any>('/users', {
-                    method: 'POST',
-                    body: JSON.stringify(newUser)
+                    options: {
+                        data: {
+                            first_name: firstName,
+                            last_name: lastName,
+                        }
+                    }
                 });
 
-                // Stockage local après inscription
-                localStorage.setItem('user', JSON.stringify(createdUser));
+                if (authError) throw authError;
 
-                toast.success('Bienvenue ! Votre compte a été créé.');
-                setSuccess(true);
-                setTimeout(() => navigate('/mon-espace/dashboard'), 1500);
-            } else {
-                // Logique de connexion via Supabase
-                console.log('Tentative de connexion:', email.trim().toLowerCase());
-                const users = await apiFetch<any[]>(`/users?email=${encodeURIComponent(email.trim().toLowerCase())}&password=${encodeURIComponent(password)}`);
-                console.log('Réponse serveur (utilisateurs trouvés):', users.length);
+                if (authData.user) {
+                    // 2. Création du profil dans la table 'profiles'
+                    const { error: profileError } = await supabase.from('profiles').insert({
+                        id: authData.user.id,
+                        nom: lastName,
+                        prenom: firstName,
+                        tel: phone,
+                        role: 'client',
+                        initiales: `${firstName[0]}${lastName[0]}`.toUpperCase()
+                    });
 
-                
-                if (users.length > 0) {
-                    const user = users[0];
-                    // Stockage local pour la persistance de session
+                    if (profileError) console.error("Erreur création profil:", profileError);
+
+                    // Stockage local pour compatibilité temporaire
                     localStorage.setItem('user', JSON.stringify({
-                        id: user.id,
-                        email: user.email,
-                        firstName: user.firstName,
-                        lastName: user.lastName,
-                        role: user.role,
-                        initiales: user.initiales
+                        id: authData.user.id,
+                        email: authData.user.email,
+                        firstName,
+                        lastName,
+                        role: 'client',
+                        initiales: `${firstName[0]}${lastName[0]}`.toUpperCase()
                     }));
 
-                    toast.success(`Heureux de vous revoir, ${user.firstName} !`);
-                    const redirectTo = user.role === 'admin' ? '/admin/dashboard' : '/mon-espace/dashboard';
-                    navigate(redirectTo);
-                } else {
-                    setError('Email ou mot de passe incorrect.');
-                    toast.error('Identifiants invalides.');
+                    toast.success('Bienvenue ! Votre compte a été créé.');
+                    setSuccess(true);
+                    setTimeout(() => navigate('/mon-espace/dashboard'), 1500);
+                }
+            } else {
+                // Logique de connexion via Supabase
+                const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                    email: email.trim().toLowerCase(),
+                    password
+                });
+
+                if (authError) throw authError;
+
+                if (authData.user) {
+                    // Récupérer les infos du profil (rôle, nom, etc.)
+                    const { data: profile, error: profileError } = await supabase
+                        .from('profiles')
+                        .select('*')
+                        .eq('id', authData.user.id)
+                        .single();
+
+                    if (profileError) {
+                        console.error("Erreur profil:", profileError);
+                        // Fallback si le profil n'existe pas encore (cas de migration)
+                        const userObj = {
+                            id: authData.user.id,
+                            email: authData.user.email,
+                            firstName: authData.user.user_metadata?.first_name || 'Utilisateur',
+                            lastName: authData.user.user_metadata?.last_name || '',
+                            role: 'client',
+                            initiales: 'U'
+                        };
+                        localStorage.setItem('user', JSON.stringify(userObj));
+                        navigate('/mon-espace/dashboard');
+                    } else {
+                        const userObj = {
+                            id: authData.user.id,
+                            email: authData.user.email,
+                            firstName: profile.prenom,
+                            lastName: profile.nom,
+                            role: profile.role,
+                            initiales: profile.initiales
+                        };
+                        localStorage.setItem('user', JSON.stringify(userObj));
+                        
+                        toast.success(`Heureux de vous revoir, ${profile.prenom} !`);
+                        const redirectTo = profile.role === 'admin' ? '/admin/dashboard' : '/mon-espace/dashboard';
+                        navigate(redirectTo);
+                    }
                 }
             }
         } catch (err: any) {
-            console.error('Erreur API détaillée:', err);
-            let msg = 'Erreur de connexion au serveur Doxantu.';
-            if (err.message?.includes('404')) {
-                msg = 'La base de données est actuellement inaccessible.';
-            } else if (err.message?.includes('Failed to fetch') || err.message?.includes('NetworkError')) {
-                msg = 'Problème réseau détecté. Vérifiez votre connexion internet.';
-            } else if (err.status === 401) {
-                msg = 'Session expirée ou non autorisée.';
-            }
+            console.error('Erreur Auth:', err);
+            const msg = err.message || 'Une erreur est survenue lors de la connexion.';
             toast.error(msg);
             setError(msg);
         } finally {

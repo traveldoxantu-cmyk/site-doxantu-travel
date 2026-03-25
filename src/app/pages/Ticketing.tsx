@@ -84,21 +84,34 @@ export function Ticketing() {
       const storedUser = localStorage.getItem('user');
       const user = storedUser ? JSON.parse(storedUser) : null;
 
-      await apiFetch('/demandes', {
-        method: 'POST',
-        body: JSON.stringify({
-          type: 'billetterie',
-          data: { from, to, departDate, returnDate, passengers },
-          userId: user?.id || null,
-          status: 'nouveau',
-          createdAt: new Date().toISOString()
-        })
-      });
+      try {
+        await apiFetch('/demandes', {
+          method: 'POST',
+          body: JSON.stringify({
+            type: 'billetterie',
+            nom: user?.firstName ? `${user.firstName} ${user.lastName}` : 'Client Web',
+            email: user?.email || '',
+            tel: user?.phone || '',
+            service: 'Billetterie',
+            data: { 
+              from, to, departDate, returnDate, passengers,
+              recipient: 'traveldoxantu@gmail.com'
+            },
+            status: 'nouveau',
+            user_id: user?.id || null, // Note: snake_case for Supabase
+            createdAt: new Date().toISOString()
+          })
+        });
+      } catch (dbErr) {
+        // Enregistrement en base échoué mais on continue quand même
+        console.warn('Enregistrement DB échoué, continue vers WhatsApp:', dbErr);
+      }
+
       openWhatsAppSubmission(message);
       setFormSent(true);
     } catch (err) {
       console.error(err);
-      setFormError('Erreur lors de l\'enregistrement. Le serveur est-il bien lancé ?');
+      setFormError("Erreur lors de l'envoi. Veuillez réessayer.");
     } finally {
       setIsSubmitting(false);
     }

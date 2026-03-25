@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import { MapPin, Phone, Mail, Facebook, Instagram } from 'lucide-react';
 import { motion } from 'motion/react';
+import logoWhite from '../../assets/logo-doxantu-white.png';
 
 export function Footer() {
 
@@ -12,14 +13,15 @@ export function Footer() {
           {/* Column 1: Branding */}
           <div className="flex flex-col">
             <div>
+              <img src={logoWhite} alt="Doxantu Travel" className="h-16 w-auto object-contain mb-5" />
               <p className="text-gray-400 text-sm leading-relaxed mb-8 max-w-sm">
                 L'agence digitale de référence pour la mobilité étudiante au Sénégal. Excellence, transparence et accompagnement sans limites.
               </p>
             </div>
             <div className="flex gap-4">
               {[
-                { icon: <Facebook className="w-4 h-4" />, label: 'Facebook', href: '#' },
-                { icon: <Instagram className="w-4 h-4" />, label: 'Instagram', href: '#' },
+                { icon: <Facebook className="w-4 h-4" />, label: 'Facebook', href: 'https://www.facebook.com/doxantutravel' },
+                { icon: <Instagram className="w-4 h-4" />, label: 'Instagram', href: 'https://www.instagram.com/doxantutravel' },
                 { 
                   icon: (
                     <svg fill="currentColor" viewBox="0 0 24 24" className="w-4 h-4">
@@ -27,7 +29,7 @@ export function Footer() {
                     </svg>
                   ), 
                   label: 'Linkedin', 
-                  href: '#' 
+                  href: 'https://www.linkedin.com/company/doxantu-travel' 
                 },
               ].map((social) => (
                 <motion.a
@@ -90,13 +92,13 @@ export function Footer() {
       <div className="border-t border-white/[0.02]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <p className="text-blue-100/10 text-[10px] font-bold uppercase tracking-[0.2em]">
+            <p className="text-blue-100/40 text-[10px] font-bold uppercase tracking-[0.2em]">
               © {new Date().getFullYear()} Doxantu Travel. Tous droits réservés.
             </p>
             <div className="flex items-center gap-10">
-              <Link to="/mentions-legales" className="text-[10px] font-bold text-blue-100/20 hover:text-white transition-colors uppercase tracking-[0.2em]">Mentions légales</Link>
-              <Link to="/mentions-legales#confidentialite" className="text-[10px] font-bold text-blue-100/20 hover:text-white transition-colors uppercase tracking-[0.2em]">Politique de confidentialité</Link>
-              <Link to="/mentions-legales#conditions" className="text-[10px] font-bold text-blue-100/20 hover:text-white transition-colors uppercase tracking-[0.2em]">CGV</Link>
+              <Link to="/mentions-legales" className="text-[10px] font-bold text-blue-100/40 hover:text-white transition-colors uppercase tracking-[0.2em]">Mentions légales</Link>
+              <Link to="/mentions-legales#confidentialite" className="text-[10px] font-bold text-blue-100/40 hover:text-white transition-colors uppercase tracking-[0.2em]">Politique de confidentialité</Link>
+              <Link to="/mentions-legales#conditions" className="text-[10px] font-bold text-blue-100/40 hover:text-white transition-colors uppercase tracking-[0.2em]">CGV</Link>
             </div>
           </div>
         </div>

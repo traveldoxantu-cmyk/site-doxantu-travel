@@ -41,7 +41,7 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
     }
     
     const tableMap: Record<string, string> = {
-        'users': 'users',
+        'users': 'profiles',
         'demandes': 'demandes',
         'adminStats': 'admin_stats',
         'chartData': 'chart_data',
@@ -49,7 +49,7 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
         'conseillers': 'conseillers',
         'conseillers_full': 'conseillers',
         'derniersPaiements': 'paiements',
-        'profil': 'profil',
+        'profil': 'profiles',
         'user_documents': 'user_documents',
         'userDocuments': 'user_documents',
         'quickStats': 'quick_stats',
@@ -57,7 +57,7 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
         'deadlines': 'deadlines',
         'statsWidget': 'stats_widget',
         'submissions': 'submissions',
-        'clients': 'clients',
+        'clients': 'profiles',
         'transactions': 'paiements',
         'notifications': 'notifications',
         'messages': 'messages',

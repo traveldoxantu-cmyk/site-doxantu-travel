@@ -96,35 +96,39 @@ export function AdminDashboard() {
     const fetchData = useCallback(() => {
         setLoading(true);
         Promise.all([
-            apiFetch<AdminStats>('/admin_stats?key=general_stats'),
+            apiFetch<AdminStats>('/admin_stats/1'), // Récupère la ligne ID=1
             apiFetch<ChartPoint[]>('/chart_data'),
             apiFetch<StatutItem[]>('/dossiers_statut'),
-            apiFetch<any[]>('/paiements?limit=5'),
-            apiFetch<any[]>('/users'),
-            apiFetch<Demande[]>('/demandes?limit=5'),
-        ]).then(([s, c, st, p, u, dem]) => {
+            apiFetch<any[]>('/paiements?_limit=5&_sort=created_at&_order=desc'),
+            apiFetch<any[]>('/dossiers?urgent=true'), // On récupère les dossiers urgents
+            apiFetch<Demande[]>('/demandes?_limit=5&_sort=created_at&_order=desc'),
+        ]).then(([s, c, st, p, dUrgent, dem]) => {
             const storedUser = localStorage.getItem('user');
             if (storedUser) setUser(JSON.parse(storedUser));
             
-            // Extraction des stats si c'est un tableau de un élément (clé unique)
-            const statsObj = Array.isArray(s) ? s[0]?.value : (s as any)?.value || s;
-            setStats(statsObj); 
+            setStats(s || null); 
             setChart(c || []); 
             setStatuts(st || []); 
-            setPaiements(p || []);
             
-            // Transformer les users en format Client pour l'affichage tableau
-            const realClients = (u || []).filter(x => x.role === 'client');
-            setUrgent(realClients.filter(x => x.urgent).map(x => ({
-                ...x,
-                nom: `${x.firstName} ${x.lastName}`,
-                dossierId: `DXT-2026-${x.id.toString().slice(0, 8)}`,
-                destination: 'Non spécifiée',
-                avancement: 0
-            })) as any);
+            // Mapper les paiements pour l'affichage (client_nom -> client)
+            setPaiements((p || []).map(pay => ({
+                ...pay,
+                client: pay.clientNom || 'Client inconnu'
+            })));
+            
+            // Mapper les dossiers urgents pour le composant (id -> dossierId)
+            setUrgent((dUrgent || []).map(d => ({
+                ...d,
+                nom: d.clientNom || 'Dossier #' + d.numeroDossier,
+                dossierId: d.numeroDossier,
+                initiales: d.clientInitiales || 'DX'
+            })));
 
             setDemandes(dem || []);
-        }).catch(console.error).finally(() => setLoading(false));
+        }).catch(err => {
+            console.error("Erreur lors du chargement du dashboard admin:", err);
+            // toast.error("Erreur de chargement des données.");
+        }).finally(() => setLoading(false));
     }, []);
 
     useEffect(() => {

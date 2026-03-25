@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'motion/react';
 import { Phone, Mail, MapPin, Clock, MessageSquare, Send, CheckCircle } from 'lucide-react';
 import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission';
+import { submitContactForm } from '../lib/services/contactService';
 import { SEO } from '../components/SEO';
 const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
@@ -64,12 +65,13 @@ export function Contact() {
       Message: form.message,
     });
     
-    // Simulate API delay for better UX feel
-    setTimeout(() => {
-      openWhatsAppSubmission(message);
-      setSent(true);
-      setLoading(false);
-    }, 1200);
+    // 1. Save to Database
+    submitContactForm(form);
+
+    // 2. Open WhatsApp (Redirection immediate pour UX)
+    openWhatsAppSubmission(message);
+    setSent(true);
+    setLoading(false);
   };
 
   return (
@@ -192,7 +194,7 @@ export function Contact() {
                       <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                         Email
                       </label>
-                      <input type="email" placeholder="votre@email.com"
+                      <input type="email" required placeholder="votre@email.com"
                         value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
                         className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
                       />
