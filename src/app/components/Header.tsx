@@ -1,32 +1,23 @@
 import { useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router';
-import { Menu, X, ChevronDown, LayoutGrid, User, GraduationCap, Plane, FileText, Globe, History, Phone, LogIn } from 'lucide-react';
+import { Menu, X, ChevronDown, LayoutGrid, User as UserIcon, GraduationCap, Plane, FileText, Globe, History, Phone, LogIn } from 'lucide-react';
+import { useUser } from '../lib/context/UserContext';
 import logoImg from '../../assets/logo-doxantu.png';
 import logoImgWhite from '../../assets/logo-doxantu-white.png';
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  const [user, setUser] = useState<any>(null);
+  const { user, logout } = useUser();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 24);
     window.addEventListener('scroll', handleScroll, { passive: true });
-    
-    // Vérifier si l'utilisateur est connecté
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
-    setUser(null);
-    window.location.href = '/';
+    logout();
   };
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -232,7 +223,7 @@ export function Header() {
                   onClick={() => setMobileOpen(false)}
                   className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-[#E8F4FD] hover:text-[#0B84D8] text-[#333333] transition-colors text-sm font-medium"
                 >
-                  <User className="w-4 h-4" /> Mon espace
+                  <UserIcon className="w-4 h-4" /> Mon espace
                 </Link>
               )}
             </div>

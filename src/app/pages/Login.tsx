@@ -5,6 +5,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 import { SEO } from '../components/SEO';
 import { supabase } from '../lib/supabase';
+import { useUser } from '../lib/context/UserContext';
 
 export function Login() {
     const [searchParams] = useSearchParams();
@@ -21,6 +22,7 @@ export function Login() {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const navigate = useNavigate();
+    const { setUser: setGlobalUser } = useUser();
 
     // Auto-complétion basée sur l'URL (?role=client|admin ou ?mode=register)
     useEffect(() => {
@@ -80,15 +82,15 @@ export function Login() {
                         throw new Error(`Désolé, nous n'avons pas pu créer votre profil : ${profileError.message}. Vérifiez les permissions (RLS) dans Supabase.`);
                     }
 
-                    // Stockage local pour compatibilité temporaire
-                    localStorage.setItem('user', JSON.stringify({
+                    // Mise à jour globale du contexte utilisateur
+                    setGlobalUser({
                         id: authData.user.id,
-                        email: authData.user.email,
+                        email: authData.user.email || '',
                         firstName,
                         lastName,
                         role: 'client',
                         initiales: `${firstName[0]}${lastName[0]}`.toUpperCase()
-                    }));
+                    });
 
                     toast.success('Bienvenue ! Votre compte a été créé.');
                     setSuccess(true);
@@ -127,13 +129,13 @@ export function Login() {
                     } else {
                         const userObj = {
                             id: authData.user.id,
-                            email: authData.user.email,
+                            email: authData.user.email || '',
                             firstName: profile.prenom,
                             lastName: profile.nom,
-                            role: profile.role,
+                            role: profile.role as 'client' | 'admin',
                             initiales: profile.initiales
                         };
-                        localStorage.setItem('user', JSON.stringify(userObj));
+                        setGlobalUser(userObj);
                         
                         toast.success(`Heureux de vous revoir, ${profile.prenom} !`);
                         const redirectTo = profile.role === 'admin' ? '/admin/dashboard' : '/mon-espace/dashboard';
