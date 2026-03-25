@@ -75,7 +75,10 @@ export function Login() {
                         initiales: `${firstName[0]}${lastName[0]}`.toUpperCase()
                     });
 
-                    if (profileError) console.error("Erreur création profil:", profileError);
+                    if (profileError) {
+                        console.error("Erreur création profil:", profileError);
+                        throw new Error(`Désolé, nous n'avons pas pu créer votre profil : ${profileError.message}. Vérifiez les permissions (RLS) dans Supabase.`);
+                    }
 
                     // Stockage local pour compatibilité temporaire
                     localStorage.setItem('user', JSON.stringify({
