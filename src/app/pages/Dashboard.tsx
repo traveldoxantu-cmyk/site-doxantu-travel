@@ -4,6 +4,7 @@ import { FolderOpen, FileText, MessageSquare, Calendar as CalendarIcon, Clock, C
 import { Link } from 'react-router';
 import { apiFetch } from '../lib/api';
 import { supabase } from '../lib/supabase';
+import { SEO } from '../components/SEO';
 import {
     type QuickStat,
     type TimelineItem,
@@ -149,6 +150,10 @@ export function Dashboard() {
 
     return (
         <div className="space-y-8 pb-10">
+            <SEO 
+                title="Mon Espace Client" 
+                description="Suivez l'avancement de votre dossier, vos documents et vos échéances en temps réel." 
+            />
             {/* Welcome Banner */}
             <motion.div
                 initial={{ opacity: 0, y: 10 }}

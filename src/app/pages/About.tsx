@@ -2,10 +2,10 @@ import { Link } from 'react-router';
 import { motion } from 'motion/react';
 import { ArrowRight, Target, Eye, Heart, Shield, Users, Award, CheckCircle, History } from 'lucide-react';
 import { SEO } from '../components/SEO';
-const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
+const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
 const TEAM_IMG =
-  'https://images.unsplash.com/photo-1488646953014-85cb44e25828?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmF2ZWwlMjBwbGFubmluZyUyMGNhbWVyYSUyMHBhc3Nwb3J0fGVufDF8fHwxNzcyMzExODU5fDA&ixlib=rb-4.1.0&q=80&w=1080';
+  'https://images.unsplash.com/photo-1488646953014-85cb44e25828?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmF2ZWwlMjBwbGFubmluZyUyMGNhbWVyYSUyMHBhc3Nwb3J0fGVufDF8fHwxNzcyMzExODU5fDA&ixlib=rb-4.1.0&q=80&w=1080';
 
 const values = [
   {
@@ -104,7 +104,11 @@ const stats = [
 export function About() {
   return (
     <div className="min-h-screen">
-      <SEO title="À propos" description="Découvrez l'histoire de Doxantu Travel, l'agence de voyage 100% digitale dédiée aux étudiants sénégalais." />
+      <SEO 
+        title="À Propos de Doxantu Travel | Notre Mission et Valeurs" 
+        description="Découvrez Doxantu Travel, l'agence de voyage pionnière du digital au Sénégal. Notre mission : faciliter la mobilité internationale des étudiants sénégalais avec excellence, transparence et expertise."
+        image={HERO_BG}
+      />
       {/* Hero Section */}
       <section
         className="relative pt-40 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden"

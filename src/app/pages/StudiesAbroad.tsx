@@ -2,12 +2,12 @@ import { Link } from 'react-router';
 import { motion } from 'motion/react';
 import { ArrowRight, Clock, DollarSign, FileCheck, ChevronRight, Globe, MapPin } from 'lucide-react';
 import { SEO } from '../components/SEO';
-const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
+const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
-const PARIS_IMG = 'https://images.unsplash.com/photo-1720988460120-fc18598bd287?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxQYXJpcyUyMEZyYW5jZSUyMEVpZmZlbCUyMFRvd2VyJTIwbGFuZG1hcmt8ZW58MXx8fHwxNzcyMzEwMTU0fDA&ixlib=rb-4.1.0&q=80&w=1080';
-const CANADA_IMG = 'https://images.unsplash.com/photo-1671513037345-55527c8cba67?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxDYW5hZGElMjBNb250cmVhbCUyMHdpbnRlciUyMGNpdHl8ZW58MXx8fHwxNzcyMzEwMTU1fDA&ixlib=rb-4.1.0&q=80&w=1080';
-const MAROC_IMG = 'https://images.unsplash.com/photo-1716146755954-4f197a5b6031?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxNb3JvY2NvJTIwTWFycmFrZWNoJTIwbWVkaW5hJTIwY29sb3JmdWx8ZW58MXx8fHwxNzcyMzEwMTU1fDA&ixlib=rb-4.1.0&q=80&w=1080';
-const TURKEY_IMG = 'https://images.unsplash.com/photo-1669117403979-be8e9448d9b3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxJc3RhbmJ1bCUyMFR1cmtleSUyMEJvc3Bob3J1cyUyMG1vc3F1ZXxlbnwxfHx8fDE3NzIyODg4MDF8MA&ixlib=rb-4.1.0&q=80&w=1080';
+const PARIS_IMG = 'https://images.unsplash.com/photo-1720988460120-fc18598bd287?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxQYXJpcyUyMEZyYW5jZSUyMEVpZmZlbCUyMFRvd2VyJTIwbGFuZG1hcmt8ZW58MXx8fHwxNzcyMzEwMTU0fDA&ixlib=rb-4.1.0&q=80&w=1080';
+const CANADA_IMG = 'https://images.unsplash.com/photo-1671513037345-55527c8cba67?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxDYW5hZGElMjBNb250cmVhbCUyMHdpbnRlciUyMGNpdHl8ZW58MXx8fHwxNzcyMzEwMTU1fDA&ixlib=rb-4.1.0&q=80&w=1080';
+const MAROC_IMG = 'https://images.unsplash.com/photo-1716146755954-4f197a5b6031?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxNb3JvY2NvJTIwTWFycmFrZWNoJTIwbWVkaW5hJTIwY29sb3JmdWx8ZW58MXx8fHwxNzcyMzEwMTU1fDA&ixlib=rb-4.1.0&q=80&w=1080';
+const TURKEY_IMG = 'https://images.unsplash.com/photo-1669117403979-be8e9448d9b3?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxJc3RhbmJ1bCUyMFR1cmtleSUyMEJvc3Bob3J1cyUyMG1vc3F1ZXxlbnwxfHx8fDE3NzIyODg4MDF8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
 const destinations = [
   {
@@ -99,7 +99,11 @@ const destinations = [
 export function StudiesAbroad() {
   return (
     <div>
-      <SEO title="Études à l'étranger" description="Trouvez votre destination idéale pour vos études supérieures avec Doxantu Travel. Accompagnement Campus France, France, Canada, Maroc, Turquie." />
+      <SEO 
+        title="Étudier à l'Étranger | Accompagnement Campus France & Canada" 
+        description="Trouvez votre destination idéale pour vos études supérieures avec Doxantu Travel. Accompagnement complet pour Campus France, le Canada, le Maroc et la Turquie. Évaluation gratuite de profil."
+        image={HERO_BG}
+      />
       {/* Hero */}
       <section
         className="relative pt-40 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden"

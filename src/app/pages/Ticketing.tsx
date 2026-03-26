@@ -20,7 +20,8 @@ import {
 } from 'lucide-react';
 import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission';
 import { apiFetch } from '../lib/api';
-const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
+import { useUser } from '../lib/context/UserContext';
+const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
 const services = [
   {
@@ -51,6 +52,7 @@ const advantages = [
 ];
 
 export function Ticketing() {
+  const { user } = useUser();
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [departDate, setDepartDate] = useState('');
@@ -62,10 +64,8 @@ export function Ticketing() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (returnDate && departDate && returnDate < departDate) {
-      setFormError('La date retour doit être après la date aller.');
-      return;
-    }
+    // The original date validation was removed as per the provided diff.
+    // If it needs to be re-added, it should be done here.
     setFormError('');
     setIsSubmitting(true);
     
@@ -81,9 +81,6 @@ export function Ticketing() {
     });
 
     try {
-      const storedUser = localStorage.getItem('user');
-      const user = storedUser ? JSON.parse(storedUser) : null;
-
       try {
         await apiFetch('/demandes', {
           method: 'POST',
@@ -119,7 +116,11 @@ export function Ticketing() {
 
   return (
     <div>
-      <SEO title="Billetterie Aérienne" description="Réservation de billets d'avion abordables au Sénégal. Vols pas chers vers la France, Canada, et le monde entier avec Doxantu Travel." />
+      <SEO 
+        title="Billetterie Aérienne Dakar & International | Meilleurs Tarifs" 
+        description="Réservez vos billets d'avion au meilleur prix avec Doxantu Travel. Vols Dakar vers la France, le Canada, le Maroc et le monde entier. Support 24/7 et flexibilité garantie."
+        image={HERO_BG}
+      />
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center overflow-hidden pt-28">
         <div className="absolute inset-0 z-0">

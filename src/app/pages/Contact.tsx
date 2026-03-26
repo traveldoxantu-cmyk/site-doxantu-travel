@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Phone, Mail, MapPin, Clock, MessageSquare, Send, CheckCircle } from 'lucide-react';
 import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission';
 import { submitContactForm } from '../lib/services/contactService';
 import { SEO } from '../components/SEO';
-const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
+import { useUser } from '../lib/context/UserContext';
+const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
 const contactInfo = [
   {
@@ -48,11 +49,24 @@ const services = [
 ];
 
 export function Contact() {
+  const { user } = useUser();
   const [form, setForm] = useState({
     nom: '', email: '', tel: '', service: '', message: '',
   });
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Pré-remplissage si connecté
+  useEffect(() => {
+    if (user) {
+      setForm(prev => ({
+        ...prev,
+        nom: `${user.firstName} ${user.lastName}`,
+        email: user.email,
+        tel: user.phone || ''
+      }));
+    }
+  }, [user]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +90,11 @@ export function Contact() {
 
   return (
     <div>
-      <SEO title="Contact" description="Contactez Doxantu Travel pour toute demande d'assistance sur vos projets de voyage ou études à l'étranger." />
+      <SEO 
+        title="Contactez l'Agence Doxantu Travel | Support & Devis" 
+        description="Une question ? Un projet de voyage ou d'études ? Notre équipe vous répond en moins de 24h. Contactez-nous par WhatsApp, Email ou rendez-vous dans nos bureaux à Dakar."
+        image={HERO_BG}
+      />
       {/* Hero */}
       <section
         className="relative pt-40 pb-16 px-4 sm:px-6 lg:px-8 overflow-hidden"

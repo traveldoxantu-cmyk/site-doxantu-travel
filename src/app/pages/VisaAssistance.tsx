@@ -9,8 +9,10 @@ import { toast } from 'sonner';
 import { apiFetch } from '../lib/api';
 import { supabase } from '../lib/supabase';
 import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission';
+import { useUser } from '../lib/context/UserContext';
+import { useForm } from 'react-hook-form';
 
-const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
+const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
 const services = [
   {
@@ -64,18 +66,31 @@ const process = [
   { step: '04', title: 'Suivi', desc: 'Suivi de votre dossier jusqu\'à la décision finale' },
 ];
 
+interface VisaFormValues {
+  nom: string;
+  tel: string;
+  email: string;
+  destination: string;
+  message: string;
+  extra: Record<string, string>;
+}
+
 export function VisaAssistance() {
+  const { user } = useUser();
   const [selectedService, setSelectedService] = useState<typeof services[0] | null>(null);
   const [loading, setLoading] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [form, setForm] = useState({
-    nom: '',
-    tel: '',
-    email: '',
-    destination: '',
-    message: '',
-    extra: {} as Record<string, string>
+
+  const { register, handleSubmit, reset } = useForm<VisaFormValues>({
+    defaultValues: {
+      nom: '',
+      tel: '',
+      email: '',
+      destination: '',
+      message: '',
+      extra: {}
+    }
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,13 +103,10 @@ export function VisaAssistance() {
     setFiles(prev => prev.filter((_, i) => i !== idx));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onFormSubmit = async (data: VisaFormValues) => {
     setLoading(true);
 
     try {
-      const storedUser = localStorage.getItem('user');
-      const user = storedUser ? JSON.parse(storedUser) : null;
 
       // 1. Upload files first if any
       const fileUrls: string[] = [];
@@ -146,15 +158,15 @@ export function VisaAssistance() {
       // 2. Save demand to DB
       const demandData = {
         type: 'visa_request',
-        nom: form.nom,
-        email: form.email,
-        tel: form.tel,
+        nom: data.nom,
+        email: data.email,
+        tel: data.tel,
         service: selectedService?.title || 'Visa',
         status: 'nouveau',
         user_id: user?.id || null,
         data: {
           serviceTag: selectedService?.tag,
-          ...form,
+          ...data,
           files: fileUrls,
           recipient: 'traveldoxantu@gmail.com',
           submittedAt: new Date().toISOString()
@@ -168,21 +180,21 @@ export function VisaAssistance() {
 
       // 3. WhatsApp Message
       const waMessage = buildWhatsAppMessage(`Nouvelle demande Visa: ${selectedService?.title}`, {
-        Nom: form.nom,
-        Telephone: form.tel,
-        Email: form.email,
-        Destination: form.destination,
+        Nom: data.nom,
+        Telephone: data.tel,
+        Email: data.email,
+        Destination: data.destination || data.extra.destination || '',
         Service: selectedService?.title || '',
-        ...form.extra,
+        ...data.extra,
         Documents: files.length > 0 ? `${files.length} fichier(s) joint(s)` : 'Aucun',
-        Message: form.message
+        Message: data.message
       });
 
       openWhatsAppSubmission(waMessage);
       toast.success("Votre demande et vos documents ont été envoyés !");
       setSelectedService(null);
       setFiles([]);
-      setForm({ nom: '', tel: '', email: '', destination: '', message: '', extra: {} });
+      reset();
     } catch (err) {
       console.error(err);
       toast.error("Erreur lors de l'envoi. Veuillez réessayer.");
@@ -194,8 +206,9 @@ export function VisaAssistance() {
   return (
     <div className="font-sans">
       <SEO 
-        title="Visa & Documents Officiels | Doxantu Travel" 
-        description="Besoin d'un visa étudiant, tourisme ou d'une légalisation ? Doxantu Travel vous accompagne au Sénégal pour vos démarches vers la France, Canada et ailleurs." 
+        title="Assistance Visa & Légalisation | Expertise Consulaire" 
+        description="Confiez votre demande de visa à des experts. Spécialiste Visa France (Schengen), Canada, USA et Maroc. Service de légalisation et traduction certifiée à Dakar."
+        image={HERO_BG}
       />
       
       {/* Hero */}
@@ -436,31 +449,37 @@ export function VisaAssistance() {
                   </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
                   {/* Common Fields */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div className="space-y-2">
                       <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Nom complet</label>
                       <input 
-                        required 
+                        {...register('nom', { required: true })}
                         type="text" 
-                        placeholder="Ex: Amadou Diallo"
-                        value={form.nom}
-                        onChange={(e) => setForm({...form, nom: e.target.value})}
+                        placeholder="Votre nom complet"
                         className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
                       />
                     </div>
                     <div className="space-y-2">
                       <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Téléphone</label>
                       <input 
-                        required 
+                        {...register('tel', { required: true })}
                         type="tel" 
                         placeholder="+221 7X XXX XX XX"
-                        value={form.tel}
-                        onChange={(e) => setForm({...form, tel: e.target.value})}
                         className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
                       />
                     </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Email</label>
+                    <input 
+                      {...register('email', { required: true, pattern: /^\S+@\S+$/i })}
+                      type="email" 
+                      placeholder="votre@email.com"
+                      className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
+                    />
                   </div>
 
                   {/* Contextual Fields */}
@@ -470,9 +489,8 @@ export function VisaAssistance() {
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Langue cible</label>
                           <select 
-                            value={form.extra.langue || "Francais"}
+                            {...register('extra.langue')}
                             className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
-                            onChange={(e) => setForm({...form, extra: {...form.extra, langue: e.target.value}})}
                           >
                             <option value="Francais">Français</option>
                             <option value="Anglais">Anglais</option>
@@ -483,10 +501,10 @@ export function VisaAssistance() {
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Nombre de pages</label>
                           <input 
+                            {...register('extra.pages')}
                             type="number" 
                             min="1"
                             placeholder="1"
-                            onChange={(e) => setForm({...form, extra: {...form.extra, pages: e.target.value}})}
                             className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
                           />
                         </div>
@@ -498,9 +516,8 @@ export function VisaAssistance() {
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Niveau d'études</label>
                           <select 
-                            value={form.extra.niveau || "Licence"}
+                            {...register('extra.niveau')}
                             className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
-                            onChange={(e) => setForm({...form, extra: {...form.extra, niveau: e.target.value}})}
                           >
                             <option value="Licence">Licence</option>
                             <option value="Master">Master</option>
@@ -511,10 +528,9 @@ export function VisaAssistance() {
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Destination</label>
                           <input 
+                            {...register('destination')}
                             type="text" 
                             placeholder="Ex: France, Canada..."
-                            value={form.destination}
-                            onChange={(e) => setForm({...form, destination: e.target.value})}
                             className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
                           />
                         </div>
@@ -526,8 +542,8 @@ export function VisaAssistance() {
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Motif du voyage</label>
                           <select 
+                            {...register('extra.motif')}
                             className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
-                            onChange={(e) => setForm({...form, extra: {...form.extra, motif: e.target.value}})}
                           >
                             <option value="Tourisme">Tourisme</option>
                             <option value="Visite familiale">Visite familiale</option>
@@ -537,14 +553,25 @@ export function VisaAssistance() {
                         <div className="space-y-2">
                           <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Durée du séjour</label>
                           <input 
+                            {...register('extra.duree')}
                             type="text" 
                             placeholder="Ex: 15 jours"
-                            onChange={(e) => setForm({...form, extra: {...form.extra, duree: e.target.value}})}
                             className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
                           />
                         </div>
                       </div>
                     )}
+                  </div>
+
+                  {/* Message / Précisions */}
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Précisions (Optionnel)</label>
+                    <textarea 
+                      {...register('message')}
+                      placeholder="Comment pouvons-nous vous aider ?"
+                      rows={3}
+                      className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold resize-none"
+                    />
                   </div>
 
                   {/* File Upload Section */}

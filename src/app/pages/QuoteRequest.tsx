@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { motion } from 'motion/react';
 import { Upload, ArrowRight, CheckCircle, Shield, GraduationCap, Plane, FileText, Globe, Scale, Package } from 'lucide-react';
 import { useSearchParams } from 'react-router';
@@ -6,40 +7,72 @@ import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission'
 import { SEO } from '../components/SEO';
 import { toast } from 'sonner';
 import { apiFetch } from '../lib/api';
+import { useUser } from '../lib/context/UserContext';
 
-const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
+type QuoteFormValues = {
+  service: string;
+  destination: string;
+  budget: string;
+  visaType: string;
+  date: string;
+  documents: boolean;
+  nom: string;
+  email: string;
+  tel: string;
+  message: string;
+  niveauEtude: string;
+};
+
+const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
 export function QuoteRequest() {
+  const { user } = useUser();
   const [searchParams] = useSearchParams();
   const initialDestination = searchParams.get('destination') || '';
   const initialService = searchParams.get('service') || '';
 
   const [currentStep, setCurrentStep] = useState((initialDestination || initialService) ? 3 : 1);
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({
-    service: initialService || (initialDestination ? 'campus-france' : ''), // Pré-sélection basées sur les paramètres URL
-    destination: initialDestination,
-    budget: '',
-    visaType: initialDestination || initialService === 'visa-etudiant' ? 'etudes' : '', // Pré-sélectionne le visa étudiant si ça vient de la page études
-    date: '',
-    documents: false,
-    nom: '',
-    email: '',
-    tel: '',
-    message: '',
-    niveauEtude: '',
+
+  const { register, handleSubmit, setValue, watch, trigger, formState: { errors } } = useForm<QuoteFormValues>({
+    defaultValues: {
+      service: initialService || (initialDestination ? 'campus-france' : ''),
+      destination: initialDestination,
+      budget: '',
+      visaType: initialDestination || initialService === 'visa-etudiant' ? 'etudes' : '',
+      date: '',
+      documents: false,
+      nom: '',
+      email: '',
+      tel: '',
+      message: '',
+      niveauEtude: '',
+    }
   });
 
+  const form = watch();
   const isProjectMode = searchParams.get('mode') === 'projet';
   const needsStudyLevel = ['campus-france', 'visa-etudiant', 'pack-complet'].includes(form.service);
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    let fieldsToValidate: (keyof QuoteFormValues)[] = [];
+    if (currentStep === 1) fieldsToValidate = ['service'];
+    if (currentStep === 2) fieldsToValidate = ['destination', 'visaType'];
+    if (currentStep === 3) fieldsToValidate = ['nom', 'tel', 'email', 'niveauEtude'];
+
+    const isValid = await trigger(fieldsToValidate);
+    if (!isValid && currentStep !== 1) {
+      toast.error("Veuillez remplir les champs obligatoires.");
+      return;
+    }
+
     if (currentStep === 1 && isProjectMode) {
       setCurrentStep(3);
     } else if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
     }
   };
+
   const handleBack = () => {
     if (currentStep === 3 && isProjectMode) {
       setCurrentStep(1);
@@ -47,40 +80,37 @@ export function QuoteRequest() {
       setCurrentStep(currentStep - 1);
     }
   };
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+
+  const onFormSubmit = async (data: QuoteFormValues) => {
     setLoading(true);
     const message = buildWhatsAppMessage("Nouvelle demande d'accompagnement", {
-      "Service": form.service,
-      "Destination": form.destination,
-      "Type de visa": form.visaType || 'Non spécifié',
-      Budget: form.budget,
-      'Date prevue': form.date,
-      'Documents a joindre': form.documents ? 'Oui' : 'Non',
-      Nom: form.nom,
-      Telephone: form.tel,
-      Email: form.email,
-      "Niveau d'etudes": form.niveauEtude || 'Non renseigné',
-      Message: form.message,
+      "Service": data.service,
+      "Destination": data.destination,
+      "Type de visa": data.visaType || 'Non spécifié',
+      Budget: data.budget,
+      'Date prevue': data.date,
+      'Documents a joindre': data.documents ? 'Oui' : 'Non',
+      Nom: data.nom,
+      Telephone: data.tel,
+      Email: data.email,
+      "Niveau d'etudes": data.niveauEtude || 'Non renseigné',
+      Message: data.message,
     });
     
-    // Enregistrement sur le serveur JSON
+    // Enregistrement sur le serveur
     try {
-      const storedUser = localStorage.getItem('user');
-      const user = storedUser ? JSON.parse(storedUser) : null;
-      
       await apiFetch('/demandes', {
         method: 'POST',
         body: JSON.stringify({
           type: 'accompagnement',
-          nom: form.nom,
-          email: form.email,
-          tel: form.tel,
-          service: form.service,
+          nom: data.nom,
+          email: data.email,
+          tel: data.tel,
+          service: data.service,
           status: 'nouveau',
           user_id: user?.id || null,
           data: {
-            ...form,
+            ...data,
             recipient: 'traveldoxantu@gmail.com',
             createdAt: new Date().toISOString()
           }
@@ -99,8 +129,9 @@ export function QuoteRequest() {
   return (
     <div>
       <SEO 
-        title="Faire ma demande | Doxantu Travel" 
-        description="Faites une évaluation gratuite de votre profil pour étudier à l'étranger avec Doxantu Travel." 
+        title="Demande de Devis Personnalisé | Doxantu Travel" 
+        description="Obtenez un devis gratuit pour votre projet de voyage ou d'études à l'étranger. Réponse rapide en moins de 24h par nos experts conseillers."
+        image={HERO_BG}
       />
       {/* Hero */}
       <section
@@ -190,7 +221,8 @@ export function QuoteRequest() {
                   ].map((opt) => (
                     <button
                       key={opt.value}
-                      onClick={() => setForm({ ...form, service: opt.value })}
+                      type="button"
+                      onClick={() => setValue('service', opt.value)}
                       className="p-5 rounded-3xl text-left transition-all border-2 flex flex-col gap-3 group"
                       style={{
                         borderColor: form.service === opt.value ? '#0B84D8' : '#F1F5F9',
@@ -211,6 +243,7 @@ export function QuoteRequest() {
                 </div>
 
                 <button
+                  type="button"
                   onClick={handleNext}
                   disabled={!form.service}
                   className="w-full mt-8 py-4 text-white font-bold flex items-center justify-center gap-3 transition-all hover:shadow-xl hover:-translate-y-1 disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-[#0B84D8]/20"
@@ -223,7 +256,7 @@ export function QuoteRequest() {
 
             {/* Step 2: Détails */}
             {currentStep === 2 && (
-              <form onSubmit={(e) => { e.preventDefault(); handleNext(); }}>
+              <div>
                 <h2 className="text-[#333333] mb-2" style={{ fontSize: '1.3rem', fontWeight: 700 }}>
                   Détails de votre projet
                 </h2>
@@ -234,7 +267,8 @@ export function QuoteRequest() {
                     <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                       Pays de destination *
                     </label>
-                    <select required value={form.destination} onChange={(e) => setForm({ ...form, destination: e.target.value })}
+                    <select 
+                      {...register('destination', { required: true })}
                       className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
                       style={{ borderRadius: '14px' }}>
                       <option value="">Sélectionner…</option>
@@ -247,13 +281,13 @@ export function QuoteRequest() {
                     </select>
                   </div>
 
-                  {/* Nouveau champ : Type de visa (Caché si on vient de la page Études) */}
                   {!initialDestination && (
                     <div>
                       <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                         Type de visa souhaité *
                       </label>
-                      <select required value={form.visaType} onChange={(e) => setForm({ ...form, visaType: e.target.value })}
+                      <select 
+                        {...register('visaType', { required: true })}
                         className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
                         style={{ borderRadius: '14px' }}>
                         <option value="">Sélectionner…</option>
@@ -272,7 +306,8 @@ export function QuoteRequest() {
                     <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                       Budget estimatif (FCFA)
                     </label>
-                    <select value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })}
+                    <select 
+                      {...register('budget')}
                       className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
                       style={{ borderRadius: '14px' }}>
                       <option value="">Non défini pour l'instant</option>
@@ -288,7 +323,9 @@ export function QuoteRequest() {
                     <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                       Date de départ prévue
                     </label>
-                    <input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })}
+                    <input 
+                      {...register('date')}
+                      type="date" 
                       className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
                       style={{ borderRadius: '14px' }} />
                   </div>
@@ -296,7 +333,7 @@ export function QuoteRequest() {
                   <div
                     className="flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all"
                     style={{ borderColor: form.documents ? '#0B84D8' : '#E5E7EB', backgroundColor: form.documents ? '#F0F8FF' : 'white' }}
-                    onClick={() => setForm({ ...form, documents: !form.documents })}
+                    onClick={() => setValue('documents', !form.documents)}
                   >
                     <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ backgroundColor: '#E8F4FD', color: '#0B84D8' }}>
                       <Upload className="w-5 h-5" />
@@ -318,18 +355,20 @@ export function QuoteRequest() {
                   >
                     ← Retour
                   </button>
-                  <button type="submit"
+                  <button 
+                    type="button"
+                    onClick={handleNext}
                     className="flex-1 py-4 text-white font-bold flex items-center justify-center gap-3 transition-all hover:shadow-xl hover:-translate-y-1 shadow-md shadow-[#0B84D8]/20"
                     style={{ backgroundColor: '#0B84D8', borderRadius: '14px' }}>
                     Continuer <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
-              </form>
+              </div>
             )}
 
             {/* Step 3: Coordonnées */}
             {currentStep === 3 && (
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit(onFormSubmit)}>
                 <h2 className="text-[#333333] mb-2" style={{ fontSize: '1.3rem', fontWeight: 700 }}>
                   {isProjectMode ? 'À propos de vous' : 'Vos coordonnées'}
                 </h2>
@@ -342,8 +381,10 @@ export function QuoteRequest() {
                     <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                       Nom complet *
                     </label>
-                    <input type="text" required placeholder="Prénom NOM"
-                      value={form.nom} onChange={(e) => setForm({ ...form, nom: e.target.value })}
+                    <input 
+                      {...register('nom', { required: true })}
+                      type="text" 
+                      placeholder="Prénom NOM"
                       className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
                       style={{ borderRadius: '14px' }} />
                   </div>
@@ -352,8 +393,10 @@ export function QuoteRequest() {
                     <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                       Téléphone / WhatsApp *
                     </label>
-                    <input type="tel" required placeholder="+221 7X XXX XX XX"
-                      value={form.tel} onChange={(e) => setForm({ ...form, tel: e.target.value })}
+                    <input 
+                      {...register('tel', { required: true })}
+                      type="tel" 
+                      placeholder="+221 7X XXX XX XX"
                       className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
                       style={{ borderRadius: '14px' }} />
                   </div>
@@ -362,8 +405,10 @@ export function QuoteRequest() {
                     <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                       Email
                     </label>
-                    <input type="email" placeholder="votre@email.com"
-                      value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    <input 
+                      {...register('email', { pattern: /^\S+@\S+$/i })}
+                      type="email" 
+                      placeholder="votre@email.com"
                       className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
                       style={{ borderRadius: '14px' }} />
                   </div>
@@ -372,7 +417,8 @@ export function QuoteRequest() {
                     <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                       Niveau d'études actuel {needsStudyLevel ? '*' : '(optionnel)'}
                     </label>
-                    <select required={needsStudyLevel} value={form.niveauEtude} onChange={(e) => setForm({ ...form, niveauEtude: e.target.value })}
+                    <select 
+                      {...register('niveauEtude', { required: needsStudyLevel })}
                       className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
                       style={{ borderRadius: '14px' }}>
                       <option value="">Sélectionner votre niveau…</option>
@@ -391,8 +437,10 @@ export function QuoteRequest() {
                     <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                       Informations complémentaires
                     </label>
-                    <textarea rows={3} placeholder="Votre situation actuelle, questions particulières…"
-                      value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })}
+                    <textarea 
+                      {...register('message')}
+                      rows={3} 
+                      placeholder="Votre situation actuelle, questions particulières…"
                       className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2 resize-none"
                       style={{ borderRadius: '14px' }} />
                   </div>

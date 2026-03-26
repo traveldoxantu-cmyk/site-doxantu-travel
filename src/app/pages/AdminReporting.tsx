@@ -46,7 +46,7 @@ export function AdminReporting() {
         setDestinations(destData || []);
       } catch (err) {
         console.error('Error fetching reporting data:', err);
-        // Fallback to empty or toast error
+        toast.error("Erreur lors de la récupération des données de reporting.");
       } finally {
         setLoading(false);
       }
@@ -125,7 +125,7 @@ export function AdminReporting() {
               <div key={item.mois} className="w-full flex flex-col items-center gap-4 z-10 h-full justify-end">
                 <motion.div 
                   initial={{ height: 0 }} 
-                  animate={{ height: `${(item.valeur / Math.max(...chartData.map(d => d.valeur)) * 100) || 10}%` }} 
+                  animate={{ height: chartData.length > 0 ? `${(item.valeur / Math.max(...chartData.map(d => d.valeur)) * 100) || 10}%` : '10%' }} 
                   transition={{ duration: 1.5, delay: i * 0.1, ease: "circOut" }}
                   className="w-full bg-[#0B84D8] rounded-2xl opacity-80 hover:opacity-100 transition-all cursor-pointer relative group/bar shadow-lg shadow-blue-500/10"
                 >

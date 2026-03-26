@@ -4,6 +4,7 @@ import { TrendingUp, FolderOpen, CheckCircle2, CreditCard, ArrowUpRight, ArrowRi
 import { Link } from 'react-router';
 import { apiFetch } from '../lib/api';
 import { supabase } from '../lib/supabase';
+import { SEO } from '../components/SEO';
 
 interface AdminStats {
     caTotalAnnuel: number; clientsSatisfaits: number;
@@ -189,6 +190,10 @@ export function AdminDashboard() {
 
     return (
         <div className="space-y-5 pb-8 max-w-7xl mx-auto">
+            <SEO 
+                title="Tableau de Bord Admin" 
+                description="Gestion des dossiers, paiements et statistiques de l'agence Doxantu Travel." 
+            />
 
             {/* ── Welcome banner ───────────────────────────────────────────── */}
             <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
