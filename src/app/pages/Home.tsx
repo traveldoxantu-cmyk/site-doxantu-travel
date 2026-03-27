@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link } from 'react-router';
 import { motion, Variants } from 'motion/react';
 import {
   GraduationCap,
@@ -9,21 +8,14 @@ import {
   CheckCircle,
   Star,
   ArrowRight,
-  MapPin,
-  Briefcase,
   Users,
   Award,
   Zap,
   Clock,
   User,
-  Send,
   Globe,
-  Loader2
 } from 'lucide-react';
-import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission';
 import { SEO } from '../components/SEO';
-import { toast } from 'sonner';
-import { submitContactForm } from '../lib/services/contactService';
 const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 const STUDENT_IMG = 'https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdHVkZW50cyUyMHN0dWR5aW5nJTIwYWJyb2FkJTIwdW5pdmVyc2l0eSUyMGNhbXB1c3xlbnwxfHx8fDE3NzIzMTAxNTF8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
@@ -75,40 +67,6 @@ const stats = [
 ];
 
 export function Home() {
-  const navigate = useNavigate();
-  const [destination, setDestination] = useState('');
-  const [service, setService] = useState('');
-  const [formData, setFormData] = useState({ nom: '', tel: '', email: '', service: '', message: '' });
-  const [formSent, setFormSent] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    navigate(`/devis?destination=${destination}&service=${service}`);
-  };
-
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    // Save to Firebase
-    const result = await submitContactForm(formData);
-
-    if (result.success) {
-      const message = buildWhatsAppMessage('Nouvelle demande rapide', {
-        Nom: formData.nom,
-        Telephone: formData.tel,
-        Service: formData.service,
-        Message: formData.message,
-      });
-      openWhatsAppSubmission(message);
-      setFormSent(true);
-      toast.success("Votre demande a été enregistrée avec succès ! Redirection vers WhatsApp...");
-    } else {
-      toast.error("Une erreur est survenue lors de l'envoi. Veuillez réessayer ou nous contacter directement via WhatsApp.");
-    }
-    setIsSubmitting(false);
-  };
 
   return (
     <div>
@@ -133,8 +91,11 @@ export function Home() {
         {/* Floating shapes */}
         <div className="absolute top-32 right-10 w-64 h-64 rounded-full opacity-10" style={{ background: '#7dd3fc', filter: 'blur(80px)' }} />
         <div className="absolute bottom-20 left-10 w-48 h-48 rounded-full opacity-10" style={{ background: '#0B84D8', filter: 'blur(60px)' }} />
-        <div className="absolute left-0 right-0 top-[42%] h-24 opacity-20" style={{ background: 'linear-gradient(90deg, transparent, #7dd3fc, transp          <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
-            {/* Left: Text */}
+        <div className="absolute left-0 right-0 top-[42%] h-24 opacity-20" style={{ background: 'linear-gradient(90deg, transparent, #7dd3fc, transparent)', filter: 'blur(32px)' }} />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-14 w-full">
+          <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
+            {/* Centered Content */}
             <motion.div initial="hidden" animate="visible" variants={stagger} className="flex flex-col items-center">
               <motion.div variants={fadeUp}>
                 <span className="inline-flex items-center gap-2 text-sm font-medium px-5 py-2.5 rounded-full mb-6"
@@ -201,11 +162,6 @@ export function Home() {
                   </div>
                 ))}
               </motion.div>
-            </motion.div>
-          </div>
-                <Shield className="w-3 h-3" /> Gratuit et sans engagement · Réponse en 24h
-                </p>
-              </div>
             </motion.div>
           </div>
         </div>
@@ -525,133 +481,6 @@ export function Home() {
         </div>
       </section>
 
-      {/* ── CONVERSION FORM ──────────────────────────────── */}
-      <section className="py-24 md:py-32 px-4 sm:px-6 lg:px-8" style={{ background: 'linear-gradient(135deg, #072a50 0%, #0B84D8 100%)' }}>
-        <div className="max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-white mb-4" style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 700 }}>
-              Faire ma demande
-            </h2>
-            <p className="text-blue-200">Remplissez ce formulaire rapide, réponse garantie en moins de 24h.</p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="bg-white rounded-3xl p-8 md:p-10 shadow-2xl"
-          >
-            {formSent ? (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 bg-blue-50 text-[#0B84D8] rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle className="w-8 h-8" />
-                </div>
-                <h3 className="text-[#333333] font-bold mb-2" style={{ fontSize: '1.5rem' }}>
-                  Demande reçue !
-                </h3>
-                <p className="text-gray-500 mb-6">
-                  Notre équipe vous contactera dans les 24h. Merci pour votre confiance.
-                </p>
-                <button
-                  onClick={() => setFormSent(false)}
-                  className="px-6 py-3 text-white font-semibold"
-                  style={{ backgroundColor: '#0B84D8', borderRadius: '12px' }}
-                >
-                  Nouvelle demande
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleFormSubmit} className="grid md:grid-cols-2 gap-5">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                    Nom complet
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Votre nom"
-                    value={formData.nom}
-                    onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:border-transparent"
-                    style={{ borderRadius: '12px' }}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                    Téléphone / WhatsApp
-                  </label>
-                  <input
-                    type="tel"
-                    required
-                    placeholder="+221 7X XXX XX XX"
-                    value={formData.tel}
-                    onChange={(e) => setFormData({ ...formData, tel: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
-                    style={{ borderRadius: '12px' }}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                    Service souhaité
-                  </label>
-                  <select
-                    required
-                    value={formData.service}
-                    onChange={(e) => setFormData({ ...formData, service: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
-                    style={{ borderRadius: '12px' }}
-                  >
-                    <option value="">Choisir…</option>
-                    <option value="etudiant">Accompagnement Étudiant</option>
-                    <option value="billet">Billetterie</option>
-                    <option value="visa">Assistance Visa</option>
-                    <option value="etudes">Études à l'Étranger</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                    Message (optionnel)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Votre situation en quelques mots…"
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
-                    style={{ borderRadius: '12px' }}
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full py-4 text-white font-semibold text-base transition-all hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    style={{ backgroundColor: '#0B84D8', borderRadius: '12px' }}
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" /> Envoi en cours...
-                      </>
-                    ) : (
-                      'Recevoir mon devis gratuit →'
-                    )}
-                  </button>
-                  <p className="text-center text-xs text-gray-400 mt-3 flex items-center justify-center gap-1">
-                    <Shield className="w-3 h-3" /> Vos données sont protégées et jamais partagées
-                  </p>
-                </div>
-          </form>
-        )}
-      </motion.div>
-    </div>
-      </section>
     </div>
   );
 }
