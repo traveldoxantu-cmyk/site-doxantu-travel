@@ -47,13 +47,24 @@ export function Profil() {
                 .then(data => {
                     setProfil({
                         ...data,
-                        nom: `${sessionUser.firstName} ${sessionUser.lastName}`,
+                        id: sessionUser.id,
+                        nom: sessionUser.firstName && sessionUser.lastName ? `${sessionUser.firstName} ${sessionUser.lastName}` : (data?.nom || 'Utilisateur'),
                         email: sessionUser.email,
                         telephone: sessionUser.phone || data?.telephone,
-                        initiales: sessionUser.initiales || data?.initiales
+                        initiales: sessionUser.initiales || data?.initiales || 'U'
                     });
                 })
-                .catch(console.error)
+                .catch(err => {
+                    console.warn("Profil non trouvé en base, utilisation des données locales:", err);
+                    setProfil({
+                        id: sessionUser.id,
+                        nom: `${sessionUser.firstName} ${sessionUser.lastName}`,
+                        email: sessionUser.email,
+                        telephone: sessionUser.phone || '',
+                        initiales: sessionUser.initiales || 'U',
+                        role: sessionUser.role
+                    } as any);
+                })
                 .finally(() => setLoading(false));
         } else {
             setLoading(false);
@@ -107,7 +118,7 @@ export function Profil() {
         }
     };
 
-    if (loading || !profil) {
+    if (loading) {
         return (
             <div className="max-w-4xl mx-auto space-y-8 pb-24 animate-pulse">
                 <div className="bg-gray-200 rounded-[32px] h-32" />
@@ -115,6 +126,18 @@ export function Profil() {
                     <div className="lg:col-span-2 bg-gray-200 rounded-[32px] h-64" />
                     <div className="bg-gray-200 rounded-[32px] h-64" />
                 </div>
+            </div>
+        );
+    }
+
+    if (!profil) {
+        return (
+            <div className="max-w-4xl mx-auto py-20 text-center">
+                <h2 className="text-2xl font-bold text-gray-800">Session expirée</h2>
+                <p className="text-gray-500 mt-2">Veuillez vous reconnecter pour accéder à votre profil.</p>
+                <button onClick={() => window.location.href = '/login'} className="mt-6 px-8 py-3 bg-[#0B84D8] text-white rounded-2xl font-bold">
+                    Connexion
+                </button>
             </div>
         );
     }

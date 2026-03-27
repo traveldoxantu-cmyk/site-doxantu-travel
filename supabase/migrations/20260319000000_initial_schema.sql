@@ -18,8 +18,13 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 -- 2. Profils (Extension de la table users pour le dashboard client)
-CREATE TABLE IF NOT EXISTS profil (
+CREATE TABLE IF NOT EXISTS profiles (
     id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    nom TEXT,
+    prenom TEXT,
+    tel TEXT,
+    role TEXT DEFAULT 'client',
+    initiales TEXT,
     adresse TEXT,
     dossier_id TEXT, -- ex: DXT-2026-0142
     destination TEXT,

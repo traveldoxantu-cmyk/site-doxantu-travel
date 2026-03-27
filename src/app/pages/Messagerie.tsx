@@ -15,10 +15,37 @@ export function Messagerie() {
     useEffect(() => {
         messagerieService.getConversations()
             .then(convs => {
-                setConversations(convs);
-                if (convs.length > 0) setActiveConv(convs[0]);
+                if (convs.length > 0) {
+                    setConversations(convs);
+                    setActiveConv(convs[0]);
+                } else {
+                    // Fallback Welcome Conversation
+                    const welcomeConv: Conversation = {
+                        id: 'welcome-conv',
+                        name: 'Support Doxantu',
+                        role: 'ASSISTANCE 24/7',
+                        avatar: 'DX',
+                        lastMessage: 'Bienvenue chez Doxantu Travel ! Comment pouvons-nous vous aider ?',
+                        time: 'Maintenant',
+                        unread: 1,
+                        online: true
+                    };
+                    setConversations([welcomeConv]);
+                    setActiveConv(welcomeConv);
+                    setMessages([{
+                        id: 'welcome-msg',
+                        conversationId: 'welcome-conv',
+                        senderId: 'support',
+                        text: 'Bonjour ! Bienvenue chez Doxantu Travel. Votre espace est maintenant prêt. Vous pouvez nous poser vos questions ici.',
+                        time: 'Maintenant',
+                        status: 'unread'
+                    }]);
+                }
             })
-            .catch(console.error)
+            .catch(err => {
+                console.error("Erreur messagerie:", err);
+                setLoading(false);
+            })
             .finally(() => setLoading(false));
     }, []);
 

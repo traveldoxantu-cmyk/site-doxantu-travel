@@ -88,6 +88,23 @@ export function Dashboard() {
                         setTimeline(myDossier.timeline || []);
                         
                         setDeadlines(myDossier.deadlines || []);
+                    } else {
+                        // FALLBACK pour nouvel utilisateur
+                        setQuickStats([
+                            { id: '1', label: 'Mon Dossier', value: 'En attente', category: 'dossier' },
+                            { id: '2', label: 'Documents', value: '0 envoyé', category: 'documents' },
+                            { id: '3', label: 'Messagerie', value: '0 message', category: 'messagerie' },
+                            { id: '4', label: 'Échéances', value: '0 à venir', category: 'echeances' }
+                        ]);
+                        setStatsWidget({
+                            documents: { fait: 0, total: 5 },
+                            messages: 0,
+                            joursRestants: 0
+                        });
+                        setTimeline([
+                            { title: 'Bienvenue chez Doxantu', date: 'Aujourd\'hui', status: 'current' },
+                            { title: 'Soumission de votre première demande', date: 'Bientôt', status: 'upcoming' }
+                        ] as any);
                     }
                     
                     if (cons && cons.length > 0) setConseiller(cons[0]);

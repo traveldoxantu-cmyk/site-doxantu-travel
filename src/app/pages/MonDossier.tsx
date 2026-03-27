@@ -24,12 +24,35 @@ export function MonDossier() {
         const storedUser = localStorage.getItem('user');
         const userId = storedUser ? JSON.parse(storedUser).id : null;
 
+        if (!userId) {
+            setLoading(false);
+            return;
+        }
+
         Promise.all([
-            dossierService.getSteps(),
-            userId ? apiFetch<any[]>(`/dossiers?user_id=${userId}`) : Promise.resolve([])
-        ]).then(([s, d]) => {
+            dossierService.getSteps(userId),
+            apiFetch<any>(`/profiles/${userId}`),
+            apiFetch<any[]>(`/demandes?user_id=${userId}&_sort=created_at&_order=desc&_limit=1`)
+        ]).then(([s, p, lastDem]) => {
             setSteps(s || []);
-            if (d && d.length > 0) setDossier(d[0]);
+            
+            // Si l'utilisateur a un dossier officiel dans son profil, on l'utilise
+            if (p && p.dossierId) {
+                setDossier({
+                    numeroDossier: p.dossierId,
+                    service: p.currentService,
+                    status: p.dossierStatus
+                });
+            } 
+            // Sinon, on affiche le statut de sa dernière demande pour plus de fluidité
+            else if (lastDem && lastDem.length > 0) {
+                const d = lastDem[0];
+                setDossier({
+                    numeroDossier: 'En attente',
+                    service: d.service || d.data?.service,
+                    status: d.status
+                });
+            }
         })
         .catch(console.error)
         .finally(() => setLoading(false));

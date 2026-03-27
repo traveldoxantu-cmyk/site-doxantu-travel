@@ -22,6 +22,7 @@ export function AdminDemandes() {
     const [filterType, setFilterType] = useState('all');
     const [selectedDemande, setSelectedDemande] = useState<Demande | null>(null);
     const [updating, setUpdating] = useState(false);
+    const [creatingDossier, setCreatingDossier] = useState(false);
 
     const fetchDemandes = useCallback(async () => {
         setLoading(true);
@@ -66,7 +67,6 @@ export function AdminDemandes() {
                 method: 'PATCH',
                 body: JSON.stringify({ status: newStatus })
             });
-            setSelectedDemande(null);
             fetchDemandes();
             toast.success(`Statut mis à jour : ${newStatus}`);
             
@@ -91,6 +91,65 @@ export function AdminDemandes() {
             toast.error("Échec de la mise à jour du statut.");
         } finally {
             setUpdating(false);
+        }
+    };
+    
+    const handleCreateDossier = async (demande: Demande) => {
+        if (!demande.userId) {
+            toast.error("Ce client n'a pas encore de compte. Demandez-lui de s'inscrire d'abord.");
+            return;
+        }
+        
+        setCreatingDossier(true);
+        try {
+            const dossierId = `DXT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+            const serviceType = demande.data?.service || 'accompagnement';
+            
+            // 1. Mettre à jour le profil utilisateur
+            await apiFetch(`/profiles/${demande.userId}`, {
+                method: 'PATCH',
+                body: JSON.stringify({
+                    dossierId: dossierId,
+                    currentService: serviceType,
+                    dossierStatus: 'en_cours'
+                })
+            });
+
+            // 2. Créer la timeline par défaut
+            const defaultSteps = serviceType.includes('campus') || serviceType.includes('etudiant') 
+                ? [
+                    { title: 'Étape 1 - Création du dossier', date: 'Effectué', status: 'completed', iconType: 'FileText' },
+                    { title: 'Étape 2 - Entretien d\'orientation', date: 'À planifier', status: 'current', iconType: 'Search' },
+                    { title: 'Étape 3 - Choix des formations', date: 'À venir', status: 'upcoming', iconType: 'GraduationCap' },
+                    { title: 'Étape 4 - Demande de Visa', date: 'À venir', status: 'upcoming', iconType: 'Plane' }
+                ]
+                : [
+                    { title: 'Étape 1 - Analyse du projet', date: 'Effectué', status: 'completed', iconType: 'Search' },
+                    { title: 'Étape 2 - Constitution du dossier', date: 'En cours', status: 'current', iconType: 'FileText' },
+                    { title: 'Étape 3 - Dépôt Ambassade', date: 'À venir', status: 'upcoming', iconType: 'Building2' },
+                    { title: 'Étape 4 - Délivrance Visa', date: 'À venir', status: 'upcoming', iconType: 'Plane' }
+                ];
+
+            for (const step of defaultSteps) {
+                await apiFetch('/timeline', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        userId: demande.userId,
+                        ...step
+                    })
+                });
+            }
+
+            // 3. Marquer la demande comme traitée
+            await handleUpdateStatus(demande.id, 'completed');
+            
+            toast.success(`Dossier ${dossierId} créé avec succès !`);
+            setSelectedDemande(null);
+        } catch (err) {
+            console.error('Dossier creation failed:', err);
+            toast.error("Échec de la création du dossier officiel.");
+        } finally {
+            setCreatingDossier(false);
         }
     };
 
@@ -162,6 +221,22 @@ export function AdminDemandes() {
 
                                 <div className="space-y-3">
                                     <p className="text-xs font-black text-gray-400 uppercase tracking-widest">Modifier le statut</p>
+                                    
+                                    {selectedDemande.status === 'pending' && selectedDemande.userId && (
+                                        <button
+                                            disabled={creatingDossier}
+                                            onClick={() => handleCreateDossier(selectedDemande)}
+                                            className="w-full flex items-center justify-center gap-3 p-5 rounded-3xl bg-[#0B84D8] text-white font-black hover:bg-[#0973BD] shadow-lg shadow-blue-200 transition-all active:scale-95 mb-4 group"
+                                        >
+                                            {creatingDossier ? (
+                                                <RefreshCw className="w-5 h-5 animate-spin" />
+                                            ) : (
+                                                <FolderOpen className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                                            )}
+                                            ACCEPTER ET CRÉER LE DOSSIER
+                                        </button>
+                                    )}
+
                                     <div className="grid grid-cols-1 gap-3">
                                         {[
                                             { label: 'En attente', val: 'pending', icon: Clock, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },

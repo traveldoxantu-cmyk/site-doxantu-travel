@@ -17,5 +17,6 @@ export interface DossierStep {
 }
 
 export const dossierService = {
-    getSteps: () => apiFetch<DossierStep[]>('/dossierSteps'),
+    getSteps: (userId?: string) => 
+        apiFetch<DossierStep[]>(userId ? `/dossierSteps?userId=${userId}` : '/dossierSteps'),
 };

@@ -78,8 +78,11 @@ export function Login() {
                     });
 
                     if (profileError) {
-                        console.error("Erreur création profil:", profileError);
-                        throw new Error(`Désolé, nous n'avons pas pu créer votre profil : ${profileError.message}. Vérifiez les permissions (RLS) dans Supabase.`);
+                        console.error("Erreur création profil (RLS ?):", profileError);
+                        if (profileError.code === '42501') {
+                            throw new Error("Erreur de permissions (RLS) sur la table 'profiles'. Veuillez contacter l'administrateur.");
+                        }
+                        throw new Error(`Désolé, nous n'avons pas pu créer votre profil : ${profileError.message}`);
                     }
 
                     // Mise à jour globale du contexte utilisateur
@@ -103,10 +106,16 @@ export function Login() {
                     password
                 });
 
-                if (authError) throw authError;
+                if (authError) {
+                    console.error("Login attempt failed:", authError);
+                    if (authError.message === 'Email not confirmed') {
+                        throw new Error("Veuillez confirmer votre adresse email avant de vous connecter.");
+                    }
+                    throw authError;
+                }
 
                 if (authData.user) {
-                    // Récupérer les infos du profil (rôle, nom, etc.)
+                    // Récupérer les infos du profil
                     const { data: profile, error: profileError } = await supabase
                         .from('profiles')
                         .select('*')
@@ -114,17 +123,21 @@ export function Login() {
                         .single();
 
                     if (profileError) {
-                        console.error("Erreur profil:", profileError);
-                        // Fallback si le profil n'existe pas encore (cas de migration)
+                        console.warn("Profil introuvable pour l'utilisateur (ou RLS):", authData.user.id, profileError);
+                        if (profileError.code === '42501' || profileError.code === 'PGRST116') {
+                            console.log("Utilisation du fallback car profil inacessible.");
+                        }
                         const userObj = {
                             id: authData.user.id,
                             email: authData.user.email,
                             firstName: authData.user.user_metadata?.first_name || 'Utilisateur',
                             lastName: authData.user.user_metadata?.last_name || '',
-                            role: 'client',
+                            role: 'client' as const,
                             initiales: 'U'
                         };
                         localStorage.setItem('user', JSON.stringify(userObj));
+                        setGlobalUser(userObj as any);
+                        toast.success("Connexion réussie !");
                         navigate('/mon-espace/dashboard');
                     } else {
                         const userObj = {
@@ -136,6 +149,7 @@ export function Login() {
                             initiales: profile.initiales
                         };
                         setGlobalUser(userObj);
+                        localStorage.setItem('user', JSON.stringify(userObj));
                         
                         toast.success(`Heureux de vous revoir, ${profile.prenom} !`);
                         const redirectTo = profile.role === 'admin' ? '/admin/dashboard' : '/mon-espace/dashboard';
@@ -144,9 +158,9 @@ export function Login() {
                 }
             }
         } catch (err: any) {
-            console.error('Erreur Auth:', err);
+            console.error('Erreur Auth complète:', err);
             const msg = err.message || 'Une erreur est survenue lors de la connexion.';
-            toast.error(msg);
+            toast.error(msg, { duration: 5000 });
             setError(msg);
         } finally {
             setLoading(false);
