@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Info, CheckCircle2, FileText, Search, GraduationCap, Plane, Building2, MapPin, Calendar, CheckSquare, MessageCircle } from 'lucide-react';
+import { Link } from 'react-router';
+import { apiFetch } from '../lib/api';
 import { dossierService, type DossierStep } from '../lib/services/dossierService';
 
 type IconType = typeof FileText;
@@ -15,13 +17,22 @@ const ICON_MAP: Record<string, IconType> = {
 
 export function MonDossier() {
     const [steps, setSteps] = useState<DossierStep[]>([]);
+    const [dossier, setDossier] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        dossierService.getSteps()
-            .then(setSteps)
-            .catch(console.error)
-            .finally(() => setLoading(false));
+        const storedUser = localStorage.getItem('user');
+        const userId = storedUser ? JSON.parse(storedUser).id : null;
+
+        Promise.all([
+            dossierService.getSteps(),
+            userId ? apiFetch<any[]>(`/dossiers?user_id=${userId}`) : Promise.resolve([])
+        ]).then(([s, d]) => {
+            setSteps(s || []);
+            if (d && d.length > 0) setDossier(d[0]);
+        })
+        .catch(console.error)
+        .finally(() => setLoading(false));
     }, []);
 
     const currentStep = steps.find(s => s.status === 'current');
@@ -48,7 +59,7 @@ export function MonDossier() {
                 <div>
                     <h1 className="text-3xl font-bold text-[#1a2b40] mb-2">Suivi de mon dossier</h1>
                     <p className="text-gray-500 font-medium text-sm">
-                        Dossier <span className="text-[#0B84D8] font-bold">DXT-2026-0142</span> - Master en Intelligence Artificielle – Université Paris-Saclay
+                        Dossier <span className="text-[#0B84D8] font-bold">{dossier?.numeroDossier || 'En attente'}</span> - {dossier?.service || dossier?.formation || 'Traitement en cours'}
                     </p>
                 </div>
                 <div className="text-right">
@@ -168,16 +179,16 @@ export function MonDossier() {
                     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex-1 flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-white text-lg shadow-sm" style={{ backgroundColor: '#0B84D8' }}>
-                                FM
+                                {dossier?.conseillerNom?.[0] || 'D'}
                             </div>
                             <div>
                                 <p className="font-bold text-[#1a2b40] text-sm">Une question sur votre dossier ?</p>
-                                <p className="text-gray-500 text-xs">Votre conseiller Fatou Mbaye est disponible</p>
+                                <p className="text-gray-500 text-xs">Votre conseiller {dossier?.conseillerNom || 'Doxantu'} est disponible</p>
                             </div>
                         </div>
-                        <button className="bg-[#0B84D8] hover:bg-[#0973BD] text-white font-bold py-2.5 px-6 rounded-xl transition-colors text-sm shadow-sm flex items-center gap-2">
+                        <Link to="/mon-espace/messagerie" className="bg-[#0B84D8] hover:bg-[#0973BD] text-white font-bold py-2.5 px-6 rounded-xl transition-colors text-sm shadow-sm flex items-center gap-2">
                             Écrire
-                        </button>
+                        </Link>
                     </div>
                     <button className="w-14 h-14 bg-[#25D366] text-white rounded-full shadow-lg shadow-[#25D366]/30 flex items-center justify-center hover:scale-105 transition-transform ml-4 shrink-0">
                         <MessageCircle className="w-7 h-7" />

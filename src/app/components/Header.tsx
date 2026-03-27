@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router';
-import { Menu, X, ChevronDown, LayoutGrid, User as UserIcon, GraduationCap, Plane, FileText, Globe, History, Phone, LogIn } from 'lucide-react';
+import { Menu, X, ChevronDown, LayoutGrid, User as UserIcon, GraduationCap, Plane, FileText, Globe, History, Phone, LogIn, Bell } from 'lucide-react';
+import { notificationService, type Notification } from '../lib/services/notificationService';
 import { useUser } from '../lib/context/UserContext';
 import logoImg from '../../assets/logo-doxantu.png';
 import logoImgWhite from '../../assets/logo-doxantu-white.png';
@@ -9,6 +10,16 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, logout } = useUser();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [showNotifs, setShowNotifs] = useState(false);
+
+  useEffect(() => {
+    if (user?.id) {
+      notificationService.getNotifications(user.id)
+        .then(setNotifications)
+        .catch(console.error);
+    }
+  }, [user]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 24);
@@ -89,6 +100,50 @@ export function Header() {
           </nav>
 
           <div className="hidden lg:flex items-center gap-3">
+            {user && (
+              <div className="relative">
+                <button 
+                  onClick={() => setShowNotifs(!showNotifs)}
+                  className={`p-2.5 rounded-xl transition-all relative ${scrolled ? 'bg-slate-100 text-slate-600 hover:bg-slate-200' : 'bg-white/10 text-white hover:bg-white/20'}`}
+                >
+                  <Bell className="w-5 h-5" />
+                  {notifications.filter(n => !n.read).length > 0 && (
+                    <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
+                  )}
+                </button>
+                
+                {showNotifs && (
+                  <div className="absolute top-full right-0 mt-3 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-[60] overflow-hidden">
+                    <div className="px-5 py-3 border-b border-gray-50 flex justify-between items-center">
+                      <p className="text-xs font-bold text-[#1a2b40]">Notifications</p>
+                      <button 
+                        onClick={async () => {
+                          const unread = notifications.filter(n => !n.read);
+                          await Promise.all(unread.map(n => notificationService.markAsRead(n.id)));
+                          setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+                        }}
+                        className="text-[10px] font-bold text-[#0B84D8] hover:underline"
+                      >
+                        Tout marquer lu
+                      </button>
+                    </div>
+                    <div className="max-h-80 overflow-y-auto">
+                      {notifications.length > 0 ? (
+                        notifications.map(n => (
+                          <div key={n.id} className="px-5 py-3 hover:bg-gray-50 border-b border-gray-50 last:border-0 cursor-pointer">
+                            <p className="text-sm font-bold text-[#333333] mb-0.5">{n.title}</p>
+                            <p className="text-xs text-gray-500 leading-tight">{n.message}</p>
+                            <p className="text-[10px] text-gray-400 mt-1">{new Date(n.createdAt).toLocaleDateString()}</p>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="px-5 py-8 text-center text-gray-400 text-sm">Aucune notification</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
             <div className="relative group/espace">
               <button
                 className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all ${scrolled

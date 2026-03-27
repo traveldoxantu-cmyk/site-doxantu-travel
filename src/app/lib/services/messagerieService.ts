@@ -24,4 +24,9 @@ export const messagerieService = {
     getConversations: () => apiFetch<Conversation[]>('/conversations'),
     getMessages: (conversationId: string) =>
         apiFetch<Message[]>(`/messages?conversationId=${conversationId}`),
+    sendMessage: (msg: Partial<Message>) =>
+        apiFetch<Message>('/messages', {
+            method: 'POST',
+            body: JSON.stringify(msg)
+        }),
 };

@@ -41,9 +41,9 @@ const TeamAvatar = ({ initials, color }: { initials: string; color: string }) =>
 
 const team = [
   {
-    name: 'Ibrahima Diallo',
+    name: 'Abdoulaye Ndiaye',
     role: 'Directeur Général',
-    initials: 'ID',
+    initials: 'AN',
     color: '#0B84D8',
     roleIcon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0B84D8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -54,9 +54,9 @@ const team = [
     desc: "Expert en mobilité internationale avec 8 ans d'expérience dans l'accompagnement étudiant.",
   },
   {
-    name: 'Mariama Bâ',
+    name: 'Khadija Sy',
     role: 'Responsable Études',
-    initials: 'MB',
+    initials: 'KS',
     color: '#7C3AED',
     roleIcon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -67,9 +67,9 @@ const team = [
     desc: "Ancienne conseillère Campus France, spécialiste des procédures d'admission en France et Canada.",
   },
   {
-    name: 'Ousmane Seck',
+    name: 'Moussa Diop',
     role: 'Responsable Billetterie',
-    initials: 'OS',
+    initials: 'MD',
     color: '#059669',
     roleIcon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -79,9 +79,9 @@ const team = [
     desc: "Spécialiste des tarifs aériens et de l'optimisation des voyages depuis le Sénégal.",
   },
   {
-    name: 'Aïssatou Niang',
+    name: 'Fatou Tall',
     role: 'Conseillère Visa',
-    initials: 'AN',
+    initials: 'FT',
     color: '#DC2626',
     roleIcon: (
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -293,7 +293,7 @@ export function About() {
                 <div className="mx-auto mb-4 w-20 h-20 rounded-full overflow-hidden flex items-center justify-center" style={{ backgroundColor: '#E8F4FD' }}>
                   <TeamAvatar initials={member.initials} color={member.color} />
                 </div>
-                <h3 className="text-[#333333] font-bold mb-0.5">{member.name}</h3>
+                <h3 className="font-black text-[#1a2b40] text-xl mb-1">Abdoulaye Ndiaye</h3>
                 <p className="text-sm mb-3 flex items-center justify-center gap-1" style={{ color: '#0B84D8' }}>
                   {member.roleIcon}{member.role}
                 </p>

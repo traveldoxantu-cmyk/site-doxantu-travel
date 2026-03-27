@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 import { apiFetch } from '../lib/api';
 import { useUser } from '../lib/context/UserContext';
 
+import { storageService } from '../lib/services/storageService';
+
 type QuoteFormValues = {
   service: string;
   destination: string;
@@ -34,12 +36,12 @@ export function QuoteRequest() {
   const [currentStep, setCurrentStep] = useState((initialDestination || initialService) ? 3 : 1);
   const [loading, setLoading] = useState(false);
 
-  const { register, handleSubmit, setValue, watch, trigger, formState: { errors } } = useForm<QuoteFormValues>({
+  const { register, handleSubmit, setValue, watch, trigger } = useForm<QuoteFormValues>({
     defaultValues: {
       service: initialService || (initialDestination ? 'campus-france' : ''),
       destination: initialDestination,
       budget: '',
-      visaType: initialDestination || initialService === 'visa-etudiant' ? 'etudes' : '',
+      visaType: (initialDestination || initialService === 'visa-etudiant') ? 'etudes' : '',
       date: '',
       documents: false,
       nom: '',
@@ -50,6 +52,8 @@ export function QuoteRequest() {
     }
   });
 
+  const [files, setFiles] = useState<File[]>([]);
+  const [uploadingFiles, setUploadingFiles] = useState(false);
   const form = watch();
   const isProjectMode = searchParams.get('mode') === 'projet';
   const needsStudyLevel = ['campus-france', 'visa-etudiant', 'pack-complet'].includes(form.service);
@@ -83,46 +87,63 @@ export function QuoteRequest() {
 
   const onFormSubmit = async (data: QuoteFormValues) => {
     setLoading(true);
-    const message = buildWhatsAppMessage("Nouvelle demande d'accompagnement", {
-      "Service": data.service,
-      "Destination": data.destination,
-      "Type de visa": data.visaType || 'Non spécifié',
-      Budget: data.budget,
-      'Date prevue': data.date,
-      'Documents a joindre': data.documents ? 'Oui' : 'Non',
-      Nom: data.nom,
-      Telephone: data.tel,
-      Email: data.email,
-      "Niveau d'etudes": data.niveauEtude || 'Non renseigné',
-      Message: data.message,
-    });
-    
-    // Enregistrement sur le serveur
+    let uploadedUrls: string[] = [];
+
     try {
+      // 1. Upload files first if any
+      if (files.length > 0) {
+        setUploadingFiles(true);
+        const uploadPromises = files.map(file => {
+          const path = `demandes/${Date.now()}_${file.name}`;
+          return storageService.uploadFile('documents', path, file);
+        });
+        uploadedUrls = await Promise.all(uploadPromises);
+        setUploadingFiles(false);
+      }
+
+      const message = buildWhatsAppMessage("Nouvelle demande d'accompagnement", {
+        "Service": data.service,
+        "Destination": data.destination,
+        "Type de visa": data.visaType || 'Non spécifié',
+        Budget: data.budget,
+        'Date prevue': data.date,
+        'Documents': uploadedUrls.length > 0 ? `${uploadedUrls.length} fichiers joints` : 'Aucun',
+        Nom: data.nom,
+        Telephone: data.tel,
+        Email: data.email,
+        "Niveau d'etudes": data.niveauEtude || 'Non renseigné',
+        Message: data.message,
+      });
+      
+      // 2. Enregistrement en base de données
       await apiFetch('/demandes', {
         method: 'POST',
         body: JSON.stringify({
-          type: 'accompagnement',
+          type: data.service === 'billet-retour' ? 'billetterie' : 'accompagnement',
           nom: data.nom,
           email: data.email,
           tel: data.tel,
           service: data.service,
-          status: 'nouveau',
+          status: 'pending',
           user_id: user?.id || null,
           data: {
             ...data,
+            fileUrls: uploadedUrls,
             recipient: 'traveldoxantu@gmail.com',
             createdAt: new Date().toISOString()
           }
         })
       });
+
       openWhatsAppSubmission(message);
       setCurrentStep(4);
+      toast.success("Votre demande et vos documents ont été transmis avec succès !");
     } catch (err) {
       console.error(err);
-      toast.error("Erreur lors de l'enregistrement de votre demande. Veuillez vérifier votre connexion au serveur.");
+      toast.error("Erreur lors de l'envoi. Veuillez vérifier vos fichiers ou votre connexion.");
     } finally {
       setLoading(false);
+      setUploadingFiles(false);
     }
   };
 
@@ -331,21 +352,70 @@ export function QuoteRequest() {
                   </div>
 
                   <div
-                    className="flex items-center gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all"
+                    className="flex flex-col gap-4 p-5 rounded-2xl border-2 transition-all"
                     style={{ borderColor: form.documents ? '#0B84D8' : '#E5E7EB', backgroundColor: form.documents ? '#F0F8FF' : 'white' }}
-                    onClick={() => setValue('documents', !form.documents)}
                   >
-                    <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ backgroundColor: '#E8F4FD', color: '#0B84D8' }}>
-                      <Upload className="w-5 h-5" />
+                    <div className="flex items-center gap-4 cursor-pointer" onClick={() => setValue('documents', !form.documents)}>
+                      <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ backgroundColor: '#E8F4FD', color: '#0B84D8' }}>
+                        <Upload className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-[#333333] text-sm">Joindre mes justificatifs</p>
+                        <p className="text-gray-400 text-xs">Passeport, diplômes, relevés (PDF/Images)</p>
+                      </div>
+                      <div className="w-5 h-5 rounded flex items-center justify-center border-2"
+                        style={{ borderColor: form.documents ? '#0B84D8' : '#D1D5DB', backgroundColor: form.documents ? '#0B84D8' : 'transparent' }}>
+                        {form.documents && <CheckCircle className="w-3 h-3 text-white" />}
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-semibold text-[#333333] text-sm">J'ai des documents à joindre</p>
-                      <p className="text-gray-400 text-xs">Diplômes, relevés de notes, justificatifs…</p>
-                    </div>
-                    <div className="ml-auto w-5 h-5 rounded flex items-center justify-center border-2"
-                      style={{ borderColor: form.documents ? '#0B84D8' : '#D1D5DB', backgroundColor: form.documents ? '#0B84D8' : 'transparent' }}>
-                      {form.documents && <CheckCircle className="w-3 h-3 text-white" />}
-                    </div>
+
+                    {form.documents && (
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        className="mt-2 pt-4 border-t border-blue-100"
+                      >
+                        <input
+                          type="file"
+                          multiple
+                          accept=".pdf,image/*"
+                          className="hidden"
+                          id="file-upload"
+                          onChange={(e) => {
+                            const newFiles = Array.from(e.target.files || []);
+                            setFiles(prev => [...prev, ...newFiles]);
+                          }}
+                        />
+                        <label 
+                          htmlFor="file-upload"
+                          className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-blue-200 rounded-xl bg-white hover:bg-blue-50 transition-colors cursor-pointer group"
+                        >
+                          <Upload className="w-6 h-6 text-[#0B84D8] mb-2 group-hover:scale-110 transition-transform" />
+                          <p className="text-xs font-bold text-gray-500">Ajouter des fichiers</p>
+                          <p className="text-[10px] text-gray-400 mt-1">PDF ou Images (Max 10MB)</p>
+                        </label>
+                        
+                        {files.length > 0 && (
+                          <div className="mt-4 space-y-2">
+                            {files.map((file, i) => (
+                              <div key={i} className="flex justify-between items-center p-2 bg-white rounded-lg border border-gray-100 text-[11px] font-medium">
+                                <div className="flex items-center gap-2 truncate">
+                                  <FileText className="w-3 h-3 text-[#0B84D8]" />
+                                  <span className="truncate">{file.name}</span>
+                                </div>
+                                <button 
+                                  type="button"
+                                  onClick={() => setFiles(prev => prev.filter((_, idx) => idx !== i))}
+                                  className="text-red-400 hover:text-red-600 p-1"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
                   </div>
                 </div>
 
@@ -459,14 +529,16 @@ export function QuoteRequest() {
                     style={{ borderRadius: '14px' }}>
                     ← Retour
                   </button>
-                  <button type="submit"
-                    disabled={loading}
-                    className="flex-1 py-3.5 text-white font-semibold transition-all hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed shadow-md shadow-[#0B84D8]/20"
-                    style={{ backgroundColor: '#0B84D8', borderRadius: '14px' }}>
-                    {loading ? (
+                  <button
+                    type="submit"
+                    disabled={loading || uploadingFiles}
+                    className="w-full py-4 text-white font-bold rounded-2xl transition-all duration-300 flex items-center justify-center gap-2 hover:shadow-xl hover:-translate-y-1 active:scale-95 disabled:opacity-50"
+                    style={{ background: 'linear-gradient(135deg, #0B84D8 0%, #0973BD 100%)' }}
+                  >
+                    {loading || uploadingFiles ? (
                       <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     ) : (
-                      <>Envoyer ma demande ✓</>
+                      <>Transmettre mon dossier <ArrowRight className="w-4 h-4" /></>
                     )}
                   </button>
                 </div>

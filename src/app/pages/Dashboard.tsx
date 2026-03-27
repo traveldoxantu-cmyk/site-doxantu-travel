@@ -85,15 +85,9 @@ export function Dashboard() {
                         });
 
                         // Données mock pour le moment si pas en base
-                        setTimeline(myDossier.timeline || [
-                            { id: '1', title: 'Soumission', date: '10 jan. 2026', status: 'completed' },
-                            { id: '2', title: 'Entretien', date: '15 fév. 2026', status: 'completed' },
-                            { id: '3', title: 'Campus France', date: 'En cours', status: 'current' }
-                        ]);
+                        setTimeline(myDossier.timeline || []);
                         
-                        setDeadlines(myDossier.deadlines || [
-                            { id: '1', title: 'Campus France', date: '7 mars 2026', daysRemaining: 5, colorClass: 'red' }
-                        ]);
+                        setDeadlines(myDossier.deadlines || []);
                     }
                     
                     if (cons && cons.length > 0) setConseiller(cons[0]);

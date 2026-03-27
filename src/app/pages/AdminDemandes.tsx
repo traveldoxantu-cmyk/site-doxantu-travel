@@ -4,6 +4,7 @@ import { apiFetch } from '../lib/api';
 import { toast } from 'sonner';
 import { supabase } from '../lib/supabase';
 import { motion, AnimatePresence } from 'motion/react';
+import { notificationService } from '../lib/services/notificationService';
 
 interface Demande {
     id: string;
@@ -68,11 +69,45 @@ export function AdminDemandes() {
             setSelectedDemande(null);
             fetchDemandes();
             toast.success(`Statut mis à jour : ${newStatus}`);
+            
+            // Notification courtoise pour l'utilisateur
+            if (selectedDemande?.userId) {
+                const statusLabels: Record<string, string> = {
+                    'processing': 'en cours de traitement',
+                    'completed': 'terminé avec succès',
+                    'rejected': 'non retenu'
+                };
+                const label = statusLabels[newStatus] || newStatus;
+                
+                await notificationService.createNotification({
+                    userId: selectedDemande.userId,
+                    title: "Mise à jour de votre dossier",
+                    message: `Votre demande pour le service ${selectedDemande.data?.service || ''} est désormais ${label}.`,
+                    type: newStatus === 'completed' ? 'success' : newStatus === 'rejected' ? 'error' : 'info'
+                });
+            }
         } catch (err) {
             console.error('Update failed:', err);
             toast.error("Échec de la mise à jour du statut.");
         } finally {
             setUpdating(false);
+        }
+    };
+
+    const openAttachments = (demande: Demande) => {
+        const urls = demande.data?.fileUrls || [];
+        if (urls.length === 0) {
+            toast.error("Aucun document joint à cette demande.");
+            return;
+        }
+        
+        if (urls.length === 1) {
+            window.open(urls[0], '_blank');
+        } else {
+            // Si plusieurs fichiers, on peut soit les ouvrir tous, soit afficher un sélecteur
+            // Ici on ouvre le premier et on notifie
+            window.open(urls[0], '_blank');
+            toast.info(`${urls.length} fichiers détectés. Le premier a été ouvert.`);
         }
     };
 
@@ -114,16 +149,12 @@ export function AdminDemandes() {
                                             <p className="text-lg font-bold text-[#1a2b40]">{selectedDemande.data?.nom || 'Client Anonyme'}</p>
                                             <p className="text-sm text-gray-600">{selectedDemande.data?.email}</p>
                                         </div>
-                                        {selectedDemande.userId && (
+                                        {selectedDemande.data?.fileUrls && selectedDemande.data.fileUrls.length > 0 && (
                                             <button 
-                                                onClick={() => {
-                                                    // Rediriger ou ouvrir une vue document (simplifié ici par un toast pour l'instant ou une navigation)
-                                                    toast.info("Accès aux documents du client... redirection vers la gestion client.");
-                                                    // On pourrait aussi fetch les docs ici
-                                                }}
+                                                onClick={() => openAttachments(selectedDemande)}
                                                 className="flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-600 rounded-xl text-xs font-bold hover:bg-purple-100 transition-all border border-purple-100"
                                             >
-                                                <Eye className="w-4 h-4" /> Voir les pièces jointes
+                                                <Eye className="w-4 h-4" /> Voir les {selectedDemande.data.fileUrls.length} fichier(s)
                                             </button>
                                         )}
                                     </div>

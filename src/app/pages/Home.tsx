@@ -43,7 +43,7 @@ const stagger: Variants = {
 const testimonials = [
   {
     id: 1,
-    name: 'Fatou Diallo',
+    name: 'Ami Ndiaye',
     program: 'Master en Informatique - Paris',
     text: 'Grâce à Doxantu Travel, ma procédure Campus France s\'est déroulée sans stress. Tout était clair et suivi de A à Z.',
     rating: 5,
@@ -51,7 +51,7 @@ const testimonials = [
   },
   {
     id: 2,
-    name: 'Moussa Ndiaye',
+    name: 'Modou Fall',
     program: 'Licence en Finance - Montréal',
     text: 'Service exceptionnel ! Mon visa a été obtenu en 3 semaines. L\'équipe est réactive et professionnelle.',
     rating: 5,
@@ -59,7 +59,7 @@ const testimonials = [
   },
   {
     id: 3,
-    name: 'Aminata Sow',
+    name: 'Selly Ba',
     program: 'BTS Commerce - Casablanca',
     text: 'Je recommande fortement Doxantu Travel. Leur accompagnement m\'a permis d\'éviter de nombreuses erreurs dans mon dossier.',
     rating: 5,

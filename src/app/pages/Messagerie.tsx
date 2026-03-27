@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Search, Send, Paperclip, MoreVertical, CheckCheck, Smile, Phone, Video } from 'lucide-react';
+import { Search, Send, Paperclip, MoreVertical, CheckCheck, Smile, Phone, Video, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { messagerieService, type Conversation, type Message } from '../lib/services/messagerieService';
 
 export function Messagerie() {
@@ -8,6 +9,8 @@ export function Messagerie() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [activeConv, setActiveConv] = useState<Conversation | null>(null);
     const [loading, setLoading] = useState(true);
+    const [inputText, setInputText] = useState('');
+    const [sending, setSending] = useState(false);
 
     useEffect(() => {
         messagerieService.getConversations()
@@ -151,24 +154,58 @@ export function Messagerie() {
                     </div>
 
                     {/* Input Area */}
-                    <div className="p-4 md:p-6 bg-white border-t border-gray-100">
+                    <form 
+                        onSubmit={async (e) => {
+                            e.preventDefault();
+                            if (!inputText.trim() || !activeConv || sending) return;
+                            
+                            setSending(true);
+                            try {
+                                const newMsg = await messagerieService.sendMessage({
+                                    conversationId: activeConv.id,
+                                    text: inputText,
+                                    senderId: 'me',
+                                    time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+                                    status: 'unread'
+                                });
+                                setMessages(prev => [...prev, newMsg]);
+                                setInputText('');
+                            } catch (err) {
+                                console.error('Send failed:', err);
+                                toast.error("Échec de l'envoi du message.");
+                            } finally {
+                                setSending(false);
+                            }
+                        }}
+                        className="p-4 md:p-6 bg-white border-t border-gray-100"
+                    >
                         <div className="flex items-center gap-2 md:gap-4 bg-gray-50 rounded-2xl px-3 md:px-4 py-1.5 md:py-2 border border-gray-100 focus-within:border-[#0B84D8]/30 transition-all shadow-sm">
-                            <button className="p-2 text-gray-400 hover:text-[#0B84D8] transition-colors hidden sm:block">
+                            <button type="button" className="p-2 text-gray-400 hover:text-[#0B84D8] transition-colors hidden sm:block">
                                 <Smile className="w-5 h-5" />
                             </button>
-                            <button className="p-2 text-gray-400 hover:text-[#0B84D8] transition-colors">
+                            <button type="button" className="p-2 text-gray-400 hover:text-[#0B84D8] transition-colors">
                                 <Paperclip className="w-5 h-5" />
                             </button>
                             <input
                                 type="text"
+                                value={inputText}
+                                onChange={(e) => setInputText(e.target.value)}
                                 placeholder="Message..."
                                 className="flex-1 bg-transparent border-none py-2 md:py-3 outline-none text-xs md:text-sm text-[#1a2b40] placeholder:text-gray-400"
                             />
-                            <button className="w-9 h-9 md:w-10 md:h-10 bg-[#0B84D8] text-white rounded-xl shadow-md flex items-center justify-center hover:scale-105 transition-transform shrink-0">
-                                <Send className="w-4 h-4 fill-white" />
+                            <button 
+                                type="submit"
+                                disabled={sending || !inputText.trim()}
+                                className="w-9 h-9 md:w-10 md:h-10 bg-[#0B84D8] text-white rounded-xl shadow-md flex items-center justify-center hover:scale-105 transition-transform shrink-0 disabled:opacity-50 disabled:scale-100"
+                            >
+                                {sending ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    <Send className="w-4 h-4 fill-white" />
+                                )}
                             </button>
                         </div>
-                    </div>
+                    </form>
                 </div>
             ) : (
                 <div className="hidden md:flex flex-1 items-center justify-center bg-gray-50/20 text-gray-400 font-medium">

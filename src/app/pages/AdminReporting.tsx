@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { BarChart3, Download, ArrowUpRight, Calendar, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
 import { apiFetch } from '../lib/api';
+import { SEO } from '../components/SEO';
+import { toast } from 'sonner';
 
 interface KPI {
   label: string;
   value: string;
   trend: string;
-  status: string;
 }
 
 interface ChartItem {
@@ -33,26 +33,25 @@ export function AdminReporting() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Fetch KPIs from admin_stats (key: reporting_kpis)
-        const kpiData = await apiFetch<KPI[]>('/adminStats/reporting_kpis');
-        setKpis(kpiData || []);
-
-        // Fetch Chart Data
-        const chartRes = await apiFetch<ChartItem[]>('/chartData?_sort=created_at&_limit=6');
-        setChartData(chartRes || []);
-
-        // Fetch Destination Perf from admin_stats (key: internal_perf)
-        const destData = await apiFetch<DestinationPerf[]>('/adminStats/destinations_perf');
-        setDestinations(destData || []);
+        const [k, c, d] = await Promise.all([
+            apiFetch<KPI[]>('/adminStats/reporting_kpis'),
+            apiFetch<ChartItem[]>('/chartData'),
+            apiFetch<DestinationPerf[]>('/adminStats/destinations_perf')
+        ]);
+        setKpis(k || []);
+        setChartData(c || []);
+        setDestinations(d || []);
       } catch (err) {
-        console.error('Error fetching reporting data:', err);
-        toast.error("Erreur lors de la récupération des données de reporting.");
+        console.error("Erreur de chargement du reporting:", err);
+        toast.error("Impossible de charger les données du reporting. Vérifiez votre connexion.");
       } finally {
         setLoading(false);
       }
     };
     fetchData();
   }, []);
+
+  const maxVal = chartData.length > 0 ? Math.max(...chartData.map(d => d.valeur), 1) : 1;
 
   if (loading) {
     return (
@@ -64,6 +63,7 @@ export function AdminReporting() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-8 font-sans">
+      <SEO title="Analyses et Rapports" description="Statistiques détaillées et performances de l'agence." />
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -120,23 +120,29 @@ export function AdminReporting() {
               <BarChart3 className="w-6 h-6" />
             </div>
           </div>
-          <div className="flex-1 min-h-[300px] flex items-end justify-between gap-3 border-b border-gray-100 pb-4 relative mt-4">
-            {chartData.map((item, i) => (
-              <div key={item.mois} className="w-full flex flex-col items-center gap-4 z-10 h-full justify-end">
-                <motion.div 
-                  initial={{ height: 0 }} 
-                  animate={{ height: chartData.length > 0 ? `${(item.valeur / Math.max(...chartData.map(d => d.valeur)) * 100) || 10}%` : '10%' }} 
-                  transition={{ duration: 1.5, delay: i * 0.1, ease: "circOut" }}
-                  className="w-full bg-[#0B84D8] rounded-2xl opacity-80 hover:opacity-100 transition-all cursor-pointer relative group/bar shadow-lg shadow-blue-500/10"
-                >
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-black px-3 py-1.5 rounded-xl opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap shadow-xl">
-                    {item.valeur} DOSSIERS
-                  </div>
-                </motion.div>
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{item.mois}</span>
-              </div>
-            ))}
-          </div>
+          {chartData.length > 0 ? (
+            <div className="flex-1 min-h-[300px] flex items-end justify-between gap-3 border-b border-gray-100 pb-4 relative mt-4">
+              {chartData.map((item, i) => (
+                <div key={item.mois} className="w-full flex flex-col items-center gap-4 z-10 h-full justify-end">
+                  <motion.div 
+                    initial={{ height: 0 }} 
+                    animate={{ height: `${(item.valeur / maxVal) * 100}%` }} 
+                    transition={{ duration: 1.5, delay: i * 0.1, ease: "circOut" }}
+                    className="w-full bg-[#0B84D8] rounded-2xl opacity-80 hover:opacity-100 transition-all cursor-pointer relative group/bar shadow-lg shadow-blue-500/10"
+                  >
+                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] font-black px-3 py-1.5 rounded-xl opacity-0 group-hover/bar:opacity-100 transition-opacity whitespace-nowrap shadow-xl">
+                      {item.valeur} DOSSIERS
+                    </div>
+                  </motion.div>
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{item.mois}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="h-48 flex items-center justify-center text-gray-400 italic text-sm">
+              Aucune donnée disponible pour cette période
+            </div>
+          )}
         </div>
 
         {/* Perf Destinations */}

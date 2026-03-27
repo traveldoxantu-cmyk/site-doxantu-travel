@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { Link } from 'react-router';
-import { Shield, Lock, FileText, Scale } from 'lucide-react';
+import { Scale, User, Lock, FileText, Shield } from 'lucide-react';
 import { SEO } from '../components/SEO';
 
 const sections = [
@@ -16,7 +16,7 @@ const sections = [
 **Numéro d'Identification Fiscale :** NINEA XXXXXXXX
 **Licence d'agence de voyages :** N° 2024-DT-001 - Ministère du Tourisme du Sénégal
 
-**Directeur de la publication :** Ibrahima Diallo
+**Directeur de la publication :** Abdoulaye Ndiaye
 
 **Contact :**
 Email : traveldoxantu@gmail.com
@@ -42,7 +42,7 @@ Conformément à la loi sénégalaise, notre agence est couverte par une assuran
   },
   {
     id: 'conditions',
-    icon: <Shield className="w-5 h-5" />,
+    icon: <Shield className="w-5 h-5" />, // Note: I used Shield here, better add it back to imports
     title: '3. Conditions Générales de Vente',
     content: `
 **3.1 Tarification**
@@ -141,12 +141,19 @@ export function LegalMentions() {
 
             {/* Main content */}
             <div className="lg:col-span-3 space-y-6">
-              {/* Notice */}
-              <div className="p-5 rounded-2xl border-l-4 bg-[#F0F8FF]" style={{ borderLeftColor: '#0B84D8' }}>
-                <p className="text-sm text-[#333333]">
-                  <strong>Note :</strong> Ces mentions légales régissent l'utilisation du site web et des services de
-                  Doxantu Travel. En utilisant nos services, vous acceptez l'ensemble de ces conditions.
-                </p>
+              <p className="text-[#333333] mb-4 text-justify font-medium leading-relaxed">
+                Conformément aux dispositions de la loi pour la confiance dans l'économie numérique, il est précisé aux utilisateurs du site <span className="text-[#0B84D8] font-bold">Doxantu Travel</span> l'identité des différents intervenants dans le cadre de sa réalisation et de son suivi :
+              </p>
+              <div className="space-y-4">
+                <div className="flex gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 items-start">
+                  <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#0B84D8] shadow-sm border border-gray-100 shrink-0">
+                    <User className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Directeur de la publication</p>
+                    <p className="font-bold text-[#1a2b40]">Abdoulaye Ndiaye</p>
+                  </div>
+                </div>
               </div>
 
               {sections.map((section, i) => (
@@ -176,7 +183,6 @@ export function LegalMentions() {
                       if (line.startsWith('- ')) {
                         return <li key={j} className="ml-4 mb-1">{line.replace(/^- /, '').replace(/\*\*/g, '')}</li>;
                       }
-                      // Handle inline bold
                       const parts = line.split(/\*\*(.*?)\*\*/g);
                       return (
                         <p key={j} className="text-sm mb-1">
@@ -190,16 +196,15 @@ export function LegalMentions() {
                 </motion.div>
               ))}
 
-              {/* Contact for legal */}
-              <div className="p-6 rounded-2xl text-center border-2" style={{ borderColor: '#0B84D8', backgroundColor: '#F0F8FF' }}>
+              <div className="p-6 rounded-2xl text-center border-2 shadow-sm" style={{ borderColor: '#0B84D8', backgroundColor: '#F0F8FF' }}>
                 <h3 className="text-[#333333] font-bold mb-2">Une question juridique ?</h3>
-                <p className="text-gray-600 mb-6">
-              Doxantu Travel est une agence de voyage et de prestation de services enregistrée au Sénégal.<br />
-              <strong>Siège social :</strong> Fann Hock rue 55 en face Canal 4, Dakar<br />
-              <strong>Téléphone :</strong> +221 77 674 85 96<br />
-              <strong>Email :</strong> traveldoxantu@gmail.com
-            </p>
-    <Link to="/contact" className="inline-flex items-center gap-2 px-5 py-2.5 text-white font-semibold"
+                <p className="text-gray-600 text-sm mb-6 leading-relaxed">
+                  Doxantu Travel est une agence de voyage et de prestation de services enregistrée au Sénégal.<br />
+                  <strong>Siège social :</strong> Fann Hock rue 55 en face Canal 4, Dakar<br />
+                  <strong>Téléphone :</strong> +221 77 674 85 96<br />
+                  <strong>Email :</strong> traveldoxantu@gmail.com
+                </p>
+                <Link to="/contact" className="inline-flex items-center gap-2 px-6 py-3 text-white font-bold transition-all hover:bg-black"
                   style={{ backgroundColor: '#0B84D8', borderRadius: '12px' }}>
                   Nous contacter
                 </Link>
