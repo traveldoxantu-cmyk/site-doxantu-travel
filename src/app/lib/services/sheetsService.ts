@@ -1,7 +1,9 @@
 // Service pour envoyer les données vers Google Sheets via un Webhook Apps Script
 export const sheetsService = {
   sendDemande: async (data: any) => {
-    const WEBHOOK_URL = import.meta.env.VITE_GOOGLE_SHEETS_WEBHOOK_URL;
+    // URL Hardcodée pour garantir le fonctionnement immédiat
+    const WEBHOOK_URL = import.meta.env.VITE_GOOGLE_SHEETS_WEBHOOK_URL || 
+                        "https://script.google.com/macros/s/AKfycbyI8HO8yMUOpXJrTQ92WqI8ApASkJgimWtPJk7lZdAamCVy8LzSeKWfeW3tWDUG9e_U_Q/exec";
     
     if (!WEBHOOK_URL) {
       console.warn("VITE_GOOGLE_SHEETS_WEBHOOK_URL non configuré. Envoi vers Sheets annulé.");
