@@ -133,12 +133,9 @@ export function Home() {
         {/* Floating shapes */}
         <div className="absolute top-32 right-10 w-64 h-64 rounded-full opacity-10" style={{ background: '#7dd3fc', filter: 'blur(80px)' }} />
         <div className="absolute bottom-20 left-10 w-48 h-48 rounded-full opacity-10" style={{ background: '#0B84D8', filter: 'blur(60px)' }} />
-        <div className="absolute left-0 right-0 top-[42%] h-24 opacity-20" style={{ background: 'linear-gradient(90deg, transparent, #7dd3fc, transparent)', filter: 'blur(32px)' }} />
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-14 w-full">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="absolute left-0 right-0 top-[42%] h-24 opacity-20" style={{ background: 'linear-gradient(90deg, transparent, #7dd3fc, transp          <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
             {/* Left: Text */}
-            <motion.div initial="hidden" animate="visible" variants={stagger}>
+            <motion.div initial="hidden" animate="visible" variants={stagger} className="flex flex-col items-center">
               <motion.div variants={fadeUp}>
                 <span className="inline-flex items-center gap-2 text-sm font-medium px-5 py-2.5 rounded-full mb-6"
                   style={{ backgroundColor: 'rgba(255,255,255,0.16)', color: 'white', backdropFilter: 'blur(12px)' }}>
@@ -146,137 +143,67 @@ export function Home() {
                   Agence certifiée Dakar, Sénégal
                 </span>
               </motion.div>
-
+ 
               <motion.h1
                 variants={fadeUp}
                 className="text-white mb-10"
-                style={{ fontSize: 'clamp(2.2rem, 5vw, 4.2rem)', fontWeight: 800, lineHeight: 1.15 }}
+                style={{ fontSize: 'clamp(2.5rem, 6vw, 5rem)', fontWeight: 800, lineHeight: 1.1 }}
               >
                 <span style={{ color: '#7dd3fc' }}>Votre voyage</span> commence<br />
                 ici, en un clic
               </motion.h1>
-
+ 
               <motion.p
                 variants={fadeUp}
-                className="text-blue-100 mb-8 max-w-lg"
-                style={{ fontSize: '1.1rem', lineHeight: 1.65 }}
+                className="text-blue-100 mb-10 max-w-2xl"
+                style={{ fontSize: '1.25rem', lineHeight: 1.65 }}
               >
-                Accompagnement étudiant, billetterie et assistance visa en toute transparence
+                Accompagnement étudiant, billetterie et assistance visa en toute transparence. 
+                Rejoignez des centaines de Sénégalais qui nous font confiance chaque année.
               </motion.p>
-
-              <motion.div variants={fadeUp} className="flex flex-wrap gap-3 mb-10">
+ 
+              <motion.div variants={fadeUp} className="flex flex-wrap justify-center gap-4 mb-14">
                 <Link
-                  to="/services/accompagnement-etudiant"
-                  className="inline-flex items-center gap-2 px-8 py-4 font-semibold transition-all hover:bg-white hover:text-[#0B84D8]"
+                  to="/devis"
+                  className="inline-flex items-center gap-2 px-10 py-4 font-bold transition-all hover:shadow-[0_0_40px_rgba(11,132,216,0.4)] hover:-translate-y-1"
                   style={{
-                    backgroundColor: 'rgba(255,255,255,0.12)',
+                    backgroundColor: '#0B84D8',
                     color: 'white',
-                    borderRadius: '14px',
-                    border: '1.5px solid rgba(255,255,255,0.3)',
-                    backdropFilter: 'blur(10px)',
-                    fontSize: '1rem',
+                    borderRadius: '16px',
+                    fontSize: '1.1rem',
                   }}
                 >
-                  Campus France →
+                  Faire ma demande →
+                </Link>
+                <Link
+                  to="/a-propos"
+                  className="inline-flex items-center gap-2 px-10 py-4 font-bold transition-all hover:bg-white/10"
+                  style={{
+                    backgroundColor: 'rgba(255,255,255,0.1)',
+                    color: 'white',
+                    borderRadius: '16px',
+                    border: '1.5px solid rgba(255,255,255,0.2)',
+                    backdropFilter: 'blur(10px)',
+                    fontSize: '1.1rem',
+                  }}
+                >
+                  En savoir plus
                 </Link>
               </motion.div>
-
+ 
               {/* Stats bar */}
-              <motion.div variants={fadeUp} className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <motion.div variants={fadeUp} className="grid grid-cols-2 sm:grid-cols-4 gap-6 w-full max-w-3xl">
                 {stats.map((s) => (
-                  <div key={s.label} className="text-center p-3.5 rounded-2xl border border-white/10" style={{ backgroundColor: 'rgba(82,136,177,0.35)', backdropFilter: 'blur(12px)' }}>
-                    <div className="flex justify-center mb-1" style={{ color: '#7dd3fc' }}>{s.icon}</div>
-                    <div className="text-white font-bold text-lg">{s.value}</div>
-                    <div className="text-blue-200 text-xs">{s.label}</div>
+                  <div key={s.label} className="text-center p-5 rounded-3xl border border-white/10" style={{ backgroundColor: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)' }}>
+                    <div className="flex justify-center mb-2" style={{ color: '#7dd3fc' }}>{s.icon}</div>
+                    <div className="text-white font-bold text-xl">{s.value}</div>
+                    <div className="text-blue-200 text-[10px] uppercase tracking-wider font-bold">{s.label}</div>
                   </div>
                 ))}
               </motion.div>
             </motion.div>
-
-            {/* Right: Search Engine */}
-            <motion.div
-              initial={{ opacity: 0, x: 40 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7, delay: 0.3 }}
-            >
-              <div
-                className="p-8 shadow-2xl border border-gray-100"
-                style={{
-                  backgroundColor: 'rgba(250,250,252,0.98)',
-                  borderRadius: '24px',
-                  backdropFilter: 'blur(20px)',
-                }}
-              >
-                <div className="mb-6">
-                  <h2 className="text-[#333333] font-bold mb-1 flex items-center gap-2" style={{ fontSize: '1.8rem' }}>
-                    <Send className="w-6 h-6 text-[#0B84D8]" /> Faire ma demande
-                  </h2>
-                  <p className="text-gray-400 text-sm">En moins de 3 clics</p>
-                </div>
-
-                <form onSubmit={handleSearch} className="space-y-4">
-                  {/* Destination */}
-                  <div className="relative">
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-                      Destination
-                    </label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#0B84D8]" />
-                      <select
-                        value={destination}
-                        onChange={(e) => setDestination(e.target.value)}
-                        className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:border-transparent bg-gray-50 appearance-none"
-                        style={{ borderRadius: '16px', ['--tw-ring-color' as string]: '#0B84D8' }}
-                      >
-                        <option value="">Choisir un pays…</option>
-                        <option value="france">🇫🇷 France</option>
-                        <option value="canada">🇨🇦 Canada</option>
-                        <option value="maroc">🇲🇦 Maroc</option>
-                        <option value="turquie">🇹🇷 Turquie</option>
-                        <option value="autres">🌍 Autres destinations</option>
-                      </select>
-                    </div>
-                  </div>
-
-
-                  {/* Service */}
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5">
-                      Type de service
-                    </label>
-                    <div className="relative">
-                      <Briefcase className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#0B84D8]" />
-                      <select
-                        value={service}
-                        onChange={(e) => setService(e.target.value)}
-                        className="w-full pl-11 pr-4 py-3.5 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#0B84D8]/50 focus:border-[#0B84D8] transition-all appearance-none"
-                      >
-                        <option value="">Choisir un service…</option>
-                        <option value="campus-france">Accompagnement Étudiant</option>
-                        <option value="billet-retour">Billetterie</option>
-                        <option value="visa-etudiant">Assistance Visa</option>
-                        <option value="etudes-etranger">Études à l'Étranger</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={!destination && !service}
-                    className="w-full py-4 text-white font-bold transition-all hover:shadow-2xl hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95"
-                    style={{ 
-                      background: 'linear-gradient(135deg, #0B84D8 0%, #0861a1 100%)', 
-                      borderRadius: '16px', 
-                      fontSize: '1rem',
-                      boxShadow: '0 10px 25px -5px rgba(11, 132, 216, 0.4)'
-                    }}
-                  >
-                    🚀 Faire ma demande →
-                  </button>
-                </form>
-
-                <p className="text-center text-xs text-gray-400 mt-4 flex items-center justify-center gap-1">
-                  <Shield className="w-3 h-3" /> Gratuit et sans engagement · Réponse en 24h
+          </div>
+                <Shield className="w-3 h-3" /> Gratuit et sans engagement · Réponse en 24h
                 </p>
               </div>
             </motion.div>
