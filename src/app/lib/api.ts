@@ -39,101 +39,104 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
         urlPath = pathParts[0];
         recordId = pathParts[1];
     }
-    
+
+    // Mapping logique des routes vers les vraies tables Supabase
     const tableMap: Record<string, string> = {
-        'users': 'profiles',
-        'demandes': 'demandes',
-        'adminStats': 'admin_stats',
-        'chartData': 'chart_data',
-        'dossiersByStatut': 'dossiers_statut',
-        'conseillers': 'conseillers',
-        'conseillers_full': 'conseillers',
+        'users':             'users',
+        'profiles':          'profiles',
+        'profil':            'profiles',
+        'clients':           'profiles',
+        'demandes':          'demandes',
+        'adminStats':        'admin_stats',
+        'admin_stats':       'admin_stats',
+        'chartData':         'chart_data',
+        'chart_data':        'chart_data',
+        'dossiersByStatut':  'dossiers_statut',
+        'dossiers_statut':   'dossiers_statut',
+        'conseillers':       'conseillers',
+        'conseiller':        'conseillers',
+        'conseillers_full':  'conseillers',
         'derniersPaiements': 'paiements',
-        'profil': 'profiles',
-        'user_documents': 'user_documents',
-        'userDocuments': 'user_documents',
-        'quickStats': 'quick_stats',
-        'timeline': 'timeline',
-        'deadlines': 'deadlines',
-        'statsWidget': 'stats_widget',
-        'submissions': 'submissions',
-        'clients': 'profiles',
-        'transactions': 'paiements',
-        'notifications': 'notifications',
-        'messages': 'messages',
-        'conversations': 'conversations',
-        'dossierSteps': 'timeline'
+        'transactions':      'paiements',
+        'paiements':         'paiements',
+        'user_documents':    'user_documents',
+        'userDocuments':     'user_documents',
+        'quickStats':        'quick_stats',
+        'quick_stats':       'quick_stats',
+        'timeline':          'timeline',
+        'dossierSteps':      'timeline',
+        'deadlines':         'deadlines',
+        'messages':          'messages',
+        'conversations':     'conversations',
+        'notifications':     'notifications',
+        'dossiers':          'demandes',  // Alias : dossiers → demandes (même concept)
     };
 
-    // Auto-fallback: use path as table name if not in map (convert to snake_case)
+    // Auto-fallback: utilise le nom de route converti en snake_case
     const table = tableMap[urlPath] || urlPath.replace(/[A-Z]/g, (l) => `_${l.toLowerCase()}`);
 
-    // Gestion des requêtes GET
+    // ── GET ──────────────────────────────────────────────────────────────────
     if (!options || options.method === 'GET' || !options.method) {
-        let query: any;
-        
-        // Optimisation pour les vues admin qui ont besoin du profil
-        if (table === 'users' || table === 'clients') {
-            query = supabase.from('users').select('*, profil(*)');
-        } else {
-            query = supabase.from(table).select('*');
-        }
-        
+        let query: any = supabase.from(table).select('*');
+
         if (recordId) {
-            query = query.eq('id', recordId);
+            // admin_stats utilise une clé TEXT (pas UUID)
+            if (table === 'admin_stats') {
+                query = query.eq('key', recordId);
+            } else {
+                query = query.eq('id', recordId);
+            }
         }
 
         if (path.includes('?')) {
             const params = new URLSearchParams(path.split('?')[1]);
             params.forEach((val, key) => {
-                if (key !== '_sort' && key !== '_order' && key !== '_limit' && key !== 'id') {
-                    const snakeKey = key.replace(/[A-Z]/g, (l) => `_${l.toLowerCase()}`);
-                    query = query.eq(snakeKey, val);
-                }
-                if (key === 'id') {
-                    query = query.eq('id', val);
-                }
+                if (key === '_sort' || key === '_order' || key === '_limit') return;
+                const snakeKey = key.replace(/[A-Z]/g, (l) => `_${l.toLowerCase()}`);
+                query = query.eq(snakeKey, val);
             });
-            
-            if (params.get('_sort')) {
-                const sortKey = (params.get('_sort') as string).replace(/[A-Z]/g, (l) => `_${l.toLowerCase()}`);
-                query = query.order(sortKey, { ascending: params.get('_order') !== 'desc' });
+
+            const sortKey = params.get('_sort');
+            if (sortKey) {
+                const snakeSortKey = sortKey.replace(/[A-Z]/g, (l) => `_${l.toLowerCase()}`);
+                query = query.order(snakeSortKey, { ascending: params.get('_order') !== 'desc' });
             }
-            if (params.get('_limit')) {
-                query = query.limit(parseInt(params.get('_limit') as string));
+            const limit = params.get('_limit');
+            if (limit) {
+                query = query.limit(parseInt(limit));
             }
         }
 
         const { data, error } = await query;
-        if (error) throw error;
 
-        if (data) {
-            // Special handling for single records or /table/id
-            if (recordId && data.length > 0) {
-                return toCamel(data[0]) as T;
+        // Gestion propre des erreurs RLS / tables vides
+        if (error) {
+            if (error.code === 'PGRST116') return null as unknown as T; // no rows
+            if (error.code === '42501') {
+                console.warn(`[RLS] Accès refusé sur ${table}:`, error.message);
+                return (Array.isArray(data) ? [] : null) as unknown as T;
             }
-
-            // Tables spéciales qui stockent leur contenu dans une colonne JSONB (value)
-            const specialTables = ['admin_stats', 'stats_widget'];
-            if (specialTables.includes(table)) {
-                if (data.length > 0) {
-                    const item = data[0] as any;
-                    const content = item.value !== undefined ? item.value : item.data !== undefined ? item.data : item;
-                    return toCamel(content) as T;
-                }
-                return null as unknown as T;
-            }
-
-            // Pour 'profil', on traite le record normalement (toCamel s'occupe de avatar_url -> avatarUrl)
-            if (table === 'profil') {
-                return (data.length > 0 ? toCamel(data[0]) : null) as unknown as T;
-            }
-
-            return toCamel(data) as unknown as T;
+            throw error;
         }
+
+        if (!data) return ([] as unknown) as T;
+
+        // Record unique demandé
+        if (recordId && Array.isArray(data) && data.length > 0) {
+            return toCamel(data[0]) as T;
+        }
+
+        // Tables admin_stats : extraire la valeur JSONB
+        if (table === 'admin_stats' && Array.isArray(data) && data.length > 0) {
+            const item = data[0] as any;
+            const content = item.value !== undefined ? item.value : item;
+            return toCamel(content) as T;
+        }
+
+        return toCamel(data) as unknown as T;
     }
-    
-    // Gestion des requêtes POST / PUT / PATCH / DELETE
+
+    // ── POST / PUT / PATCH / DELETE ──────────────────────────────────────────
     const method = options?.method || 'GET';
     if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
         const body = options?.body ? toSnake(JSON.parse(options.body as string)) : {};
@@ -143,19 +146,26 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
             result = await supabase.from(table).insert(body).select();
         } else if (method === 'DELETE') {
             const deleteId = recordId || new URLSearchParams(path.split('?')[1] || '').get('id');
-            if (!deleteId) throw new Error("ID required for DELETE request");
+            if (!deleteId) throw new Error('ID required for DELETE request');
             result = await supabase.from(table).delete().eq('id', deleteId);
             return {} as T;
         } else {
             // PUT or PATCH
             const { id, ...updateData } = body;
             const targetId = recordId || id || new URLSearchParams(path.split('?')[1] || '').get('id');
-            if (!targetId) throw new Error("ID required for UPDATE request");
+            if (!targetId) throw new Error('ID required for UPDATE request');
             result = await supabase.from(table).update(updateData).eq('id', targetId).select();
         }
 
-        if (result.error) throw result.error;
-        if (result.data) return toCamel(result.data[0]) as T;
+        if (result.error) {
+            if (result.error.code === '42501') {
+                console.warn(`[RLS] Accès refusé pour ${method} sur ${table}`);
+                throw new Error(`Accès refusé. Vérifiez que vous êtes connecté.`);
+            }
+            throw result.error;
+        }
+        if (result.data && result.data.length > 0) return toCamel(result.data[0]) as T;
+        return {} as T;
     }
 
     throw new Error(`Unsupported request: ${method} to ${path}`);

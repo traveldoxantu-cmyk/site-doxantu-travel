@@ -21,6 +21,8 @@ import {
 import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission';
 import { apiFetch } from '../lib/api';
 import { useUser } from '../lib/context/UserContext';
+import { sheetsService } from '../lib/services/sheetsService';
+
 const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
 const services = [
@@ -99,6 +101,21 @@ export function Ticketing() {
             createdAt: new Date().toISOString()
           })
         });
+
+        // Sync to Google Sheets
+        sheetsService.sendDemande({
+          nom: user?.firstName ? `${user.firstName} ${user.lastName}` : 'Client Web',
+          email: user?.email || '',
+          tel: user?.phone || '',
+          service: 'Billetterie',
+          destination: to,
+          from,
+          departDate,
+          returnDate,
+          passengers,
+          source: 'Formulaire Billetterie'
+        });
+
       } catch (dbErr) {
         // Enregistrement en base échoué mais on continue quand même
         console.warn('Enregistrement DB échoué, continue vers WhatsApp:', dbErr);

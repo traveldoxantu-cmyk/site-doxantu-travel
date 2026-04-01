@@ -1,7 +1,7 @@
 // Service pour envoyer les données vers Google Sheets via un Webhook Apps Script
 export const sheetsService = {
   sendDemande: async (data: any) => {
-    // URL Hardcodée pour garantir le fonctionnement immédiat
+    // Utiliser l'URL de l'environnement ou la nouvelle URL stable
     const WEBHOOK_URL = import.meta.env.VITE_GOOGLE_SHEETS_WEBHOOK_URL || 
                         "https://script.google.com/macros/s/AKfycbyI8HO8yMUOpXJrTQ92WqI8ApASkJgimWtPJk7lZdAamCVy8LzSeKWfeW3tWDUG9e_U_Q/exec";
     
@@ -10,24 +10,34 @@ export const sheetsService = {
       return;
     }
 
+    // Normalisation des données pour le Google Sheet
+    const payload = {
+      nom: data.nom || 'Inconnu',
+      email: data.email || 'Non renseigné',
+      tel: data.tel || 'Non renseigné',
+      service: data.service || 'Demande générale',
+      destination: data.destination || data.to || 'Non spécifiée',
+      message: data.message || 'Aucun message particulier',
+      files: data.files || 'Aucun',
+      timestamp: new Date().toLocaleString('fr-FR'),
+      source: data.source || 'Site Web Doxantu'
+    };
+
     try {
-      // Pour les Apps Script, si on utilise 'no-cors', il vaut mieux envoyer en text/plain
-      // car application/json force un preflight OPTIONS qui échoue souvent sur Apps Script
+      // Utilisation du mode 'no-cors' pour éviter les erreurs CORS avec Google Apps Script
+      // Note: Avec 'no-cors', on ne peut pas lire la réponse, mais l'envoi fonctionne.
       await fetch(WEBHOOK_URL, {
         method: 'POST',
         mode: 'no-cors',
         headers: {
-          'Content-Type': 'text/plain', // Changé de application/json pour éviter CORS issues
+          'Content-Type': 'text/plain',
         },
-        body: JSON.stringify({
-          ...data,
-          timestamp: new Date().toISOString(),
-          source: 'Site Web Doxantu'
-        }),
+        body: JSON.stringify(payload),
       });
-      console.log("Données envoyées vers Google Sheets (mode no-cors)");
+      console.log("Données transmises au CRM Google Sheets");
     } catch (err) {
-      console.error("Erreur d'envoi vers Google Sheets:", err);
+      console.error("Échec de la synchronisation Google Sheets:", err);
     }
   }
 };
+

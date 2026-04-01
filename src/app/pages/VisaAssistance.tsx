@@ -11,6 +11,8 @@ import { supabase } from '../lib/supabase';
 import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission';
 import { useUser } from '../lib/context/UserContext';
 import { useForm } from 'react-hook-form';
+import { sheetsService } from '../lib/services/sheetsService';
+
 
 const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
@@ -176,6 +178,15 @@ export function VisaAssistance() {
       await apiFetch('/demandes', {
         method: 'POST',
         body: JSON.stringify(demandData)
+      });
+
+      
+      // 3. Sync to Google Sheets
+      sheetsService.sendDemande({
+        ...data,
+        ...data.extra,
+        service: selectedService?.title || 'Visa',
+        source: 'Formulaire Visa Assistance'
       });
 
       // 3. WhatsApp Message

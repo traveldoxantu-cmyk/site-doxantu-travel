@@ -2,16 +2,12 @@ import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { FolderOpen, FileText, MessageSquare, Calendar as CalendarIcon, Clock, CheckCircle2, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router';
-import { apiFetch } from '../lib/api';
 import { supabase } from '../lib/supabase';
+import { useUser } from '../lib/context/UserContext';
 import { SEO } from '../components/SEO';
-import {
-    type QuickStat,
-    type TimelineItem,
-    type Deadline,
-    type StatsWidget,
-    type Conseiller,
-} from '../lib/services/dashboardService';
+import type { TimelineItem, Deadline, Conseiller } from '../lib/services/dashboardService';
+
+interface QuickStat { id: string; label: string; value: string; category: string; }
 
 const STAT_STYLES: Record<string, { icon: React.ElementType; color: string; bg: string }> = {
     dossier:    { icon: FolderOpen,     color: 'text-[#0B84D8]',    bg: 'bg-[#E8F4FD]' },
@@ -27,113 +23,121 @@ const DEADLINE_STYLES: Record<string, { color: string; bg: string; dot: string }
 };
 
 export function Dashboard() {
-    const [user, setUser]                 = useState<any>(null);
-    const [loading, setLoading]           = useState(true);
-    const [quickStats, setQuickStats]     = useState<QuickStat[]>([]);
-    const [timeline, setTimeline]         = useState<TimelineItem[]>([]);
-    const [deadlines, setDeadlines]       = useState<Deadline[]>([]);
-    const [statsWidget, setStatsWidget]   = useState<StatsWidget | null>(null);
-    const [conseiller, setConseiller]     = useState<Conseiller | null>(null);
+    const { user } = useUser();
+    const [loading, setLoading]         = useState(true);
+    const [profile, setProfile]         = useState<any>(null);
+    const [quickStats, setQuickStats]   = useState<QuickStat[]>([]);
+    const [timeline, setTimeline]       = useState<TimelineItem[]>([]);
+    const [deadlines, setDeadlines]     = useState<Deadline[]>([]);
+    const [conseiller, setConseiller]   = useState<Conseiller | null>(null);
+    const [docCount, setDocCount]       = useState({ fait: 0, total: 5 });
+    const [msgCount, setMsgCount]       = useState(0);
 
     useEffect(() => {
-        const loadUserAndData = async () => {
-            let currentUser = user;
-            if (!currentUser) {
-                const storedUser = localStorage.getItem('user');
-                if (storedUser) {
-                    currentUser = JSON.parse(storedUser);
-                    setUser(currentUser);
+        if (!user?.id || !supabase) {
+            setLoading(false);
+            return;
+        }
+
+        const loadData = async () => {
+            setLoading(true);
+            try {
+                // Charger en parallèle : profil, timeline, deadlines, docs, conseiller, messages
+                const [
+                    { data: prof },
+                    { data: tl },
+                    { data: dl },
+                    { data: docs },
+                    { data: cons },
+                    { data: msgs },
+                ] = await Promise.all([
+                    supabase!.from('profiles').select('*').eq('id', user.id).single(),
+                    supabase!.from('timeline').select('*').eq('user_id', user.id).order('date'),
+                    supabase!.from('deadlines').select('*').eq('user_id', user.id).order('date'),
+                    supabase!.from('user_documents').select('id').eq('user_id', user.id),
+                    supabase!.from('conseillers').select('*').limit(1),
+                    supabase!.from('messages').select('id').eq('status', 'unread').limit(99),
+                ]);
+
+                const p = prof || {};
+                setProfile(p);
+
+                const avancement = p.avancement ?? 0;
+                const destination = p.destination || 'Non définie';
+                const dossierId = p.dossier_id || '—';
+                const docsCount = (docs || []).length;
+                const unreadMsgs = (msgs || []).length;
+
+                setDocCount({ fait: docsCount, total: p.etapes_total ?? 5 });
+                setMsgCount(unreadMsgs);
+
+                setQuickStats([
+                    { id: '1', label: 'Mon Dossier',  value: dossierId !== '—' ? dossierId : 'En attente ouverture',             category: 'dossier' },
+                    { id: '2', label: 'Documents',      value: `${docsCount} envoyé${docsCount > 1 ? 's' : ''}`,                  category: 'documents' },
+                    { id: '3', label: 'Messagerie',     value: unreadMsgs > 0 ? `${unreadMsgs} non lu${unreadMsgs > 1 ? 's' : ''}` : 'Aucun message', category: 'messagerie' },
+                    { id: '4', label: 'Avancement',    value: `${avancement}% — ${destination}`,                                 category: 'echeances' },
+                ]);
+
+                // Timeline depuis Supabase ou fallback accueil
+                if (tl && tl.length > 0) {
+                    setTimeline(tl.map(t => ({
+                        id: t.id,
+                        title: t.title,
+                        date: t.date,
+                        status: t.status as 'completed' | 'current' | 'upcoming'
+                    })));
                 } else {
-                    const { data: { session } } = await supabase!.auth.getSession();
-                    if (session) {
-                        const { data: profile } = await supabase!
-                            .from('profiles')
-                            .select('*')
-                            .eq('id', session.user.id)
-                            .single();
-                        if (profile) {
-                            currentUser = { id: profile.id, firstName: profile.prenom, lastName: profile.nom, role: profile.role };
-                            setUser(currentUser);
-                        }
-                    }
+                    setTimeline([
+                        { id: '1', title: 'Bienvenue chez Doxantu Travel', date: "Aujourd'hui", status: 'current' },
+                        { id: '2', title: 'Soumission de votre première demande', date: 'Bientôt', status: 'upcoming' },
+                        { id: '3', title: 'Constitution du dossier', date: 'À venir', status: 'upcoming' },
+                    ]);
                 }
-            }
 
-            if (currentUser) {
-                const userId = currentUser.id;
-                
-                Promise.all([
-                    apiFetch<any[]>(`/dossiers?user_id=${userId}`),
-                    apiFetch<any[]>(`/notifications?user_id=${userId}&_limit=5`),
-                    apiFetch<Conseiller[]>('/conseillers?_limit=1'),
-                ]).then(([dossiers, , cons]) => {
-                    const myDossier = dossiers && dossiers.length > 0 ? dossiers[0] : null;
-                    
-                    if (myDossier) {
-                        // Mapper le dossier vers les widgets
-                        setQuickStats([
-                            { id: '1', label: 'Mon Dossier', value: `Étape ${myDossier.etapesFaites}/${myDossier.etapesTotal}`, category: 'dossier' },
-                            { id: '2', label: 'Documents', value: `${myDossier.etapesFaites} validés`, category: 'documents' },
-                            { id: '3', label: 'Messagerie', value: '12 messages', category: 'messagerie' },
-                            { id: '4', label: 'Échéances', value: '3 à venir', category: 'echeances' }
-                        ]);
-                        
-                        setStatsWidget({
-                            documents: { fait: myDossier.etapesFaites, total: myDossier.etapesTotal },
-                            messages: 12,
-                            joursRestants: 198
-                        });
+                // Deadlines depuis Supabase ou vide
+                setDeadlines((dl || []).map(d => ({
+                    id: d.id,
+                    title: d.title,
+                    date: d.date,
+                    daysRemaining: d.days_remaining ?? 0,
+                    colorClass: (d.color_class as 'red' | 'amber' | 'emerald') || 'amber',
+                })));
 
-                        // Données mock pour le moment si pas en base
-                        setTimeline(myDossier.timeline || []);
-                        
-                        setDeadlines(myDossier.deadlines || []);
-                    } else {
-                        // FALLBACK pour nouvel utilisateur
-                        setQuickStats([
-                            { id: '1', label: 'Mon Dossier', value: 'En attente', category: 'dossier' },
-                            { id: '2', label: 'Documents', value: '0 envoyé', category: 'documents' },
-                            { id: '3', label: 'Messagerie', value: '0 message', category: 'messagerie' },
-                            { id: '4', label: 'Échéances', value: '0 à venir', category: 'echeances' }
-                        ]);
-                        setStatsWidget({
-                            documents: { fait: 0, total: 5 },
-                            messages: 0,
-                            joursRestants: 0
-                        });
-                        setTimeline([
-                            { title: 'Bienvenue chez Doxantu', date: 'Aujourd\'hui', status: 'current' },
-                            { title: 'Soumission de votre première demande', date: 'Bientôt', status: 'upcoming' }
-                        ] as any);
-                    }
-                    
-                    if (cons && cons.length > 0) setConseiller(cons[0]);
-                }).catch(err => {
-                    console.error("Erreur Dashboard:", err);
-                }).finally(() => setLoading(false));
-            } else {
+                // Conseiller
+                if (cons && cons.length > 0) {
+                    const c = cons[0];
+                    setConseiller({
+                        id: c.id,
+                        nom: c.nom,
+                        initiales: c.initials || c.initiales || c.nom?.[0] || 'C',
+                        online: c.online ?? false,
+                        dernierMessage: c.dernier_message || 'Bonjour ! Comment puis-je vous aider ?',
+                        tempsMessage: c.temps_message || 'Récemment',
+                    });
+                }
+            } catch (err) {
+                console.error('Erreur chargement Dashboard:', err);
+            } finally {
                 setLoading(false);
             }
         };
 
-        loadUserAndData();
+        loadData();
 
-        // Real-time subscription for student dashboard
-        const channel = supabase?.channel('dashboard_updates')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'dossiers' }, () => {
-                loadUserAndData();
-            })
+        // Real-time sur les tables personnelles
+        const channel = supabase
+            ?.channel(`dashboard_${user.id}`)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'timeline', filter: `user_id=eq.${user.id}` }, loadData)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'deadlines', filter: `user_id=eq.${user.id}` }, loadData)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'user_documents', filter: `user_id=eq.${user.id}` }, loadData)
             .subscribe();
 
-        return () => {
-            if (channel) supabase?.removeChannel(channel);
-        };
-    }, []);
+        return () => { supabase?.removeChannel(channel!); };
+    }, [user?.id]);
 
     if (loading) {
         return (
             <div className="space-y-8 pb-10">
-                {/* Banner Skeleton */}
                 <div className="rounded-[32px] p-8 h-48 bg-gray-100 animate-pulse flex items-center justify-between">
                     <div className="space-y-3">
                         <div className="h-8 w-64 bg-gray-200 rounded-lg" />
@@ -141,7 +145,6 @@ export function Dashboard() {
                     </div>
                     <div className="h-20 w-48 bg-gray-200 rounded-2xl hidden md:block" />
                 </div>
-                {/* Stats Grid Skeleton */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                     {[1, 2, 3, 4].map(i => (
                         <div key={i} className="bg-white p-6 rounded-[32px] border border-gray-100 h-32 animate-pulse space-y-4">
@@ -150,21 +153,25 @@ export function Dashboard() {
                         </div>
                     ))}
                 </div>
-                {/* Content Skeleton */}
                 <div className="grid lg:grid-cols-3 gap-8">
-                     <div className="lg:col-span-2 h-96 bg-gray-50 border border-gray-100 rounded-[32px] animate-pulse" />
-                     <div className="h-96 bg-gray-50 border border-gray-100 rounded-[32px] animate-pulse" />
+                    <div className="lg:col-span-2 h-96 bg-gray-50 border border-gray-100 rounded-[32px] animate-pulse" />
+                    <div className="h-96 bg-gray-50 border border-gray-100 rounded-[32px] animate-pulse" />
                 </div>
             </div>
         );
     }
 
+    const avancement = profile?.avancement ?? 0;
+    const destination = profile?.destination || 'Paris, France';
+    const formation = profile?.formation || 'Votre formation';
+
     return (
         <div className="space-y-8 pb-10">
-            <SEO 
-                title="Mon Espace Client" 
-                description="Suivez l'avancement de votre dossier, vos documents et vos échéances en temps réel." 
+            <SEO
+                title="Mon Espace Client"
+                description="Suivez l'avancement de votre dossier, vos documents et vos échéances en temps réel."
             />
+
             {/* Welcome Banner */}
             <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -176,20 +183,20 @@ export function Dashboard() {
                 <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
                         <h1 className="text-3xl font-bold mb-2">
-                            {new Date().getHours() > 17 ? 'Bonsoir' : 'Bonjour'}, {user?.firstName || 'Ami'}
+                            {new Date().getHours() > 17 ? 'Bonsoir' : 'Bonjour'}, {user?.firstName || 'Ami'} 👋
                         </h1>
-                        <p className="text-blue-100 font-medium mb-1">Dossier <span className="text-white font-bold">DXT-2026-0142</span> - {user?.role === 'admin' ? 'Administration' : 'Paris, France'}</p>
-                        <p className="text-blue-200 text-sm">
-                            {user?.role === 'admin' ? 'Gestionnaire de la plateforme Doxantu Travel' : 'Master en Intelligence Artificielle – Université Paris-Saclay'}
+                        <p className="text-blue-100 font-medium mb-1">
+                            {profile?.dossier_id ? `Dossier ${profile.dossier_id}` : 'Dossier en cours d\'ouverture'} — {destination}
                         </p>
+                        <p className="text-blue-200 text-sm">{formation}</p>
                     </div>
                     <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 w-full md:min-w-[200px]">
                         <div className="flex justify-between items-center mb-2">
                             <span className="text-sm font-medium text-blue-100">Avancement global</span>
-                            <span className="text-2xl font-black">33%</span>
+                            <span className="text-2xl font-black">{avancement}%</span>
                         </div>
                         <div className="h-2 bg-white/20 rounded-full overflow-hidden">
-                            <div className="h-full bg-white rounded-full transition-all duration-1000 ease-out" style={{ width: '33%' }} />
+                            <div className="h-full bg-white rounded-full transition-all duration-1000 ease-out" style={{ width: `${avancement}%` }} />
                         </div>
                     </div>
                 </div>
@@ -200,11 +207,9 @@ export function Dashboard() {
                 {quickStats.map((stat, i) => {
                     const styles = STAT_STYLES[stat.category] ?? STAT_STYLES.dossier;
                     const Icon = styles.icon;
-                    const targetLink = stat.category === 'dossier' ? '/mon-espace/dossier' : 
+                    const targetLink = stat.category === 'dossier' ? '/mon-espace/dossier' :
                                      stat.category === 'documents' ? '/mon-espace/documents' :
-                                     stat.category === 'messagerie' ? '/mon-espace/messagerie' :
-                                     stat.category === 'echeances' ? '/mon-espace/echeances' : '/mon-espace/dashboard';
-
+                                     stat.category === 'messagerie' ? '/mon-espace/messagerie' : '/mon-espace/echeances';
                     return (
                         <Link key={i} to={targetLink}>
                             <motion.div
@@ -225,13 +230,15 @@ export function Dashboard() {
             </div>
 
             <div className="grid lg:grid-cols-3 gap-8">
-                {/* Timeline (Left Column: takes 2/3) */}
+                {/* Timeline */}
                 <div className="lg:col-span-2 space-y-6">
                     <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
                         <div className="flex justify-between items-center mb-8">
                             <div>
                                 <h2 className="text-xl font-bold text-[#1a2b40] mb-1">Suivi de mon dossier</h2>
-                                <p className="text-sm text-gray-500">Étape 3 sur 6 en cours</p>
+                                <p className="text-sm text-gray-500">
+                                    {timeline.filter(t => t.status === 'completed').length} étape{timeline.filter(t => t.status === 'completed').length > 1 ? 's' : ''} complétée{timeline.filter(t => t.status === 'completed').length > 1 ? 's' : ''} sur {timeline.length}
+                                </p>
                             </div>
                             <Link to="/mon-espace/dossier" className="text-sm font-semibold text-[#0B84D8] hover:text-[#0973BD] flex items-center gap-1">
                                 Détails <ChevronRight className="w-4 h-4" />
@@ -240,20 +247,21 @@ export function Dashboard() {
 
                         <div className="relative pl-4 border-l-2 border-gray-100 space-y-8">
                             {timeline.map((item, i) => (
-                                <div key={i} className="relative">
-                                    <div className={`absolute -left-[25px] flex items-center justify-center w-6 h-6 rounded-full bg-white ring-4 ring-white ${item.status === 'completed' ? 'text-emerald-500' :
+                                <div key={item.id || i} className="relative">
+                                    <div className={`absolute -left-[25px] flex items-center justify-center w-6 h-6 rounded-full bg-white ring-4 ring-white ${
+                                        item.status === 'completed' ? 'text-emerald-500' :
                                         item.status === 'current' ? 'text-[#0B84D8]' : 'text-gray-300'
-                                        }`}>
+                                    }`}>
                                         {item.status === 'completed' ? <CheckCircle2 className="w-5 h-5 fill-emerald-50 stroke-emerald-500" /> :
-                                            item.status === 'current' ? <Clock className="w-5 h-5 fill-[#E8F4FD]" /> :
-                                                <div className="w-3 h-3 rounded-full bg-gray-200" />}
+                                         item.status === 'current' ? <Clock className="w-5 h-5 fill-[#E8F4FD]" /> :
+                                         <div className="w-3 h-3 rounded-full bg-gray-200" />}
                                     </div>
-
                                     <div className="flex justify-between items-start pt-0.5">
                                         <div>
-                                            <p className={`font-semibold mb-1 ${item.status === 'completed' ? 'text-emerald-700' :
-                                                item.status === 'current' ? 'text-[#1a2b40]' : 'text-gray-400'
-                                                }`}>
+                                            <p className={`font-semibold mb-1 ${
+                                                item.status === 'completed' ? 'text-emerald-700' :
+                                                item.status === 'current'   ? 'text-[#1a2b40]' : 'text-gray-400'
+                                            }`}>
                                                 {item.title}
                                             </p>
                                             {item.status === 'current' && (
@@ -272,16 +280,16 @@ export function Dashboard() {
                     </div>
                 </div>
 
-                {/* Widgets (Right Column: takes 1/3) */}
+                {/* Widgets */}
                 <div className="space-y-6">
-                    {/* Deadlines Widget */}
+                    {/* Deadlines */}
                     <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-lg font-bold text-[#1a2b40]">Échéances</h2>
                             <Link to="/mon-espace/echeances" className="text-sm font-semibold text-[#0B84D8] hover:text-[#0973BD]">Voir tout →</Link>
                         </div>
                         <div className="space-y-4">
-                            {deadlines.map((deadline) => {
+                            {deadlines.length > 0 ? deadlines.map((deadline) => {
                                 const styles = DEADLINE_STYLES[deadline.colorClass] ?? DEADLINE_STYLES.amber;
                                 return (
                                     <div key={deadline.id} className="flex items-center justify-between p-3 rounded-2xl hover:bg-gray-50 transition-colors">
@@ -297,15 +305,17 @@ export function Dashboard() {
                                         </div>
                                     </div>
                                 );
-                            })}
+                            }) : (
+                                <p className="text-sm text-gray-400 text-center py-4">Aucune échéance programmée</p>
+                            )}
                         </div>
                     </div>
 
-                    {/* Advisor Widget */}
+                    {/* Conseiller */}
                     {conseiller && (
                         <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
                             <div className="flex justify-between items-start mb-6">
-                                <h2 className="text-lg font-bold text-[#1a2b40]">Conseiller</h2>
+                                <h2 className="text-lg font-bold text-[#1a2b40]">Mon Conseiller</h2>
                                 <Link to="/mon-espace/messagerie" className="text-sm font-semibold text-[#0B84D8] hover:text-[#0973BD]">Écrire →</Link>
                             </div>
                             <div className="flex items-center gap-4 mb-6">
@@ -313,12 +323,12 @@ export function Dashboard() {
                                     {conseiller.initiales}
                                 </div>
                                 <div className="flex-1">
-                                    <p className="font-bold text-[#1a2b40]">{conseiller.nom || (conseiller as any).name}</p>
+                                    <p className="font-bold text-[#1a2b40]">{conseiller.nom}</p>
                                     {conseiller.online && (
                                         <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 mt-0.5">
                                             <span className="relative flex w-2 h-2">
-                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                                <span className="relative inline-flex rounded-full w-2 h-2 bg-emerald-500"></span>
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                                                <span className="relative inline-flex rounded-full w-2 h-2 bg-emerald-500" />
                                             </span>
                                             En ligne
                                         </div>
@@ -326,7 +336,7 @@ export function Dashboard() {
                                 </div>
                             </div>
                             <div className="bg-[#E8F4FD] rounded-2xl p-4 mb-4 relative">
-                                <div className="absolute top-[-8px] left-6 w-4 h-4 bg-[#E8F4FD] transform rotate-45"></div>
+                                <div className="absolute top-[-8px] left-6 w-4 h-4 bg-[#E8F4FD] transform rotate-45" />
                                 <p className="text-sm text-[#333333] relative z-10 leading-relaxed">
                                     "{conseiller.dernierMessage}"
                                 </p>
@@ -338,29 +348,27 @@ export function Dashboard() {
                         </div>
                     )}
 
-                    {/* Statistics Widget */}
-                    {statsWidget && (
-                        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
-                            <h2 className="text-lg font-bold text-[#1a2b40] mb-6 flex items-center gap-2">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#0B84D8]"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-                                Statistiques
-                            </h2>
-                            <div className="grid grid-cols-3 gap-3">
-                                <div className="bg-[#f3f0ff] rounded-2xl p-3 text-center">
-                                    <p className="text-xl font-bold text-[#6D28D9]">{statsWidget.documents.fait}/{statsWidget.documents.total}</p>
-                                    <p className="text-[10px] text-[#6D28D9] font-medium leading-tight mt-1">Documents</p>
-                                </div>
-                                <div className="bg-[#ecfdf5] rounded-2xl p-3 text-center">
-                                    <p className="text-xl font-bold text-[#059669]">{statsWidget.messages}</p>
-                                    <p className="text-[10px] text-[#059669] font-medium leading-tight mt-1">Messages</p>
-                                </div>
-                                <div className="bg-[#fffbeb] rounded-2xl p-3 text-center">
-                                    <p className="text-xl font-bold text-[#D97706]">{statsWidget.joursRestants}</p>
-                                    <p className="text-[10px] text-[#D97706] font-medium leading-tight mt-1">Jours restants</p>
-                                </div>
+                    {/* Stats widget */}
+                    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+                        <h2 className="text-lg font-bold text-[#1a2b40] mb-6 flex items-center gap-2">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#0B84D8]"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>
+                            Statistiques
+                        </h2>
+                        <div className="grid grid-cols-3 gap-3">
+                            <div className="bg-[#f3f0ff] rounded-2xl p-3 text-center">
+                                <p className="text-xl font-bold text-[#6D28D9]">{docCount.fait}/{docCount.total}</p>
+                                <p className="text-[10px] text-[#6D28D9] font-medium leading-tight mt-1">Documents</p>
+                            </div>
+                            <div className="bg-[#ecfdf5] rounded-2xl p-3 text-center">
+                                <p className="text-xl font-bold text-[#059669]">{msgCount}</p>
+                                <p className="text-[10px] text-[#059669] font-medium leading-tight mt-1">Messages</p>
+                            </div>
+                            <div className="bg-[#fffbeb] rounded-2xl p-3 text-center">
+                                <p className="text-xl font-bold text-[#D97706]">{profile?.avancement ?? 0}%</p>
+                                <p className="text-[10px] text-[#D97706] font-medium leading-tight mt-1">Avancement</p>
                             </div>
                         </div>
-                    )}
+                    </div>
                 </div>
             </div>
         </div>

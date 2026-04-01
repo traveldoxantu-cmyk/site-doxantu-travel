@@ -6,6 +6,7 @@ import Cropper, { Area } from 'react-easy-crop';
 import { profilService, type Profil } from '../lib/services/profilService';
 import { storageService } from '../lib/services/storageService';
 import { getCroppedImg } from '../lib/utils/cropImage';
+import { useUser } from '../lib/context/UserContext';
 
 type SectionItem = {
     icon: React.ElementType;
@@ -27,6 +28,7 @@ const settingsSections: { title: string; items: SectionItem[] }[] = [
 ];
 
 export function Profil() {
+    const { user, logout } = useUser();
     const [profil, setProfil] = useState<Profil | null>(null);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState<boolean>(false);
@@ -39,37 +41,48 @@ export function Profil() {
     const [isCropModalOpen, setIsCropModalOpen] = useState(false);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        const sessionUser = storedUser ? JSON.parse(storedUser) : null;
+        const userId = user?.id;
+        if (!userId) {
+            setLoading(false);
+            return;
+        }
 
-        if (sessionUser) {
-            profilService.getProfil(sessionUser.id)
-                .then(data => {
+        profilService.getProfil(userId)
+            .then(data => {
+                if (data) {
                     setProfil({
                         ...data,
-                        id: sessionUser.id,
-                        nom: sessionUser.firstName && sessionUser.lastName ? `${sessionUser.firstName} ${sessionUser.lastName}` : (data?.nom || 'Utilisateur'),
-                        email: sessionUser.email,
-                        telephone: sessionUser.phone || data?.telephone,
-                        initiales: sessionUser.initiales || data?.initiales || 'U'
+                        id: userId,
+                        nom: data.nom || (user ? `${user.firstName} ${user.lastName}` : 'Utilisateur'),
+                        email: user?.email || (data as any).email,
+                        telephone: (data as any).tel || (data as any).telephone || user?.phone,
+                        initiales: (data as any).initiales || user?.initiales || 'U',
                     });
-                })
-                .catch(err => {
-                    console.warn("Profil non trouvé en base, utilisation des données locales:", err);
+                } else {
+                    // Fallback sur les données du contexte
                     setProfil({
-                        id: sessionUser.id,
-                        nom: `${sessionUser.firstName} ${sessionUser.lastName}`,
-                        email: sessionUser.email,
-                        telephone: sessionUser.phone || '',
-                        initiales: sessionUser.initiales || 'U',
-                        role: sessionUser.role
+                        id: userId,
+                        nom: user ? `${user.firstName} ${user.lastName}` : 'Utilisateur',
+                        email: user?.email,
+                        telephone: user?.phone,
+                        initiales: user?.initiales || 'U',
+                        role: user?.role,
                     } as any);
-                })
-                .finally(() => setLoading(false));
-        } else {
-            setLoading(false);
-        }
-    }, []);
+                }
+            })
+            .catch(err => {
+                console.warn('Profil non accessible:', err);
+                setProfil({
+                    id: userId,
+                    nom: user ? `${user.firstName} ${user.lastName}` : 'Utilisateur',
+                    email: user?.email,
+                    telephone: user?.phone,
+                    initiales: user?.initiales || 'U',
+                    role: user?.role,
+                } as any);
+            })
+            .finally(() => setLoading(false));
+    }, [user]);
 
     const onCropComplete = (_croppedArea: Area, croppedAreaPixels: Area) => {
         setCroppedAreaPixels(croppedAreaPixels);
@@ -373,7 +386,9 @@ export function Profil() {
                         </button>
                     </div>
 
-                    <button className="w-full flex items-center justify-center gap-3 p-4 text-red-500 font-bold border-2 border-dashed border-red-50 hover:bg-red-50 hover:border-red-100 transition-all rounded-[24px] text-sm group font-sans">
+                    <button 
+                        onClick={logout}
+                        className="w-full flex items-center justify-center gap-3 p-4 text-red-500 font-bold border-2 border-dashed border-red-50 hover:bg-red-50 hover:border-red-100 transition-all rounded-[24px] text-sm group font-sans">
                         <LogOut className="w-5 h-5 group-hover:rotate-12 transition-transform" />
                         Se déconnecter de la session
                     </button>

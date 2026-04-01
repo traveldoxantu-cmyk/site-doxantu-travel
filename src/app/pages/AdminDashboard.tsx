@@ -97,38 +97,51 @@ export function AdminDashboard() {
     const fetchData = useCallback(() => {
         setLoading(true);
         Promise.all([
-            apiFetch<AdminStats>('/admin_stats/1'), // Récupère la ligne ID=1
+            // admin_stats : clé TEXT 'general_stats'
+            supabase?.from('admin_stats').select('value').eq('key', 'general_stats').single()
+                .then(r => r?.data?.value ?? null),
             apiFetch<ChartPoint[]>('/chart_data'),
             apiFetch<StatutItem[]>('/dossiers_statut'),
             apiFetch<any[]>('/paiements?_limit=5&_sort=created_at&_order=desc'),
-            apiFetch<any[]>('/dossiers?urgent=true'), // On récupère les dossiers urgents
+            // Clients urgents : clients avec champ urgent=true dans profiles
+            supabase?.from('profiles').select('id, nom, prenom, initiales, dossier_id, destination, avancement')
+                .eq('urgent' as any, true).limit(5)
+                .then(r => r?.data ?? []),
             apiFetch<Demande[]>('/demandes?_limit=5&_sort=created_at&_order=desc'),
         ]).then(([s, c, st, p, dUrgent, dem]) => {
             const storedUser = localStorage.getItem('user');
             if (storedUser) setUser(JSON.parse(storedUser));
-            
-            setStats(s || null); 
-            setChart(c || []); 
-            setStatuts(st || []); 
-            
-            // Mapper les paiements pour l'affichage (client_nom -> client)
+
+            setStats(s || null);
+            setChart(c || []);
+            setStatuts(st || []);
+
             setPaiements((p || []).map(pay => ({
                 ...pay,
-                client: pay.clientNom || 'Client inconnu'
+                client: pay.clientNom || pay.client || 'Client inconnu'
             })));
-            
-            // Mapper les dossiers urgents pour le composant (id -> dossierId)
-            setUrgent((dUrgent || []).map(d => ({
-                ...d,
-                nom: d.clientNom || 'Dossier #' + d.numeroDossier,
-                dossierId: d.numeroDossier,
-                initiales: d.clientInitiales || 'DX'
+
+            // Mapper les profils urgents
+            setUrgent(((dUrgent as any[]) || []).map(d => ({
+                id: d.id,
+                nom: `${d.prenom || ''} ${d.nom || ''}`.trim() || 'Client',
+                initiales: d.initiales || 'DX',
+                dossierId: d.dossier_id || '—',
+                destination: d.destination || '—',
+                formation: '',
+                statut: 'urgent',
+                etape: 0,
+                etapesTotal: 6,
+                dateCreation: '',
+                conseiller: '',
+                avancement: d.avancement || 0,
+                urgent: true,
+                conseillerNom: null,
             })));
 
             setDemandes(dem || []);
         }).catch(err => {
-            console.error("Erreur lors du chargement du dashboard admin:", err);
-            // toast.error("Erreur de chargement des données.");
+            console.error('Erreur lors du chargement du dashboard admin:', err);
         }).finally(() => setLoading(false));
     }, []);
 
