@@ -143,7 +143,18 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
         let result;
 
         if (method === 'POST') {
-            result = await supabase.from(table).insert(body).select();
+            // Pour les insertions, on n'utilise pas .select() par défaut car cela peut échouer 
+            // si l'utilisateur a le droit d'insérer mais pas de lire (RLS).
+            result = await supabase.from(table).insert(body);
+            
+            if (result.error) {
+                console.error(`[API Error] POST ${table}:`, result.error);
+                if (result.error.code === '42501') {
+                    throw new Error(`Accès refusé. Vérifiez vos permissions sur la table ${table}.`);
+                }
+                throw result.error;
+            }
+            return body as T; // On retourne le corps envoyé par défaut en cas de succès
         } else if (method === 'DELETE') {
             const deleteId = recordId || new URLSearchParams(path.split('?')[1] || '').get('id');
             if (!deleteId) throw new Error('ID required for DELETE request');
