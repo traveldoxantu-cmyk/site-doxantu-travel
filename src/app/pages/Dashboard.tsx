@@ -39,8 +39,28 @@ export function Dashboard() {
             return;
         }
 
+        // TENTATIVE DE FAST-CACHE (Affichage immédiat si déjà venu)
+        const cachedData = localStorage.getItem(`dashboard_cache_${user.id}`);
+        if (cachedData) {
+            try {
+                const parsed = JSON.parse(cachedData);
+                if (parsed.stats) setQuickStats(parsed.stats);
+                if (parsed.timeline) setTimeline(parsed.timeline);
+                if (parsed.deadlines) setDeadlines(parsed.deadlines);
+                if (parsed.conseiller) setConseiller(parsed.conseiller);
+                if (parsed.profile) setProfile(parsed.profile);
+                // On enlève le loading si on a du cache (Optimistic UI)
+                setLoading(false);
+            } catch (e) {
+                console.warn("[Dashboard] Cache corrompu:", e);
+            }
+        }
+
         const loadData = async () => {
-            setLoading(true);
+            // On ne remet le loading que si on n'a vraiment rien au départ
+            if (!localStorage.getItem(`dashboard_cache_${user.id}`)) {
+                setLoading(true);
+            }
             try {
                 // Charger en parallèle : profil, timeline, deadlines, docs, conseiller, messages
                 const [
@@ -71,50 +91,62 @@ export function Dashboard() {
                 setDocCount({ fait: docsCount, total: p.etapes_total ?? 5 });
                 setMsgCount(unreadMsgs);
 
-                setQuickStats([
+                const finalStats = [
                     { id: '1', label: 'Mon Dossier',  value: dossierId !== '—' ? dossierId : 'En attente ouverture',             category: 'dossier' },
                     { id: '2', label: 'Documents',      value: `${docsCount} envoyé${docsCount > 1 ? 's' : ''}`,                  category: 'documents' },
                     { id: '3', label: 'Messagerie',     value: unreadMsgs > 0 ? `${unreadMsgs} non lu${unreadMsgs > 1 ? 's' : ''}` : 'Aucun message', category: 'messagerie' },
                     { id: '4', label: 'Avancement',    value: `${avancement}% — ${destination}`,                                 category: 'echeances' },
-                ]);
+                ];
+                setQuickStats(finalStats);
 
                 // Timeline depuis Supabase ou fallback accueil
+                let finalTimeline: TimelineItem[] = [];
                 if (tl && tl.length > 0) {
-                    setTimeline(tl.map(t => ({
+                    finalTimeline = tl.map(t => ({
                         id: t.id,
                         title: t.title,
                         date: t.date,
                         status: t.status as 'completed' | 'current' | 'upcoming'
-                    })));
+                    }));
                 } else {
-                    setTimeline([
+                    finalTimeline = [
                         { id: '1', title: 'Bienvenue chez Doxantu Travel', date: "Aujourd'hui", status: 'current' },
                         { id: '2', title: 'Soumission de votre première demande', date: 'Bientôt', status: 'upcoming' },
                         { id: '3', title: 'Constitution du dossier', date: 'À venir', status: 'upcoming' },
-                    ]);
+                    ];
                 }
+                setTimeline(finalTimeline);
 
                 // Deadlines depuis Supabase ou vide
-                setDeadlines((dl || []).map(d => ({
+                const finalDeadlines = (dl || []).map(d => ({
                     id: d.id,
                     title: d.title,
                     date: d.date,
                     daysRemaining: d.days_remaining ?? 0,
                     colorClass: (d.color_class as 'red' | 'amber' | 'emerald') || 'amber',
-                })));
+                }));
+                setDeadlines(finalDeadlines);
 
-                // Conseiller
-                if (cons && cons.length > 0) {
-                    const c = cons[0];
-                    setConseiller({
-                        id: c.id,
-                        nom: c.nom,
-                        initiales: c.initials || c.initiales || c.nom?.[0] || 'C',
-                        online: c.online ?? false,
-                        dernierMessage: c.dernier_message || 'Bonjour ! Comment puis-je vous aider ?',
-                        tempsMessage: c.temps_message || 'Récemment',
-                    });
-                }
+                const conseillerObj = cons && cons.length > 0 ? {
+                    id: cons[0].id,
+                    nom: cons[0].nom,
+                    initiales: cons[0].initials || cons[0].initiales || cons[0].nom?.[0] || 'C',
+                    online: cons[0].online ?? false,
+                    dernierMessage: cons[0].dernier_message || 'Bonjour ! Comment puis-je vous aider ?',
+                    tempsMessage: cons[0].temps_message || 'Récemment',
+                } : null;
+
+                if (conseillerObj) setConseiller(conseillerObj);
+
+                // SAUVEGARDE DANS LE CACHE POUR LA PROCHAINE FOIS (Turbo-Mode)
+                localStorage.setItem(`dashboard_cache_${user.id}`, JSON.stringify({
+                    stats: finalStats,
+                    timeline: finalTimeline,
+                    deadlines: finalDeadlines,
+                    conseiller: conseillerObj,
+                    profile: p,
+                    lastSync: new Date().getTime()
+                }));
             } catch (err) {
                 console.error('Erreur chargement Dashboard:', err);
             } finally {
