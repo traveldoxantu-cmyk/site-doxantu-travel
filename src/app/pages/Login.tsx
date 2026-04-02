@@ -65,7 +65,12 @@ export function Login() {
                     }
                 });
 
-                if (authError) throw authError;
+                if (authError) {
+                    if (authError.message.includes('already registered')) {
+                        throw new Error("Cette adresse email est déjà utilisée. Connectez-vous plutôt !");
+                    }
+                    throw authError;
+                }
 
                 if (authData.user) {
                     // Mise à jour globale du contexte utilisateur immédiate
