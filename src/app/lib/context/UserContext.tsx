@@ -37,7 +37,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        await syncUserFromSession(session.user.id, session.user.email || '');
+        // Chargement PARALLÈLE : On ne met plus d'await ici
+        syncUserFromSession(session.user.id, session.user.email || '');
       } else {
         // Nettoyage si session expirée
         localStorage.removeItem('user');
