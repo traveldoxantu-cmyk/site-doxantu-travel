@@ -152,7 +152,8 @@ export function Login() {
             
             {/* Ciel étoilé */}
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-                {[...Array(40)].map((_, i) => (
+                {/* Réduction du nombre d'étoiles pour la performance (40 -> 15) */}
+                {[...Array(15)].map((_, i) => (
                     <motion.div
                         key={`star-${i}`}
                         className="absolute bg-white rounded-full"
@@ -164,8 +165,7 @@ export function Login() {
                         }}
                         initial={{ opacity: Math.random() * 0.3 + 0.1 }}
                         animate={{
-                            opacity: [0.2, 0.8, 0.2],
-                            scale: [1, 1.2, 1],
+                            opacity: [0.1, 0.4, 0.1], // Animations plus légères
                         }}
                         transition={{
                             duration: Math.random() * 5 + 5,

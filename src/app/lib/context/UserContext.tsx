@@ -49,10 +49,13 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     initAuth();
 
     // Écouter les changements d'état d'auth en temps réel
-    const { data: { subscription } } = supabase?.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase?.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
-        await syncUserFromSession(session.user.id, session.user.email || '');
-      } else {
+        // Optimisation : Ne pas resynchroniser inutilement sur chaque événement mineur
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+          await syncUserFromSession(session.user.id, session.user.email || '');
+        }
+      } else if (event === 'SIGNED_OUT') {
         localStorage.removeItem('user');
         setUserState(null);
       }
