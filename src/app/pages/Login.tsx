@@ -92,46 +92,36 @@ export function Login() {
 
                 if (authError) {
                     console.error("Login attempt failed:", authError);
-                    if (authError.message === 'Email not confirmed') {
-                        throw new Error("Veuillez confirmer votre adresse email avant de vous connecter.");
+                    // Supabase renvoie parfois "Invalid login credentials" même pour un email non confirmé
+                    // On améliore le message pour l'utilisateur
+                    if (authError.message === 'Email not confirmed' || authError.status === 400) {
+                        throw new Error("Identifiants de connexion invalides ou email non confirmé. Veuillez vérifier votre boîte de réception.");
                     }
                     throw authError;
                 }
 
                 if (authData.user) {
-                        const { data: profile, error: profileError } = await supabase
+                        // Récupération intelligente du profil (ou fallback immédiat)
+                        const { data: profile } = await supabase
                             .from('profiles')
                             .select('*')
                             .eq('id', authData.user.id)
                             .single();
 
-                        if (profileError || !profile) {
-                            console.warn('Profil non trouvé pour', authData.user.id, profileError);
-                            const userObj = {
-                                id: authData.user.id,
-                                email: authData.user.email || '',
-                                firstName: authData.user.user_metadata?.first_name || 'Utilisateur',
-                                lastName: authData.user.user_metadata?.last_name || '',
-                                role: 'client' as const,
-                                initiales: 'U'
-                            };
-                            setGlobalUser(userObj);
-                            toast.success('Connexion réussie !');
-                            navigate('/mon-espace/dashboard');
-                        } else {
-                            const userObj = {
-                                id: authData.user.id,
-                                email: authData.user.email || '',
-                                firstName: profile.prenom || '',
-                                lastName: profile.nom || '',
-                                role: profile.role as 'client' | 'admin',
-                                initiales: profile.initiales || 'U'
-                            };
-                            setGlobalUser(userObj);
-                            toast.success(`Heureux de vous revoir, ${profile.prenom || 'ami'} !`);
-                            const redirectTo = profile.role === 'admin' ? '/admin/dashboard' : '/mon-espace/dashboard';
-                            navigate(redirectTo);
-                        }
+                        const userObj = {
+                            id: authData.user.id,
+                            email: authData.user.email || '',
+                            firstName: profile?.prenom || authData.user.user_metadata?.first_name || 'Utilisateur',
+                            lastName: profile?.nom || authData.user.user_metadata?.last_name || '',
+                            role: (profile?.role as 'client' | 'admin') || 'client',
+                            initiales: profile?.initiales || 'U'
+                        };
+
+                        setGlobalUser(userObj);
+                        toast.success(profile ? `Heureux de vous revoir, ${profile.prenom} !` : 'Connexion réussie !');
+                        
+                        const redirectTo = userObj.role === 'admin' ? '/admin/dashboard' : '/mon-espace/dashboard';
+                        navigate(redirectTo);
                     }
             }
         } catch (err: any) {
