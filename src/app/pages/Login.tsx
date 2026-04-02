@@ -52,22 +52,14 @@ export function Login() {
 
         try {
             if (isRegister) {
-                console.log("🚀 [Auth] Début de l'inscription pour:", email);
                 if (!email.includes('@') || phone.length < 8 || !firstName || !lastName) {
                     setError('Veuillez remplir correctement tous les champs.');
                     setLoading(false);
                     return;
                 }
-                if (password !== confirmPassword) {
-                    setError('Les mots de passe ne correspondent pas.');
-                    setLoading(false);
-                    return;
-                }
 
-                // 1. Création du compte avec TIMEOUT DE SÉCURITÉ (5s)
-                console.log("📡 [Auth] Envoi de la requête Supabase...");
-                
-                const signUpPromise = supabase.auth.signUp({
+                // 1. Création DIRECTE du compte (Pas de timeout complexe)
+                const { data: authData, error: authError } = await supabase.auth.signUp({
                     email: email.trim().toLowerCase(),
                     password,
                     options: {
@@ -79,28 +71,6 @@ export function Login() {
                     }
                 });
 
-                // Timeout de 5 secondes pour informer l'utilisateur si c'est lent
-                const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error("TIMEOUT_DETECTED")), 5000)
-                );
-
-                let result;
-                try {
-                    result = await Promise.race([signUpPromise, timeoutPromise]) as any;
-                } catch (timeoutErr: any) {
-                    if (timeoutErr.message === "TIMEOUT_DETECTED") {
-                        console.warn("⚠️ [Auth] Latence détectée. Tentative de forçage...");
-                        toast.info("Le serveur est un peu lent, mais votre compte est en cours de création...", { duration: 4000 });
-                        // On attend encore un peu la réponse réelle
-                        result = await signUpPromise;
-                    } else {
-                        throw timeoutErr;
-                    }
-                }
-
-                const { data: authData, error: authError } = result;
-                console.log("✅ [Auth] Réponse reçue:", authData ? "Utilisateur créé" : "Erreur");
-
                 if (authError) {
                     if (authError.message.includes('already registered')) {
                         throw new Error("Cette adresse email est déjà utilisée. Connectez-vous plutôt !");
@@ -109,11 +79,9 @@ export function Login() {
                 }
 
                 if (authData.user) {
-                    // REDIRECTION AGRESSIVE : On change de page AVANT tout le reste
-                    console.log("🏎️ [Auth] Redirection immédiate vers le dashboard");
+                    // REDIRECTION PRIORITAIRE
                     navigate('/mon-espace/dashboard');
 
-                    // 2. Mise à jour globale du contexte utilisateur immédiate
                     setGlobalUser({
                         id: authData.user.id,
                         email: authData.user.email || '',
