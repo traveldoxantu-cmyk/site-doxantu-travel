@@ -41,9 +41,9 @@ export function Login() {
         setError('');
 
         try {
-            // Sûreté : Timeout de 4 secondes pour libérer l'UI en cas de réseau capricieux
+            // Sûreté : Timeout augmenté à 8 secondes pour les connections lentes
             const timeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error("Le délai de réponse est dépassé. Veuillez réessayer.")), 4000)
+                setTimeout(() => reject(new Error("Le délai de réponse est un peu long. Vérifiez votre connexion ou réessayez.")), 8000)
             );
 
             if (isRegister) {

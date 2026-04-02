@@ -6,16 +6,10 @@
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
-  -- 1. Création UNIQUE du profil dans public.profiles
-  INSERT INTO public.profiles (id, nom, prenom, tel, role, initiales)
-  VALUES (
-    new.id,
-    COALESCE(new.raw_user_meta_data->>'last_name', 'Doxantu'),
-    COALESCE(new.raw_user_meta_data->>'first_name', 'Client'),
-    COALESCE(new.raw_user_meta_data->>'phone', ''),
-    'client',
-    UPPER(LEFT(COALESCE(new.raw_user_meta_data->>'first_name', 'C'), 1) || LEFT(COALESCE(new.raw_user_meta_data->>'last_name', 'D'), 1))
-  )
+  -- Simplification ATOMIQUE : On insère juste l'ID.
+  -- Le reste est délégué à l'application pour garantir une réponse instantanée d'Auth.
+  INSERT INTO public.profiles (id, email, role)
+  VALUES (new.id, new.email, 'client')
   ON CONFLICT (id) DO NOTHING;
 
   RETURN new;
