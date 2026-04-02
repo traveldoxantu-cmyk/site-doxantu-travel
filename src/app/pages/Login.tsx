@@ -41,102 +41,84 @@ export function Login() {
         setError('');
 
         try {
+            // Sûreté : Timeout de 4 secondes pour libérer l'UI en cas de réseau capricieux
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error("Le délai de réponse est dépassé. Veuillez réessayer.")), 4000)
+            );
+
             if (isRegister) {
                 if (!email.includes('@') || phone.length < 8 || !firstName || !lastName) {
-                    setError('Veuillez remplir correctement tous les champs.');
-                    setLoading(false);
-                    return;
+                    throw new Error('Veuillez remplir correctement tous les champs.');
                 }
 
-                // 1. Création DIRECTE du compte (Pas de timeout complexe)
-                const { data: authData, error: authError } = await supabase.auth.signUp({
-                    email: email.trim().toLowerCase(),
-                    password,
-                    options: {
-                        data: {
-                            first_name: firstName,
-                            last_name: lastName,
-                            phone: phone, 
+                const signUpPromise = (async () => {
+                    const { data: authData, error: authError } = await supabase.auth.signUp({
+                        email: email.trim().toLowerCase(),
+                        password,
+                        options: {
+                            data: {
+                                first_name: firstName,
+                                last_name: lastName,
+                                phone: phone, 
+                            }
                         }
-                    }
-                });
-
-                if (authError) {
-                    if (authError.message.includes('already registered')) {
-                        throw new Error("Cette adresse email est déjà utilisée. Connectez-vous plutôt !");
-                    }
-                    throw authError;
-                }
-
-                if (authData.user) {
-                    // REDIRECTION PRIORITAIRE
-                    navigate('/mon-espace/dashboard');
-
-                    setGlobalUser({
-                        id: authData.user.id,
-                        email: authData.user.email || '',
-                        firstName,
-                        lastName,
-                        phone,
-                        role: 'client',
-                        initiales: `${firstName[0]}${lastName[0]}`.toUpperCase()
                     });
 
-                    toast.success('Bienvenue ! Votre compte est prêt.');
-                    setSuccess(true);
-                }
-            } else {
-                // Logique de CONNEXION via Supabase
-                const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-                    email: email.trim().toLowerCase(),
-                    password
-                });
-
-                if (authError) {
-                    if (authError.message === 'Email not confirmed' || authError.status === 400) {
-                        throw new Error("Identifiants invalides ou email non confirmé.");
+                    if (authError) {
+                        if (authError.message.includes('already registered')) {
+                            throw new Error("Cette adresse email est déjà utilisée. Connectez-vous plutôt !");
+                        }
+                        throw authError;
                     }
-                    throw authError;
-                }
 
-                if (authData.user) {
-                    // REDIRECTION ULTRA-RAPIDE : On n'attend pas le profil complet
-                    const userRole = authData.user.user_metadata?.role || 'client';
-                    const redirectTo = userRole === 'admin' ? '/admin/dashboard' : '/mon-espace/dashboard';
-                    navigate(redirectTo);
-
-                    // Mise à jour asynchrone du contexte avec métadonnées session
-                    const userObj = {
-                        id: authData.user.id,
-                        email: authData.user.email || '',
-                        firstName: authData.user.user_metadata?.first_name || 'Utilisateur',
-                        lastName: authData.user.user_metadata?.last_name || '',
-                        role: userRole as 'client' | 'admin',
-                        initiales: (authData.user.user_metadata?.first_name?.[0] || 'U')
-                    };
-                    setGlobalUser(userObj);
-
-                    // Sync profil en tâche de fond (silencieux)
-                    supabase
-                        .from('profiles')
-                        .select('*')
-                        .eq('id', authData.user.id)
-                        .single()
-                        .then(({ data: profile }) => {
-                            if (profile) {
-                                setGlobalUser({
-                                    id: authData.user.id,
-                                    email: authData.user.email || '',
-                                    firstName: profile.prenom || userObj.firstName,
-                                    lastName: profile.nom || userObj.lastName,
-                                    role: (profile.role as 'client' | 'admin') || userObj.role,
-                                    initiales: profile.initiales || userObj.initiales
-                                });
-                            }
+                    if (authData.user) {
+                        setGlobalUser({
+                            id: authData.user.id,
+                            email: authData.user.email || '',
+                            firstName,
+                            lastName,
+                            role: 'client',
+                            initiales: `${firstName[0]}${lastName[0]}`.toUpperCase()
                         });
+                        toast.success('Bienvenue ! Votre compte est prêt.');
+                        navigate('/mon-espace/dashboard');
+                    }
+                })();
 
-                    toast.success('Bon retour parmi nous !');
-                }
+                await Promise.race([signUpPromise, timeoutPromise]);
+            } else {
+                const signInPromise = (async () => {
+                    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                        email: email.trim().toLowerCase(),
+                        password
+                    });
+
+                    if (authError) {
+                        if (authError.message === 'Email not confirmed' || authError.status === 400) {
+                            throw new Error("Identifiants invalides ou email non confirmé.");
+                        }
+                        throw authError;
+                    }
+
+                    if (authData.user) {
+                        const userRole = authData.user.user_metadata?.role || 'client';
+                        const redirectTo = userRole === 'admin' ? '/admin/dashboard' : '/mon-espace/dashboard';
+                        
+                        const userObj = {
+                            id: authData.user.id,
+                            email: authData.user.email || '',
+                            firstName: authData.user.user_metadata?.first_name || 'Utilisateur',
+                            lastName: authData.user.user_metadata?.last_name || '',
+                            role: userRole as 'client' | 'admin',
+                            initiales: (authData.user.user_metadata?.first_name?.[0] || 'U')
+                        };
+                        setGlobalUser(userObj);
+                        navigate(redirectTo);
+                        toast.success('Bon retour parmi nous !');
+                    }
+                })();
+
+                await Promise.race([signInPromise, timeoutPromise]);
             }
         } catch (err: any) {
             console.error('Erreur Auth complète:', err);

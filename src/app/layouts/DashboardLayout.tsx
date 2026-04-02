@@ -24,17 +24,20 @@ export function DashboardLayout() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     useEffect(() => {
+        // Redirection immédiate seulement si on est SÛR qu'il n'y a pas de session
+        // On laisse le UserProvider tenter ses fallbacks avant de trancher
         if (!loading && !user) {
             navigate('/connexion');
         }
     }, [user, loading, navigate]);
 
-    if (loading) {
+    // On n'affiche le spinner QUE si l'utilisateur est totalement inconnu ET qu'on charge encore
+    if (loading && !user) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
                 <div className="flex flex-col items-center gap-4">
                     <span className="w-12 h-12 border-4 border-[#0B84D8]/30 border-t-[#0B84D8] rounded-full animate-spin" />
-                    <p className="text-gray-500 font-medium">Préparation de votre espace...</p>
+                    <p className="text-gray-500 font-medium">Accès sécurisé en cours...</p>
                 </div>
             </div>
         );

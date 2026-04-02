@@ -66,16 +66,32 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const syncUserFromSession = async (userId: string, email: string) => {
-    // 1. Priorité au localStorage pour un affichage instantané
+    // 0. Récupération des données Auth Session (métadonnées prédictives)
+    // Cela nous donne instantanément un nom/prénom même si le profil n'est pas encore prêt.
+    const { data: { user: authUser } } = await supabase!.auth.getUser();
+    
+    const predictiveProfile: Partial<User> = {
+      id: userId,
+      email,
+      firstName: authUser?.user_metadata?.first_name || 'Ami',
+      lastName: authUser?.user_metadata?.last_name || 'Doxantu',
+      role: (authUser?.user_metadata?.role as 'client' | 'admin') || 'client',
+      initiales: (authUser?.user_metadata?.first_name?.[0] || 'U').toUpperCase()
+    };
+
+    // 1. Priorité extrême au localStorage pour un affichage instantané
     const stored = localStorage.getItem('user');
     if (stored) {
       const parsed = JSON.parse(stored);
       if (parsed.id === userId && parsed.firstName) {
         setUserState(parsed);
       }
+    } else {
+      // Si rien en cache, utiliser le profil prédictif pour éviter l'écran blanc
+      setUserState(predictiveProfile as User);
     }
 
-    // 2. Récupération asynchrone (NE BLOQUE PAS l'UI)
+    // 2. Récupération asynchrone sécurisée du profil complet
     try {
       const { data: profile, error } = await supabase!
         .from('profiles')
@@ -87,8 +103,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         const userObj: User = {
           id: userId,
           email,
-          firstName: profile.prenom || '',
-          lastName: profile.nom || '',
+          firstName: profile.prenom || (predictiveProfile.firstName as string),
+          lastName: profile.nom || (predictiveProfile.lastName as string),
           phone: profile.tel,
           role: (profile.role as 'client' | 'admin') || 'client',
           initiales: profile.initiales || (profile.prenom?.[0] || 'U') + (profile.nom?.[0] || ''),
@@ -96,22 +112,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('user', JSON.stringify(userObj));
         setUserState(userObj);
       } else {
-        // Fallback métadonnées si profil pas encore créé (cas inscription ultra-rapide)
-        const { data: { user: authUser } } = await supabase!.auth.getUser();
-        if (authUser) {
-           const userObj: User = {
-            id: userId,
-            email,
-            firstName: authUser.user_metadata?.first_name || 'Utilisateur',
-            lastName: authUser.user_metadata?.last_name || '',
-            role: (authUser.user_metadata?.role as 'client' | 'admin') || 'client',
-            initiales: (authUser.user_metadata?.first_name?.[0] || 'U')
-          };
-          setUserState(userObj);
-        }
+        // En cas d'échec, on maintient le profil prédictif mais on ne le met pas en cache locale (pour forcer le retry)
+        setUserState(predictiveProfile as User);
       }
     } catch (err) {
       console.warn("[UserContext] Erreur récup profil (silencieuse):", err);
+      if (!user) setUserState(predictiveProfile as User);
     }
   };
 
