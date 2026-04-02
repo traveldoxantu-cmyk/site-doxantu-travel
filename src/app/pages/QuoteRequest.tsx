@@ -115,8 +115,8 @@ export function QuoteRequest() {
         Message: data.message,
       });
       
-      // 2. Enregistrement en base de données
-      await apiFetch('/demandes', {
+      // 2. Enregistrement en base de données (EN ARRIÈRE-PLAN pour la vitesse)
+      apiFetch('/demandes', {
         method: 'POST',
         body: JSON.stringify({
           type: data.service === 'billet-retour' ? 'billetterie' : 'accompagnement',
@@ -133,12 +133,16 @@ export function QuoteRequest() {
             createdAt: new Date().toISOString()
           }
         })
+      }).catch(err => {
+        // En cas d'erreur asynchrone, on logue mais l'utilisateur a déjà pu ouvrir WhatsApp
+        console.error("Échec discret de l'enregistrement DB:", err);
       });
 
 
+      // 3. Redirection instantanée
       openWhatsAppSubmission(message);
       setCurrentStep(4);
-      toast.success("Votre demande et vos documents ont été transmis avec succès !");
+      toast.success("Votre demande est en cours de transmission !");
     } catch (err) {
       console.error(err);
       toast.error("Erreur lors de l'envoi. Veuillez vérifier vos fichiers ou votre connexion.");

@@ -26,7 +26,11 @@ function toSnake(obj: any): any {
     return obj;
 }
 
-export async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+export interface ApiOptions extends RequestInit {
+    background?: boolean;
+}
+
+export async function apiFetch<T>(path: string, options?: ApiOptions): Promise<T> {
     if (!supabase) {
         throw new Error('Supabase client not initialized. Ensure VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY are set.');
     }

@@ -63,7 +63,7 @@ export function Login() {
                     return;
                 }
 
-                // 1. Création du compte dans Supabase Auth (Le profil est créé automatiquement par le Trigger SQL)
+                // 1. Création du compte dans Supabase Auth
                 const { data: authData, error: authError } = await supabase.auth.signUp({
                     email: email.trim().toLowerCase(),
                     password,
@@ -71,7 +71,7 @@ export function Login() {
                         data: {
                             first_name: firstName,
                             last_name: lastName,
-                            phone: phone, // Passé au trigger via raw_user_meta_data
+                            phone: phone, 
                         }
                     }
                 });
@@ -102,45 +102,57 @@ export function Login() {
                     setSuccess(true);
                 }
             } else {
-                // Logique de connexion via Supabase
+                // Logique de CONNEXION via Supabase
                 const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
                     email: email.trim().toLowerCase(),
                     password
                 });
 
                 if (authError) {
-                    console.error("Login attempt failed:", authError);
-                    // Supabase renvoie parfois "Invalid login credentials" même pour un email non confirmé
-                    // On améliore le message pour l'utilisateur
                     if (authError.message === 'Email not confirmed' || authError.status === 400) {
-                        throw new Error("Identifiants de connexion invalides ou email non confirmé. Veuillez vérifier votre boîte de réception.");
+                        throw new Error("Identifiants invalides ou email non confirmé.");
                     }
                     throw authError;
                 }
 
                 if (authData.user) {
-                        // Récupération intelligente du profil (ou fallback immédiat)
-                        const { data: profile } = await supabase
-                            .from('profiles')
-                            .select('*')
-                            .eq('id', authData.user.id)
-                            .single();
+                    // REDIRECTION ULTRA-RAPIDE : On n'attend pas le profil complet
+                    const userRole = authData.user.user_metadata?.role || 'client';
+                    const redirectTo = userRole === 'admin' ? '/admin/dashboard' : '/mon-espace/dashboard';
+                    navigate(redirectTo);
 
-                        const userObj = {
-                            id: authData.user.id,
-                            email: authData.user.email || '',
-                            firstName: profile?.prenom || authData.user.user_metadata?.first_name || 'Utilisateur',
-                            lastName: profile?.nom || authData.user.user_metadata?.last_name || '',
-                            role: (profile?.role as 'client' | 'admin') || 'client',
-                            initiales: profile?.initiales || 'U'
-                        };
+                    // Mise à jour asynchrone du contexte avec métadonnées session
+                    const userObj = {
+                        id: authData.user.id,
+                        email: authData.user.email || '',
+                        firstName: authData.user.user_metadata?.first_name || 'Utilisateur',
+                        lastName: authData.user.user_metadata?.last_name || '',
+                        role: userRole as 'client' | 'admin',
+                        initiales: (authData.user.user_metadata?.first_name?.[0] || 'U')
+                    };
+                    setGlobalUser(userObj);
 
-                        const redirectTo = userObj.role === 'admin' ? '/admin/dashboard' : '/mon-espace/dashboard';
-                        navigate(redirectTo);
-                        
-                        setGlobalUser(userObj);
-                        toast.success(profile ? `Heureux de vous revoir, ${profile.prenom} !` : 'Connexion réussie !');
-                    }
+                    // Sync profil en tâche de fond (silencieux)
+                    supabase
+                        .from('profiles')
+                        .select('*')
+                        .eq('id', authData.user.id)
+                        .single()
+                        .then(({ data: profile }) => {
+                            if (profile) {
+                                setGlobalUser({
+                                    id: authData.user.id,
+                                    email: authData.user.email || '',
+                                    firstName: profile.prenom || userObj.firstName,
+                                    lastName: profile.nom || userObj.lastName,
+                                    role: (profile.role as 'client' | 'admin') || userObj.role,
+                                    initiales: profile.initiales || userObj.initiales
+                                });
+                            }
+                        });
+
+                    toast.success('Bon retour parmi nous !');
+                }
             }
         } catch (err: any) {
             console.error('Erreur Auth complète:', err);

@@ -174,9 +174,12 @@ export function VisaAssistance() {
         }
       };
 
-      await apiFetch('/demandes', {
+      // 2. Save demand to DB (EN ARRIÈRE-PLAN)
+      apiFetch('/demandes', {
         method: 'POST',
         body: JSON.stringify(demandData)
+      }).catch(err => {
+        console.error("Échec discret de l'enregistrement Visa DB:", err);
       });
 
       
