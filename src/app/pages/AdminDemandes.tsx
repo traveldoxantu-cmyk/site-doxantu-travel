@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Search, RefreshCw, FolderOpen, Calendar, Mail, Plane, ChevronRight, X, CheckCircle, Clock, AlertCircle, Eye } from 'lucide-react';
+import { Search, RefreshCw, FolderOpen, Calendar, Mail, Plane, ChevronRight, X, CheckCircle, Clock, AlertCircle, Eye, MessageSquare } from 'lucide-react';
 import { apiFetch } from '../lib/api';
 import { toast } from 'sonner';
 import { supabase } from '../lib/supabase';
@@ -8,7 +8,7 @@ import { notificationService } from '../lib/services/notificationService';
 
 interface Demande {
     id: string;
-    type: 'billetterie' | 'accompagnement';
+    type: 'billetterie' | 'accompagnement' | 'visa_request' | 'contact';
     data: any;
     status: string;
     createdAt: string;
@@ -304,6 +304,8 @@ export function AdminDemandes() {
                         <option value="all">Tous les types</option>
                         <option value="billetterie">Billetterie</option>
                         <option value="accompagnement">Accompagnement</option>
+                        <option value="visa_request">Assistance Visa</option>
+                        <option value="contact">Messages Contact</option>
                     </select>
                 </div>
             </div>
@@ -326,8 +328,8 @@ export function AdminDemandes() {
                                 <tr key={d.id} className="group hover:bg-gray-50/50 transition-colors">
                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-4">
-                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm ${d.type === 'billetterie' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}`}>
-                                                {d.type === 'billetterie' ? <Plane className="w-6 h-6" /> : <FolderOpen className="w-6 h-6" />}
+                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 shadow-sm ${d.type === 'billetterie' ? 'bg-blue-50 text-blue-600' : d.type === 'contact' ? 'bg-emerald-50 text-emerald-600' : 'bg-purple-50 text-purple-600'}`}>
+                                                {d.type === 'billetterie' ? <Plane className="w-6 h-6" /> : d.type === 'contact' ? <MessageSquare className="w-6 h-6" /> : <FolderOpen className="w-6 h-6" />}
                                             </div>
                                             <div>
                                                 <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${d.type === 'billetterie' ? 'text-[#0B84D8]' : 'text-purple-600'}`}>

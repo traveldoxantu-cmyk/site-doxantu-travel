@@ -1,5 +1,5 @@
 import { supabase } from "../supabase";
-import { sheetsService } from "./sheetsService";
+
 
 export interface ContactSubmission {
   nom: string;
@@ -29,12 +29,6 @@ export const submitContactForm = async (data: ContactSubmission) => {
     });
 
     if (error) throw error;
-
-    // Sync CRM Google Sheets (fire-and-forget, non bloquant)
-    sheetsService.sendDemande({
-      ...data,
-      source: 'Formulaire Contact'
-    }).catch(console.warn);
 
     return { success: true };
   } catch (e) {

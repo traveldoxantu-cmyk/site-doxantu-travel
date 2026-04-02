@@ -10,7 +10,6 @@ import { apiFetch } from '../lib/api';
 import { useUser } from '../lib/context/UserContext';
 
 import { storageService } from '../lib/services/storageService';
-import { sheetsService } from '../lib/services/sheetsService';
 
 type QuoteFormValues = {
   service: string;
@@ -136,11 +135,6 @@ export function QuoteRequest() {
         })
       });
 
-      // 3. Envoi vers Google Sheets (Automation Marketing)
-      await sheetsService.sendDemande({
-        ...data,
-        files: uploadedUrls.join(', ')
-      });
 
       openWhatsAppSubmission(message);
       setCurrentStep(4);

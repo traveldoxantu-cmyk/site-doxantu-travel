@@ -40,6 +40,11 @@ function extractSheetRow(
   // Extraire les champs du JSONB `data`
   const data = (record.data as Record<string, unknown>) || {};
 
+  // Gérer les fichiers joints (pour les dossiers visa/etudiant)
+  const files = Array.isArray(data.files)
+    ? data.files.join(", ")
+    : (data.fileUrls ? (Array.isArray(data.fileUrls) ? data.fileUrls.join(", ") : String(data.fileUrls)) : "Aucun");
+
   return {
     action,
     timestamp: new Date().toLocaleString("fr-FR", { timeZone: "Africa/Dakar" }),
@@ -52,6 +57,7 @@ function extractSheetRow(
     service: String(record.service || data.service || ""),
     destination: String(data.destination || data.to || record.destination || ""),
     message: String(data.message || ""),
+    files: files,
     source: String(data.source || "Supabase Direct"),
   };
 }
@@ -96,25 +102,31 @@ serve(async (req: Request) => {
   }
 
   const sheetsPayload = extractSheetRow(record, payload.type);
+  console.log("[sync-to-sheets] Payload préparé pour Sheets:", JSON.stringify(sheetsPayload));
 
   // Envoyer vers Google Sheets
   if (!SHEETS_WEBHOOK_URL) {
-    console.warn("[sync-to-sheets] GOOGLE_SHEETS_WEBHOOK_URL non configuré");
+    console.error("[sync-to-sheets] ERREUR: GOOGLE_SHEETS_WEBHOOK_URL est vide !");
     return new Response(
       JSON.stringify({ success: false, error: "SHEETS_URL_NOT_SET" }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
 
   try {
+    console.log("[sync-to-sheets] Envoi vers Google Sheets...");
     const sheetsResponse = await fetch(SHEETS_WEBHOOK_URL, {
       method: "POST",
-      headers: { "Content-Type": "text/plain" }, // Apps Script préfère text/plain
+      headers: { "Content-Type": "text/plain" },
       body: JSON.stringify(sheetsPayload),
     });
 
     const responseText = await sheetsResponse.text().catch(() => "no body");
-    console.log(`[sync-to-sheets] Sheets response: ${sheetsResponse.status} — ${responseText}`);
+    console.log(`[sync-to-sheets] Réponse Google (${sheetsResponse.status}): ${responseText}`);
+
+    if (!sheetsResponse.ok) {
+      throw new Error(`Google Apps Script a répondu avec le statut ${sheetsResponse.status}`);
+    }
 
     return new Response(
       JSON.stringify({ success: true, action: payload.type, id: sheetsPayload.id }),

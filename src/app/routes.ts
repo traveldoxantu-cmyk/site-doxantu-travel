@@ -1,34 +1,37 @@
 import { createBrowserRouter } from 'react-router';
 import { Root } from './pages/Root';
 import { Home } from './pages/Home';
-import { StudentSupport } from './pages/StudentSupport';
-import { Ticketing } from './pages/Ticketing';
-import { VisaAssistance } from './pages/VisaAssistance';
-import { StudiesAbroad } from './pages/StudiesAbroad';
-import { About } from './pages/About';
-import { Contact } from './pages/Contact';
-import { QuoteRequest } from './pages/QuoteRequest';
-import { LegalMentions } from './pages/LegalMentions';
-import { Login } from './pages/Login';
-import NotFound from './pages/NotFound';
-// Client dashboard
-import { DashboardLayout } from './layouts/DashboardLayout';
-import { Dashboard } from './pages/Dashboard';
-import { MonDossier } from './pages/MonDossier';
-import { MesDocuments } from './pages/MesDocuments';
-import { Messagerie } from './pages/Messagerie';
-import { ClientPayment } from './pages/ClientPayment';
-import { Echeances } from './pages/Echeances';
-import { Profil } from './pages/Profil';
-// Admin dashboard
-import { AdminLayout } from './layouts/AdminLayout';
-import { AdminDashboard } from './pages/AdminDashboard';
-import { AdminClients } from './pages/AdminClients';
-import { AdminTeam } from './pages/AdminTeam';
-import { AdminSettings } from './pages/AdminSettings';
-import { AdminDemandes } from './pages/AdminDemandes';
-import { AdminFinance } from './pages/AdminFinance';
-import { AdminReporting } from './pages/AdminReporting';
+
+// Lazy load other public pages
+const StudentSupport = () => import('./pages/StudentSupport').then(m => ({ Component: m.StudentSupport }));
+const Ticketing = () => import('./pages/Ticketing').then(m => ({ Component: m.Ticketing }));
+const VisaAssistance = () => import('./pages/VisaAssistance').then(m => ({ Component: m.VisaAssistance }));
+const StudiesAbroad = () => import('./pages/StudiesAbroad').then(m => ({ Component: m.StudiesAbroad }));
+const About = () => import('./pages/About').then(m => ({ Component: m.About }));
+const Contact = () => import('./pages/Contact').then(m => ({ Component: m.Contact }));
+const QuoteRequest = () => import('./pages/QuoteRequest').then(m => ({ Component: m.QuoteRequest }));
+const LegalMentions = () => import('./pages/LegalMentions').then(m => ({ Component: m.LegalMentions }));
+const Login = () => import('./pages/Login').then(m => ({ Component: m.Login }));
+const NotFound = () => import('./pages/NotFound').then(m => ({ Component: m.default }));
+
+// Lazy load layouts and dashboard pages
+const DashboardLayout = () => import('./layouts/DashboardLayout').then(m => ({ Component: m.DashboardLayout }));
+const Dashboard = () => import('./pages/Dashboard').then(m => ({ Component: m.Dashboard }));
+const MonDossier = () => import('./pages/MonDossier').then(m => ({ Component: m.MonDossier }));
+const MesDocuments = () => import('./pages/MesDocuments').then(m => ({ Component: m.MesDocuments }));
+const Messagerie = () => import('./pages/Messagerie').then(m => ({ Component: m.Messagerie }));
+const ClientPayment = () => import('./pages/ClientPayment').then(m => ({ Component: m.ClientPayment }));
+const Echeances = () => import('./pages/Echeances').then(m => ({ Component: m.Echeances }));
+const Profil = () => import('./pages/Profil').then(m => ({ Component: m.Profil }));
+
+const AdminLayout = () => import('./layouts/AdminLayout').then(m => ({ Component: m.AdminLayout }));
+const AdminDashboard = () => import('./pages/AdminDashboard').then(m => ({ Component: m.AdminDashboard }));
+const AdminClients = () => import('./pages/AdminClients').then(m => ({ Component: m.AdminClients }));
+const AdminTeam = () => import('./pages/AdminTeam').then(m => ({ Component: m.AdminTeam }));
+const AdminSettings = () => import('./pages/AdminSettings').then(m => ({ Component: m.AdminSettings }));
+const AdminDemandes = () => import('./pages/AdminDemandes').then(m => ({ Component: m.AdminDemandes }));
+const AdminFinance = () => import('./pages/AdminFinance').then(m => ({ Component: m.AdminFinance }));
+const AdminReporting = () => import('./pages/AdminReporting').then(m => ({ Component: m.AdminReporting }));
 
 export const router = createBrowserRouter([
   // ─── Site public ───────────────────────────────────────────────────────────
@@ -37,50 +40,50 @@ export const router = createBrowserRouter([
     Component: Root,
     children: [
       { index: true, Component: Home },
-      { path: 'services/accompagnement-etudiant', Component: StudentSupport },
-      { path: 'services/billetterie', Component: Ticketing },
-      { path: 'services/visa-documents', Component: VisaAssistance },
-      { path: 'etudes-etranger', Component: StudiesAbroad },
-      { path: 'a-propos', Component: About },
-      { path: 'contact', Component: Contact },
-      { path: 'devis', Component: QuoteRequest },
-      { path: 'mentions-legales', Component: LegalMentions },
-      { path: '*', Component: NotFound },
+      { path: 'services/accompagnement-etudiant', lazy: StudentSupport },
+      { path: 'services/billetterie', lazy: Ticketing },
+      { path: 'services/visa-documents', lazy: VisaAssistance },
+      { path: 'etudes-etranger', lazy: StudiesAbroad },
+      { path: 'a-propos', lazy: About },
+      { path: 'contact', lazy: Contact },
+      { path: 'devis', lazy: QuoteRequest },
+      { path: 'mentions-legales', lazy: LegalMentions },
+      { path: '*', lazy: NotFound },
     ],
   },
 
   // ─── Connexion ─────────────────────────────────────────────────────────────
-  { path: '/connexion', Component: Login },
+  { path: '/connexion', lazy: Login },
 
   // ─── Espace client ─────────────────────────────────────────────────────────
   {
     path: '/mon-espace',
-    Component: DashboardLayout,
+    lazy: DashboardLayout,
     children: [
-      { index: true, Component: Dashboard },
-      { path: 'dashboard', Component: Dashboard },
-      { path: 'dossier', Component: MonDossier },
-      { path: 'documents', Component: MesDocuments },
-      { path: 'messagerie', Component: Messagerie },
-      { path: 'paiement', Component: ClientPayment },
-      { path: 'echeances', Component: Echeances },
-      { path: 'profil', Component: Profil },
+      { index: true, lazy: Dashboard },
+      { path: 'dashboard', lazy: Dashboard },
+      { path: 'dossier', lazy: MonDossier },
+      { path: 'documents', lazy: MesDocuments },
+      { path: 'messagerie', lazy: Messagerie },
+      { path: 'paiement', lazy: ClientPayment },
+      { path: 'echeances', lazy: Echeances },
+      { path: 'profil', lazy: Profil },
     ],
   },
 
   // ─── Espace admin ──────────────────────────────────────────────────────────
   {
     path: '/admin',
-    Component: AdminLayout,
+    lazy: AdminLayout,
     children: [
-      { index: true, Component: AdminDashboard },
-      { path: 'dashboard', Component: AdminDashboard },
-      { path: 'clients', Component: AdminClients },
-      { path: 'finance', Component: AdminFinance },
-      { path: 'reporting', Component: AdminReporting },
-      { path: 'conseillers', Component: AdminTeam },
-      { path: 'demandes', Component: AdminDemandes },
-      { path: 'parametres', Component: AdminSettings },
+      { index: true, lazy: AdminDashboard },
+      { path: 'dashboard', lazy: AdminDashboard },
+      { path: 'clients', lazy: AdminClients },
+      { path: 'finance', lazy: AdminFinance },
+      { path: 'reporting', lazy: AdminReporting },
+      { path: 'conseillers', lazy: AdminTeam },
+      { path: 'demandes', lazy: AdminDemandes },
+      { path: 'parametres', lazy: AdminSettings },
     ],
   },
 ]);

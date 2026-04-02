@@ -5,7 +5,6 @@ import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission'
 import { submitContactForm } from '../lib/services/contactService';
 import { SEO } from '../components/SEO';
 import { useUser } from '../lib/context/UserContext';
-import { sheetsService } from '../lib/services/sheetsService';
 
 const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
@@ -84,14 +83,8 @@ export function Contact() {
     // 1. Save to Database
     submitContactForm(form);
 
-    // 2. Sync to Google Sheets
-    sheetsService.sendDemande({
-      ...form,
-      destination: 'Contact Direct',
-      source: 'Formulaire de Contact'
-    });
 
-    // 3. Open WhatsApp (Redirection immediate pour UX)
+    // 2. Open WhatsApp (Redirection immediate pour UX)
     openWhatsAppSubmission(message);
     setSent(true);
     setLoading(false);

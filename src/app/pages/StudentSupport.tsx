@@ -93,7 +93,10 @@ export function StudentSupport() {
 
   return (
     <div>
-      <SEO title="Études à l'étranger" description="Découvrez nos formules d'accompagnement pour étudier à l'étranger, de la préparation de dossier à l'installation." />
+      <SEO 
+        title="Campus France Sénégal | Accompagnement Études en France" 
+        description="Réussissez votre procédure Campus France au Sénégal avec Doxantu Travel. Orientation, constitution de dossier, préparation d'entretien et assistance visa étudiant." 
+      />
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center overflow-hidden pt-28">
         <div className="absolute inset-0 z-0">
