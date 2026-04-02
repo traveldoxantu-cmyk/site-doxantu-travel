@@ -151,8 +151,8 @@ export function QuoteRequest() {
   return (
     <div>
       <SEO 
-        title="Demande de Devis Personnalisé | Doxantu Travel" 
-        description="Obtenez un devis gratuit pour votre projet de voyage ou d'études à l'étranger. Réponse rapide en moins de 24h par nos experts conseillers."
+        title="Devis Voyage & Études Sénégal | Doxantu Travel" 
+        description="Obtenez votre devis gratuit pour votre projet de voyage, d'études (Campus France) ou de visa au Sénégal. Réponse personnalisée de nos experts sous 24h."
         image={HERO_BG}
       />
       {/* Hero */}
