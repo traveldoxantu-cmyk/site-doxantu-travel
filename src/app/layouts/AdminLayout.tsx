@@ -14,58 +14,38 @@ const NAV_ITEMS = [
     { icon: Users, label: 'Conseillers', to: '/admin/conseillers', badge: null },
 ];
 
+import { useUser } from '../lib/context/UserContext';
+
 export function AdminLayout() {
     const location = useLocation();
     const navigate = useNavigate();
+    const { user, loading } = useUser();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [user, setUser] = useState<{ firstName: string, lastName: string, initiales: string, role: string } | null>(null);
     const urgentCount = 2;
 
     useEffect(() => {
-        const checkAdmin = async () => {
-            const { data: { session } } = await supabase?.auth.getSession() || { data: { session: null } };
-            
-            if (!session) {
+        if (!loading) {
+            if (!user) {
                 navigate('/connexion');
-                return;
+            } else if (user.role !== 'admin') {
+                toast.error("Accès refusé. Vous n'êtes pas administrateur.");
+                navigate('/mon-espace/dashboard');
             }
+        }
+    }, [user, loading, navigate]);
 
-            const storedUser = localStorage.getItem('user');
-            let currentUser = storedUser ? JSON.parse(storedUser) : null;
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-[#F0F4F8]">
+                <div className="flex flex-col items-center gap-4">
+                    <span className="w-12 h-12 border-4 border-[#0B84D8]/30 border-t-[#0B84D8] rounded-full animate-spin" />
+                    <p className="text-gray-500 font-medium">Accès au panneau d'administration...</p>
+                </div>
+            </div>
+        );
+    }
 
-            if (!currentUser || currentUser.role !== 'admin') {
-                const { data: profile } = await supabase!
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', session.user.id)
-                    .single();
-                
-                if (!profile || profile.role !== 'admin') {
-                    toast.error("Accès refusé. Vous n'êtes pas administrateur.");
-                    navigate('/mon-espace/dashboard');
-                    return;
-                }
-
-                currentUser = {
-                    firstName: profile.prenom,
-                    lastName: profile.nom,
-                    role: profile.role,
-                    initiales: profile.initiales
-                };
-                localStorage.setItem('user', JSON.stringify(currentUser));
-            }
-            
-            setUser(currentUser);
-        };
-
-        checkAdmin();
-
-        const { data: { subscription } } = supabase?.auth.onAuthStateChange((_event: any, session: any) => {
-            if (!session) navigate('/connexion');
-        }) || { data: { subscription: null } };
-
-        return () => subscription?.unsubscribe();
-    }, [navigate]);
+    if (!user || user.role !== 'admin') return null;
 
     const handleLogout = async () => {
         await supabase?.auth.signOut();

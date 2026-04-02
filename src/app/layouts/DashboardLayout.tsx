@@ -15,52 +15,32 @@ const sidebarLinks = [
 
 import { supabase } from '../lib/supabase';
 
+import { useUser } from '../lib/context/UserContext';
+
 export function DashboardLayout() {
     const location = useLocation();
     const navigate = useNavigate();
+    const { user, loading } = useUser();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [user, setUser] = useState<{ firstName: string, lastName: string, initiales: string } | null>(null);
 
     useEffect(() => {
-        const checkUser = async () => {
-            const { data: { session } } = await supabase?.auth.getSession() || { data: { session: null } };
-            
-            if (!session) {
-                navigate('/connexion');
-                return;
-            }
+        if (!loading && !user) {
+            navigate('/connexion');
+        }
+    }, [user, loading, navigate]);
 
-            const storedUser = localStorage.getItem('user');
-            if (storedUser) {
-                setUser(JSON.parse(storedUser));
-            } else {
-                // Si pas de localStorage, on récupère via Supabase
-                const { data: profile } = await supabase!
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', session.user.id)
-                    .single();
-                
-                if (profile) {
-                    const userObj = {
-                        firstName: profile.prenom,
-                        lastName: profile.nom,
-                        initiales: profile.initiales
-                    };
-                    setUser(userObj);
-                    localStorage.setItem('user', JSON.stringify(userObj));
-                }
-            }
-        };
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC]">
+                <div className="flex flex-col items-center gap-4">
+                    <span className="w-12 h-12 border-4 border-[#0B84D8]/30 border-t-[#0B84D8] rounded-full animate-spin" />
+                    <p className="text-gray-500 font-medium">Préparation de votre espace...</p>
+                </div>
+            </div>
+        );
+    }
 
-        checkUser();
-
-        const { data: { subscription } } = supabase?.auth.onAuthStateChange((_event: any, session: any) => {
-            if (!session) navigate('/connexion');
-        }) || { data: { subscription: null } };
-
-        return () => subscription?.unsubscribe();
-    }, [navigate]);
+    if (!user) return null;
 
     const handleLogout = async () => {
         await supabase?.auth.signOut();

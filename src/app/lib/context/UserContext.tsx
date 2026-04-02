@@ -65,20 +65,24 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const syncUserFromSession = async (userId: string, email: string) => {
-    // Optimisation : Si l'utilisateur est déjà chargé et identique, on ne fait rien
-    if (user && user.id === userId && user.firstName) {
-      return;
+    // 1. Priorité au localStorage pour un affichage instantané
+    const stored = localStorage.getItem('user');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (parsed.id === userId && parsed.firstName) {
+        setUserState(parsed);
+      }
     }
 
-    // Essayer de récupérer le profil depuis Supabase
+    // 2. Récupération asynchrone (NE BLOQUE PAS l'UI)
     try {
-      const { data: profile } = await supabase!
+      const { data: profile, error } = await supabase!
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
 
-      if (profile) {
+      if (profile && !error) {
         const userObj: User = {
           id: userId,
           email,
@@ -90,27 +94,23 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         };
         localStorage.setItem('user', JSON.stringify(userObj));
         setUserState(userObj);
-        return;
+      } else {
+        // Fallback métadonnées si profil pas encore créé (cas inscription ultra-rapide)
+        const { data: { user: authUser } } = await supabase!.auth.getUser();
+        if (authUser) {
+           const userObj: User = {
+            id: userId,
+            email,
+            firstName: authUser.user_metadata?.first_name || 'Utilisateur',
+            lastName: authUser.user_metadata?.last_name || '',
+            role: (authUser.user_metadata?.role as 'client' | 'admin') || 'client',
+            initiales: (authUser.user_metadata?.first_name?.[0] || 'U')
+          };
+          setUserState(userObj);
+        }
       }
-    } catch {
-      // Profil non trouvé — fallback sur les métadonnées auth
-    }
-
-    // Fallback : métadonnées Supabase Auth
-    const { data: { user: authUser } } = await supabase!.auth.getUser();
-    if (authUser) {
-      const firstName = authUser.user_metadata?.first_name || '';
-      const lastName = authUser.user_metadata?.last_name || '';
-      const userObj: User = {
-        id: userId,
-        email,
-        firstName,
-        lastName,
-        role: 'client',
-        initiales: (firstName[0] || 'U') + (lastName[0] || ''),
-      };
-      localStorage.setItem('user', JSON.stringify(userObj));
-      setUserState(userObj);
+    } catch (err) {
+      console.warn("[UserContext] Erreur récup profil (silencieuse):", err);
     }
   };
 

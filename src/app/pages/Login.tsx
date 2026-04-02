@@ -24,21 +24,11 @@ export function Login() {
     const navigate = useNavigate();
     const { setUser: setGlobalUser } = useUser();
 
-    // Préchargement intelligent pour la vitesse (Turbo Mode)
-    const prewarmDashboard = () => {
-        // Déclenche le chargement des fichiers lourds du dashboard en arrière-plan
-        import('../layouts/DashboardLayout').catch(() => {});
-        import('./Dashboard').catch(() => {});
-    };
 
-    // Auto-complétion et préchauffage
+    // Initialisation
     useEffect(() => {
         const mode = searchParams.get('mode');
         if (mode === 'register') setIsRegister(true);
-        
-        // Préchauffer les composants lourds après 2 secondes (quand l'utilisateur commence à lire)
-        const timer = setTimeout(prewarmDashboard, 2000);
-        return () => clearTimeout(timer);
     }, [searchParams]);
 
     const handleSubmit = async (e: React.FormEvent) => {
