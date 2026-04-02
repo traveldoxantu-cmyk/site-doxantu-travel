@@ -41,9 +41,9 @@ export function Login() {
         setError('');
 
         try {
-            // Sûreté : Timeout augmenté à 8 secondes pour les connections lentes
+            // MODE SURVIE V8 : Timeout augmenté à 15 secondes pour compenser la lenteur de Supabase
             const timeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error("Le délai de réponse est un peu long. Vérifiez votre connexion ou réessayez.")), 8000)
+                setTimeout(() => reject(new Error("TIMEOUT")), 15000)
             );
 
             if (isRegister) {
@@ -85,7 +85,20 @@ export function Login() {
                     }
                 })();
 
-                await Promise.race([signUpPromise, timeoutPromise]);
+                try {
+                    await Promise.race([signUpPromise, timeoutPromise]);
+                } catch (err: any) {
+                    if (err.message === 'TIMEOUT') {
+                        console.warn("Délai dépassé, vérification de la session...");
+                        const { data: sessionData } = await supabase.auth.getSession();
+                        if (sessionData.session) {
+                            navigate('/mon-espace/dashboard');
+                            return;
+                        }
+                        throw new Error("Le délai de réponse est un peu long. Vérifiez vos mails, le compte a peut-être été créé.");
+                    }
+                    throw err;
+                }
             } else {
                 const signInPromise = (async () => {
                     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
