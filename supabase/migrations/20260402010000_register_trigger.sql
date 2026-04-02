@@ -6,10 +6,26 @@
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
-  -- Simplification ATOMIQUE : On insère juste l'ID.
-  -- Le reste est délégué à l'application pour garantir une réponse instantanée d'Auth.
-  INSERT INTO public.profiles (id, email, role)
-  VALUES (new.id, new.email, 'client')
+  -- 1. On insère d'abord dans la table public.users (Clé primaire)
+  INSERT INTO public.users (id, email, password, role)
+  VALUES (
+    new.id, 
+    new.email, 
+    'auth_user_redirect', 
+    'client'
+  )
+  ON CONFLICT (id) DO NOTHING;
+
+  -- 2. On insère ensuite dans la table public.profiles
+  -- IMPORTANT: Pas de colonne 'email' dans 'profiles'
+  INSERT INTO public.profiles (id, nom, prenom, tel, role)
+  VALUES (
+    new.id,
+    COALESCE(new.raw_user_meta_data->>'last_name', 'Doxantu'),
+    COALESCE(new.raw_user_meta_data->>'first_name', 'Client'),
+    COALESCE(new.raw_user_meta_data->>'phone', ''),
+    'client'
+  )
   ON CONFLICT (id) DO NOTHING;
 
   RETURN new;
