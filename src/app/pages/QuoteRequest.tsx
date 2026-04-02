@@ -128,7 +128,7 @@ export function QuoteRequest() {
           user_id: user?.id || null,
           data: {
             ...data,
-            fileUrls: uploadedUrls,
+            files: uploadedUrls,
             recipient: 'traveldoxantu@gmail.com',
             createdAt: new Date().toISOString()
           }

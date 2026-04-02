@@ -30,6 +30,7 @@ interface SheetsPayload {
   service: string;
   destination: string;
   message: string;
+  files: string;
   source: string;
 }
 
@@ -40,10 +41,11 @@ function extractSheetRow(
   // Extraire les champs du JSONB `data`
   const data = (record.data as Record<string, unknown>) || {};
 
-  // Gérer les fichiers joints (pour les dossiers visa/etudiant)
-  const files = Array.isArray(data.files)
-    ? data.files.join(", ")
-    : (data.fileUrls ? (Array.isArray(data.fileUrls) ? data.fileUrls.join(", ") : String(data.fileUrls)) : "Aucun");
+  // Gérer les fichiers joints (pour les dossiers visa/etudiant/devis)
+  const rawFiles = data.files || data.fileUrls || data.documents || "Aucun";
+  const files = Array.isArray(rawFiles)
+    ? rawFiles.join(", ")
+    : String(rawFiles);
 
   return {
     action,
