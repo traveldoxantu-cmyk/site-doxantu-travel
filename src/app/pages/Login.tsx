@@ -84,7 +84,10 @@ export function Login() {
                 }
 
                 if (authData.user) {
-                    // Mise à jour globale du contexte utilisateur immédiate
+                    // REDIRECTION AGRESSIVE : On change de page AVANT tout le reste
+                    navigate('/mon-espace/dashboard');
+
+                    // 2. Mise à jour globale du contexte utilisateur immédiate
                     setGlobalUser({
                         id: authData.user.id,
                         email: authData.user.email || '',
@@ -97,7 +100,6 @@ export function Login() {
 
                     toast.success('Bienvenue ! Votre compte est prêt.');
                     setSuccess(true);
-                    navigate('/mon-espace/dashboard');
                 }
             } else {
                 // Logique de connexion via Supabase
@@ -133,11 +135,11 @@ export function Login() {
                             initiales: profile?.initiales || 'U'
                         };
 
-                        setGlobalUser(userObj);
-                        toast.success(profile ? `Heureux de vous revoir, ${profile.prenom} !` : 'Connexion réussie !');
-                        
                         const redirectTo = userObj.role === 'admin' ? '/admin/dashboard' : '/mon-espace/dashboard';
                         navigate(redirectTo);
+                        
+                        setGlobalUser(userObj);
+                        toast.success(profile ? `Heureux de vous revoir, ${profile.prenom} !` : 'Connexion réussie !');
                     }
             }
         } catch (err: any) {
