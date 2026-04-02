@@ -52,7 +52,7 @@ export function Login() {
                     return;
                 }
 
-                // 1. Création du compte dans Supabase Auth
+                // 1. Création du compte dans Supabase Auth (Le profil est créé automatiquement par le Trigger SQL)
                 const { data: authData, error: authError } = await supabase.auth.signUp({
                     email: email.trim().toLowerCase(),
                     password,
@@ -60,6 +60,7 @@ export function Login() {
                         data: {
                             first_name: firstName,
                             last_name: lastName,
+                            phone: phone, // Passé au trigger via raw_user_meta_data
                         }
                     }
                 });
@@ -67,37 +68,20 @@ export function Login() {
                 if (authError) throw authError;
 
                 if (authData.user) {
-                    // 2. Création du profil dans la table 'profiles'
-                    const { error: profileError } = await supabase.from('profiles').insert({
-                        id: authData.user.id,
-                        nom: lastName,
-                        prenom: firstName,
-                        tel: phone,
-                        role: 'client',
-                        initiales: `${firstName[0]}${lastName[0]}`.toUpperCase()
-                    });
-
-                    if (profileError) {
-                        console.error("Erreur création profil (RLS ?):", profileError);
-                        if (profileError.code === '42501') {
-                            throw new Error("Erreur de permissions (RLS) sur la table 'profiles'. Veuillez contacter l'administrateur.");
-                        }
-                        throw new Error(`Désolé, nous n'avons pas pu créer votre profil : ${profileError.message}`);
-                    }
-
-                    // Mise à jour globale du contexte utilisateur
+                    // Mise à jour globale du contexte utilisateur immédiate
                     setGlobalUser({
                         id: authData.user.id,
                         email: authData.user.email || '',
                         firstName,
                         lastName,
+                        phone,
                         role: 'client',
                         initiales: `${firstName[0]}${lastName[0]}`.toUpperCase()
                     });
 
-                    toast.success('Bienvenue ! Votre compte a été créé.');
+                    toast.success('Bienvenue ! Votre compte est prêt.');
                     setSuccess(true);
-                    setTimeout(() => navigate('/mon-espace/dashboard'), 1500);
+                    navigate('/mon-espace/dashboard');
                 }
             } else {
                 // Logique de connexion via Supabase

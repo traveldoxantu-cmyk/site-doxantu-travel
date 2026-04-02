@@ -52,6 +52,18 @@ function doPost(e) {
     // INSERT (Défaut)
     appendLead(sheet, data, "INSERT");
     logEvent(ss, "INSERT", data.id || "?", "Nouveau lead");
+
+    // --- AUTOMATISATION EMAIL (NOUVEAU) ---
+    if (data.email && data.email.includes("@")) {
+      try {
+        sendConfirmationEmail(data);
+        logEvent(ss, "EMAIL", data.id || "?", "Email de confirmation envoyé");
+      } catch (e) {
+        logEvent(ss, "EMAIL_ERROR", data.id || "?", "Erreur: " + e.toString());
+      }
+    }
+    // --------------------------------------
+
     return ok({ action: "INSERT" });
 
   } catch (err) {
@@ -204,6 +216,56 @@ function deleteRowById(sheet, id) {
 function logEvent(ss, action, id, result) {
   const logSheet = ss.getSheetByName(SHEET_LOG);
   if (logSheet) logSheet.appendRow([new Date().toLocaleString("fr-FR"), action, id, result]);
+}
+
+// ─── Automatisation Emailing ────────────────────────────────────────────────
+function sendConfirmationEmail(data) {
+  const customerName = data.nom || "Cher client";
+  const serviceName  = data.service || data.type || "demande";
+  const customerEmail = data.email;
+  
+  const subject = "Confirmation de votre demande — Doxantu Travel";
+  
+  const htmlBody = `
+    <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1,px solid #eef2f6; border-radius: 12px; overflow: hidden;">
+      <div style="background-color: #072a50; padding: 30px; text-align: center;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 1px;">DOXANTU TRAVEL</h1>
+        <p style="color: #0B84D8; margin: 5px 0 0 0; font-size: 14px; font-weight: bold;">Votre voyage, notre expertise.</p>
+      </div>
+      
+      <div style="padding: 40px; background-color: #ffffff; line-height: 1.6; color: #334155;">
+        <h2 style="color: #0F172A; margin-top: 0;">Bonjour ${customerName},</h2>
+        <p>Nous avons bien reçu votre demande concernant notre service <strong>${serviceName}</strong>. Merci de votre confiance !</p>
+        
+        <p>Un de nos conseillers experts étudie actuellement votre dossier. Vous serez recontacté sous <strong>24 heures</strong> par téléphone ou via WhatsApp pour finaliser les détails.</p>
+        
+        <div style="background-color: #f8fafc; border-left: 4px solid #0B84D8; padding: 20px; margin: 30px 0;">
+          <h4 style="margin: 0 0 10px 0; color: #072a50;">Récapitulatif de votre demande :</h4>
+          <ul style="margin: 0; padding-left: 20px; font-size: 14px;">
+            <li><strong>Service :</strong> ${serviceName}</li>
+            <li><strong>Destination :</strong> ${data.destination || "—"}</li>
+            <li><strong>Date :</strong> ${new Date().toLocaleDateString('fr-FR')}</li>
+          </ul>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px;">
+          <a href="https://wa.me/221776748596" style="background-color: #25D366; color: white; padding: 15px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+            Nous contacter sur WhatsApp
+          </a>
+        </div>
+      </div>
+      
+      <div style="background-color: #f1f5f9; padding: 20px; text-align: center; font-size: 12px; color: #64748b;">
+        <p style="margin: 0;">&copy; ${new Date().getFullYear()} Doxantu Travel - Dakar, Sénégal</p>
+        <p style="margin: 5px 0 0 0;">Vous recevez cet email car vous avez effectué une demande sur notre site.</p>
+      </div>
+    </div>
+  `;
+
+  GmailApp.sendEmail(customerEmail, subject, "", {
+    htmlBody: htmlBody,
+    name: "Doxantu Travel"
+  });
 }
 
 function ok(data) {
