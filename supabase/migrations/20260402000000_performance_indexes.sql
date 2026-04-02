@@ -1,27 +1,36 @@
 -- ==========================================
--- OPTIMISATION DES PERFORMANCES - INDEX
+-- DOXANTU TRAVEL - OPTIMISATION PERFORMANCE
+-- Migration: 20260402000000_performance_indexes.sql
 -- ==========================================
 
--- 1. Index sur les clés étrangères (améliore les jointures et les filtres par utilisateur)
-CREATE INDEX IF NOT EXISTS idx_demandes_user_id ON demandes(user_id);
-CREATE INDEX IF NOT EXISTS idx_paiements_user_id ON paiements(user_id);
-CREATE INDEX IF NOT EXISTS idx_quick_stats_user_id ON quick_stats(user_id);
-CREATE INDEX IF NOT EXISTS idx_timeline_user_id ON timeline(user_id);
-CREATE INDEX IF NOT EXISTS idx_deadlines_user_id ON deadlines(user_id);
-CREATE INDEX IF NOT EXISTS idx_user_documents_user_id ON user_documents(user_id);
-CREATE INDEX IF NOT EXISTS idx_messages_conversation_id ON messages(conversation_id);
+-- 1. Index pour la fonction is_admin() (Critique pour RLS)
+-- Crée un index "couvrant" qui permet de vérifier le rôle sans lire toute la ligne
+CREATE INDEX IF NOT EXISTS idx_users_id_role ON public.users(id, role);
 
--- 2. Index sur les colonnes de statut (accélère les filtres admin et listes de tâches)
-CREATE INDEX IF NOT EXISTS idx_demandes_status ON demandes(status);
-CREATE INDEX IF NOT EXISTS idx_paiements_statut ON paiements(statut);
-CREATE INDEX IF NOT EXISTS idx_messages_status ON messages(status);
-CREATE INDEX IF NOT EXISTS idx_timeline_status ON timeline(status);
+-- 2. Index pour les relations utilisateurs (Accélère le Dashboard)
+CREATE INDEX IF NOT EXISTS idx_demandes_user_id ON public.demandes(user_id);
+CREATE INDEX IF NOT EXISTS idx_paiements_user_id ON public.paiements(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_documents_user_id ON public.user_documents(user_id);
+CREATE INDEX IF NOT EXISTS idx_messages_conversation_id ON public.messages(conversation_id);
 
--- 3. Index sur les dates (accélère le tri par défaut du plus récent au plus ancien)
-CREATE INDEX IF NOT EXISTS idx_demandes_created_at ON demandes(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_paiements_created_at ON paiements(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_user_documents_created_at ON user_documents(created_at DESC);
+-- 3. Optimisation de la fonction is_admin()
+-- Utilise une syntaxe plus directe et stable
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.users
+    WHERE id = auth.uid()
+      AND role = 'admin'
+    LIMIT 1
+  );
+$$;
 
--- 4. Index de recherche textuelle (pour les listes d'admin)
-CREATE INDEX IF NOT EXISTS idx_profiles_nom_prenom ON profiles(nom, prenom);
-CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+-- 4. Statistiques de performance (Analyse des tables)
+ANALYZE public.users;
+ANALYZE public.profiles;
+ANALYZE public.demandes;

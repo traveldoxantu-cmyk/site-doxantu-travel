@@ -24,10 +24,21 @@ export function Login() {
     const navigate = useNavigate();
     const { setUser: setGlobalUser } = useUser();
 
-    // Auto-complétion basée sur l'URL (?role=client|admin ou ?mode=register)
+    // Préchargement intelligent pour la vitesse (Turbo Mode)
+    const prewarmDashboard = () => {
+        // Déclenche le chargement des fichiers lourds du dashboard en arrière-plan
+        import('../layouts/DashboardLayout').catch(() => {});
+        import('./Dashboard').catch(() => {});
+    };
+
+    // Auto-complétion et préchauffage
     useEffect(() => {
         const mode = searchParams.get('mode');
         if (mode === 'register') setIsRegister(true);
+        
+        // Préchauffer les composants lourds après 2 secondes (quand l'utilisateur commence à lire)
+        const timer = setTimeout(prewarmDashboard, 2000);
+        return () => clearTimeout(timer);
     }, [searchParams]);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -152,25 +163,16 @@ export function Login() {
             
             {/* Ciel étoilé */}
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-                {/* Réduction du nombre d'étoiles pour la performance (40 -> 15) */}
-                {[...Array(15)].map((_, i) => (
-                    <motion.div
+                {/* Optimisation extrême : 10 étoiles statiques légères */}
+                {[...Array(10)].map((_, i) => (
+                    <div
                         key={`star-${i}`}
-                        className="absolute bg-white rounded-full"
+                        className="absolute bg-white/30 rounded-full"
                         style={{
                             top: `${Math.random() * 100}%`,
                             left: `${Math.random() * 100}%`,
-                            width: Math.random() * 2 + 1 + 'px',
-                            height: Math.random() * 2 + 1 + 'px',
-                        }}
-                        initial={{ opacity: Math.random() * 0.3 + 0.1 }}
-                        animate={{
-                            opacity: [0.1, 0.4, 0.1], // Animations plus légères
-                        }}
-                        transition={{
-                            duration: Math.random() * 5 + 5,
-                            repeat: Infinity,
-                            ease: 'linear',
+                            width: Math.random() * 1.5 + 0.5 + 'px',
+                            height: Math.random() * 1.5 + 0.5 + 'px',
                         }}
                     />
                 ))}
@@ -355,7 +357,10 @@ export function Login() {
                             className="w-full relative mt-6 py-4 px-4 bg-[#0B84D8] hover:bg-[#0971bd] rounded-2xl text-white font-bold transition-all flex items-center justify-center gap-2 group shadow-lg shadow-[#0B84D8]/20"
                         >
                             {loading ? (
-                                <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                <div className="flex items-center gap-3">
+                                    <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <span className="text-sm font-medium">Chargement...</span>
+                                </div>
                             ) : (
                                 <>
                                     <span>{isRegister ? "Créer mon compte" : "Se connecter"}</span>

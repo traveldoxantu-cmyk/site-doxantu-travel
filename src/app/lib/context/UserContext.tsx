@@ -65,6 +65,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const syncUserFromSession = async (userId: string, email: string) => {
+    // Optimisation : Si l'utilisateur est déjà chargé et identique, on ne fait rien
+    if (user && user.id === userId && user.firstName) {
+      return;
+    }
+
     // Essayer de récupérer le profil depuis Supabase
     try {
       const { data: profile } = await supabase!
