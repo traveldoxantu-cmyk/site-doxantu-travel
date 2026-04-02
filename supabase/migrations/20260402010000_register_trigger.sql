@@ -6,18 +6,13 @@
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
-  -- 1. On insère d'abord dans la table public.users (Clé primaire)
-  INSERT INTO public.users (id, email, password, role)
-  VALUES (
-    new.id, 
-    new.email, 
-    'auth_user_redirect', 
-    'client'
-  )
-  ON CONFLICT (id) DO NOTHING;
+  -- 1. On insère ou met à jour dans la table public.users
+  -- (Le mot de passe a été supprimé par une migration précédente, on ne l'inclut pas)
+  INSERT INTO public.users (id, email, role)
+  VALUES (new.id, new.email, 'client')
+  ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email;
 
-  -- 2. On insère ensuite dans la table public.profiles
-  -- IMPORTANT: Pas de colonne 'email' dans 'profiles'
+  -- 2. On insère ou met à jour dans la table public.profiles
   INSERT INTO public.profiles (id, nom, prenom, tel, role)
   VALUES (
     new.id,
@@ -26,7 +21,10 @@ BEGIN
     COALESCE(new.raw_user_meta_data->>'phone', ''),
     'client'
   )
-  ON CONFLICT (id) DO NOTHING;
+  ON CONFLICT (id) DO UPDATE SET
+    nom = EXCLUDED.nom,
+    prenom = EXCLUDED.prenom,
+    tel = EXCLUDED.tel;
 
   RETURN new;
 END;
