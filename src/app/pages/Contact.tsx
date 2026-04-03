@@ -4,6 +4,7 @@ import { Phone, Mail, MapPin, Clock, MessageSquare, Send, CheckCircle } from 'lu
 import { submitContactForm } from '../lib/services/contactService';
 import { SEO } from '../components/SEO';
 import { useUser } from '../lib/context/UserContext';
+import { toast } from 'sonner';
 
 const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
@@ -68,14 +69,21 @@ export function Contact() {
     }
   }, [user]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // 1. Save to Database & Sheets
-    submitContactForm(form);
-
-    setSent(true);
-    setLoading(false);
+    try {
+      // 1. Save to Database & Sheets
+      const result = await submitContactForm(form);
+      if (!result.success) throw result.error;
+      
+      setSent(true);
+    } catch (err) {
+      console.error(err);
+      toast.error("Une erreur est survenue lors de l'envoi de votre message. Veuillez réessayer.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
