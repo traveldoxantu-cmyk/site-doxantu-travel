@@ -42,97 +42,93 @@ export function Login() {
         setError('');
 
         try {
-            // Sûreté : Timeout augmenté à 8 secondes pour les connections lentes
-            const timeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error("Le délai de réponse est un peu long. Vérifiez votre connexion ou réessayez.")), 8000)
-            );
-
             if (isRegister) {
+                // 1. Validations de base
                 if (!email.includes('@') || phone.length < 8 || !firstName || !lastName) {
                     throw new Error('Veuillez remplir correctement tous les champs.');
                 }
+                if (password !== confirmPassword) {
+                    throw new Error('Les mots de passe ne correspondent pas.');
+                }
+                if (password.length < 6) {
+                    throw new Error('Le mot de passe doit contenir au moins 6 caractères.');
+                }
 
-                const signUpPromise = (async () => {
-                    const { data: authData, error: authError } = await supabase.auth.signUp({
-                        email: email.trim().toLowerCase(),
-                        password,
-                        options: {
-                            data: {
-                                first_name: firstName,
-                                last_name: lastName,
-                                phone: phone, 
-                            }
+                // 2. Inscription Supabase
+                const { data: authData, error: authError } = await supabase.auth.signUp({
+                    email: email.trim().toLowerCase(),
+                    password,
+                    options: {
+                        data: {
+                            first_name: firstName,
+                            last_name: lastName,
+                            phone: phone, 
                         }
-                    });
-
-                    if (authError) {
-                        if (authError.message.includes('already registered')) {
-                            throw new Error("Cette adresse email est déjà utilisée. Connectez-vous plutôt !");
-                        }
-                        throw authError;
                     }
+                });
 
-                    if (authData.user) {
-                        const newUser = {
-                            id: authData.user.id,
-                            email: authData.user.email || '',
-                            firstName,
-                            lastName,
-                            role: 'client' as const,
-                            initiales: `${firstName[0]}${lastName[0]}`.toUpperCase()
-                        };
-
-                        setGlobalUser(newUser);
-
-                        // Synchronisation CRM (Sheets) en tâche de fond
-                        sheetsService.sendDemande({
-                            nom: `${firstName} ${lastName}`,
-                            email: email,
-                            tel: phone,
-                            service: 'Nouvelle Inscription',
-                            message: `Nouvel utilisateur inscrit via le site web.`,
-                            source: 'Site Web - Login/Register'
-                        }).catch(err => console.error("[Register] Erreur synchro CRM:", err));
-
-                        toast.success('Bienvenue ! Votre compte est prêt.');
-                        navigate('/mon-espace/dashboard');
+                if (authError) {
+                    if (authError.message.includes('already registered')) {
+                        throw new Error("Cette adresse email est déjà utilisée. Connectez-vous plutôt !");
                     }
-                })();
+                    throw authError;
+                }
 
-                await Promise.race([signUpPromise, timeoutPromise]);
+                if (authData.user) {
+                    const newUser = {
+                        id: authData.user.id,
+                        email: authData.user.email || '',
+                        firstName,
+                        lastName,
+                        role: 'client' as const,
+                        initiales: `${firstName[0]}${lastName[0]}`.toUpperCase()
+                    };
+
+                    setGlobalUser(newUser);
+
+                    // Synchronisation CRM (Sheets) en tâche de fond (non bloquant)
+                    sheetsService.sendDemande({
+                        nom: `${firstName} ${lastName}`,
+                        email: email,
+                        tel: phone,
+                        service: 'Nouvelle Inscription',
+                        message: `Nouvel utilisateur inscrit via le site web.`,
+                        source: 'Site Web - Login/Register'
+                    }).catch(err => console.error("[Register] Erreur synchro CRM:", err));
+
+                    toast.success('Bienvenue ! Votre compte est prêt.');
+                    navigate('/mon-espace/dashboard');
+                }
             } else {
-                const signInPromise = (async () => {
-                    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-                        email: email.trim().toLowerCase(),
-                        password
-                    });
+                // Connexion Supabase
+                const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                    email: email.trim().toLowerCase(),
+                    password
+                });
 
-                    if (authError) {
-                        if (authError.message === 'Email not confirmed' || authError.status === 400) {
-                            throw new Error("Identifiants invalides ou email non confirmé.");
-                        }
-                        throw authError;
+                if (authError) {
+                    if (authError.message === 'Email not confirmed' || authError.status === 400 || authError.message.includes('Invalid login credentials')) {
+                        throw new Error("Identifiants invalides ou email non confirmé.");
                     }
+                    throw authError;
+                }
 
-                    if (authData.user) {
-                        const userRole = authData.user.user_metadata?.role || 'client';
-                        const redirectTo = userRole === 'admin' ? '/admin/dashboard' : '/mon-espace/dashboard';
-                        
-                        const userObj = {
-                            id: authData.user.id,
-                            email: authData.user.email || '',
-                            firstName: authData.user.user_metadata?.first_name || 'Utilisateur',
-                            lastName: authData.user.user_metadata?.last_name || '',
-                            role: userRole as 'client' | 'admin',
-                            initiales: (authData.user.user_metadata?.first_name?.[0] || 'U')
-                        };
-                        setGlobalUser(userObj);
-                        navigate(redirectTo);
-                        toast.success('Bon retour parmi nous !');
-                    }
-                })();
-
-                await Promise.race([signInPromise, timeoutPromise]);
+                if (authData.user) {
+                    const userRole = authData.user.user_metadata?.role || 'client';
+                    const userObj = {
+                        id: authData.user.id,
+                        email: authData.user.email || '',
+                        firstName: authData.user.user_metadata?.first_name || 'Utilisateur',
+                        lastName: authData.user.user_metadata?.last_name || '',
+                        role: userRole as 'client' | 'admin',
+                        initiales: (authData.user.user_metadata?.first_name?.[0] || 'U').toUpperCase()
+                    };
+                    setGlobalUser(userObj);
+                    toast.success('Bon retour parmi nous !');
+                    
+                    const redirectTo = userRole === 'admin' ? '/admin/dashboard' : '/mon-espace/dashboard';
+                    navigate(redirectTo);
+                }
             }
         } catch (err: any) {
             console.error('Erreur Auth complète:', err);
