@@ -8,7 +8,6 @@ import { SEO } from '../components/SEO';
 import { toast } from 'sonner';
 import { apiFetch } from '../lib/api';
 import { supabase } from '../lib/supabase';
-import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission';
 import { useUser } from '../lib/context/UserContext';
 import { useForm } from 'react-hook-form';
 import { sheetsService } from '../lib/services/sheetsService';
@@ -195,19 +194,6 @@ export function VisaAssistance() {
         source: 'Formulaire Visa Assistance'
       }).catch(err => console.error("[VisaAssistance] Erreur synchro Sheets:", err));
 
-      // 4. WhatsApp Message
-      const waMessage = buildWhatsAppMessage(`Nouvelle demande Visa: ${selectedService?.title}`, {
-        Nom: data.nom,
-        Telephone: data.tel,
-        Email: data.email,
-        Destination: data.destination || data.extra.destination || '',
-        Service: selectedService?.title || '',
-        ...data.extra,
-        Documents: files.length > 0 ? `${files.length} fichier(s) joint(s)` : 'Aucun',
-        Message: data.message
-      });
-
-      openWhatsAppSubmission(waMessage);
       toast.success("Votre demande et vos documents ont été envoyés !");
       setSelectedService(null);
       setFiles([]);

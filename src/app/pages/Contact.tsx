@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Phone, Mail, MapPin, Clock, MessageSquare, Send, CheckCircle } from 'lucide-react';
-import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission';
 import { submitContactForm } from '../lib/services/contactService';
 import { SEO } from '../components/SEO';
 import { useUser } from '../lib/context/UserContext';
@@ -72,20 +71,9 @@ export function Contact() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const message = buildWhatsAppMessage('Nouvelle demande de contact', {
-      Nom: form.nom,
-      Telephone: form.tel,
-      Email: form.email,
-      Service: form.service,
-      Message: form.message,
-    });
-    
-    // 1. Save to Database
+    // 1. Save to Database & Sheets
     submitContactForm(form);
 
-
-    // 2. Open WhatsApp (Redirection immediate pour UX)
-    openWhatsAppSubmission(message);
     setSent(true);
     setLoading(false);
   };

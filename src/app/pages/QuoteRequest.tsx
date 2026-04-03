@@ -3,12 +3,10 @@ import { useForm } from 'react-hook-form';
 import { motion } from 'motion/react';
 import { Upload, ArrowRight, CheckCircle, Shield, GraduationCap, Plane, FileText, Globe, Scale, Package } from 'lucide-react';
 import { useSearchParams } from 'react-router';
-import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission';
 import { SEO } from '../components/SEO';
 import { toast } from 'sonner';
 import { apiFetch } from '../lib/api';
 import { useUser } from '../lib/context/UserContext';
-
 import { storageService } from '../lib/services/storageService';
 import { sheetsService } from '../lib/services/sheetsService';
 
@@ -46,8 +44,8 @@ export function QuoteRequest() {
       date: '',
       documents: false,
       nom: '',
-      email: '',
-      tel: '',
+      email: user?.email || '',
+      tel: user?.phone || '',
       message: '',
       niveauEtude: '',
     }
@@ -102,21 +100,7 @@ export function QuoteRequest() {
         setUploadingFiles(false);
       }
 
-      const message = buildWhatsAppMessage("Nouvelle demande d'accompagnement", {
-        "Service": data.service,
-        "Destination": data.destination,
-        "Type de visa": data.visaType || 'Non spécifié',
-        Budget: data.budget,
-        'Date prevue': data.date,
-        'Documents': uploadedUrls.length > 0 ? `${uploadedUrls.length} fichiers joints` : 'Aucun',
-        Nom: data.nom,
-        Telephone: data.tel,
-        Email: data.email,
-        "Niveau d'etudes": data.niveauEtude || 'Non renseigné',
-        Message: data.message,
-      });
-      
-      // 2. Enregistrement en base de données (EN ARRIÈRE-PLAN pour la vitesse)
+      // 2. Enregistrement en base de données (EN ARRIÈRE-PLAN)
       apiFetch('/demandes', {
         method: 'POST',
         body: JSON.stringify({
@@ -135,7 +119,6 @@ export function QuoteRequest() {
           }
         })
       }).catch(err => {
-        // En cas d'erreur asynchrone, on logue mais l'utilisateur a déjà pu ouvrir WhatsApp
         console.error("Échec discret de l'enregistrement DB:", err);
       });
 
@@ -151,8 +134,7 @@ export function QuoteRequest() {
         source: 'Formulaire Devis Accompagnement'
       }).catch(err => console.error("[QuoteRequest] Erreur synchro Sheets:", err));
 
-      // 4. Redirection instantanée
-      openWhatsAppSubmission(message);
+      // 4. Confirmation locale (Plus de redirection WhatsApp automatique)
       setCurrentStep(4);
       toast.success("Votre demande est en cours de transmission !");
     } catch (err) {

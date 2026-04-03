@@ -18,7 +18,6 @@ import {
   Search,
   Loader2,
 } from 'lucide-react';
-import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission';
 import { apiFetch } from '../lib/api';
 import { useUser } from '../lib/context/UserContext';
 import { sheetsService } from '../lib/services/sheetsService';
@@ -74,14 +73,6 @@ export function Ticketing() {
     // Simulate slight delay for premium feel
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    const message = buildWhatsAppMessage('Nouvelle demande billetterie', {
-      Depart: from,
-      Destination: to,
-      'Date aller': departDate,
-      'Date retour': returnDate,
-      Passagers: passengers,
-    });
-
     try {
       try {
         await apiFetch('/demandes', {
@@ -118,7 +109,6 @@ export function Ticketing() {
         source: 'Formulaire Billetterie'
       }).catch(err => console.error("[Ticketing] Erreur synchro Sheets:", err));
 
-      openWhatsAppSubmission(message);
       setFormSent(true);
     } catch (err) {
       console.error(err);
