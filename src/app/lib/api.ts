@@ -79,109 +79,111 @@ export async function apiFetch<T>(path: string, options?: ApiOptions): Promise<T
     // Auto-fallback: utilise le nom de route converti en snake_case
     const table = tableMap[urlPath] || urlPath.replace(/[A-Z]/g, (l) => `_${l.toLowerCase()}`);
 
-    // ── GET ──────────────────────────────────────────────────────────────────
-    if (!options || options.method === 'GET' || !options.method) {
-        let query: any = supabase.from(table).select('*');
+    // Timeout global de 15 secondes pour éviter les blocages infinis
+    const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error(`La requête vers ${table} a expiré (15s).`)), 15000)
+    );
 
-        if (recordId) {
-            // admin_stats utilise une clé TEXT (pas UUID)
-            if (table === 'admin_stats') {
-                query = query.eq('key', recordId);
+    try {
+        // ── GET ──────────────────────────────────────────────────────────────────
+        if (!options || options.method === 'GET' || !options.method) {
+            let query: any = supabase.from(table).select('*');
+
+            if (recordId) {
+                if (table === 'admin_stats') {
+                    query = query.eq('key', recordId);
+                } else {
+                    query = query.eq('id', recordId);
+                }
+            }
+
+            if (path.includes('?')) {
+                const params = new URLSearchParams(path.split('?')[1]);
+                params.forEach((val, key) => {
+                    if (key === '_sort' || key === '_order' || key === '_limit') return;
+                    const snakeKey = key.replace(/[A-Z]/g, (l) => `_${l.toLowerCase()}`);
+                    query = query.eq(snakeKey, val);
+                });
+
+                const sortKey = params.get('_sort');
+                if (sortKey) {
+                    const snakeSortKey = sortKey.replace(/[A-Z]/g, (l) => `_${l.toLowerCase()}`);
+                    query = query.order(snakeSortKey, { ascending: params.get('_order') !== 'desc' });
+                }
+                const limit = params.get('_limit');
+                if (limit) {
+                    query = query.limit(parseInt(limit));
+                }
+            }
+
+            const { data, error } = await Promise.race([query, timeoutPromise]) as any;
+
+            if (error) {
+                if (error.code === 'PGRST116') return null as unknown as T;
+                if (error.code === '42501') {
+                    console.warn(`[RLS] Accès refusé sur ${table}:`, error.message);
+                    return (Array.isArray(data) ? [] : null) as unknown as T;
+                }
+                throw error;
+            }
+
+            if (!data) return ([] as unknown) as T;
+
+            if (recordId && Array.isArray(data) && data.length > 0) {
+                return toCamel(data[0]) as T;
+            }
+
+            if (table === 'admin_stats' && Array.isArray(data) && data.length > 0) {
+                const item = data[0] as any;
+                const content = item.value !== undefined ? item.value : item;
+                return toCamel(content) as T;
+            }
+
+            return toCamel(data) as unknown as T;
+        }
+
+        // ── POST / PUT / PATCH / DELETE ──────────────────────────────────────────
+        const method = options?.method || 'GET';
+        if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+            const body = options?.body ? toSnake(JSON.parse(options.body as string)) : {};
+            let result;
+
+            if (method === 'POST') {
+                result = await Promise.race([supabase.from(table).insert(body), timeoutPromise]) as any;
+                
+                if (result.error) {
+                    console.error(`[API Error] POST ${table}:`, result.error);
+                    if (result.error.code === '42501') {
+                        throw new Error(`Accès refusé sur ${table}. Connectez-vous.`);
+                    }
+                    throw result.error;
+                }
+                return body as T;
+            } else if (method === 'DELETE') {
+                const deleteId = recordId || new URLSearchParams(path.split('?')[1] || '').get('id');
+                if (!deleteId) throw new Error('ID required for DELETE');
+                result = await Promise.race([supabase.from(table).delete().eq('id', deleteId), timeoutPromise]);
+                return {} as T;
             } else {
-                query = query.eq('id', recordId);
+                const { id, ...updateData } = body;
+                const targetId = recordId || id || new URLSearchParams(path.split('?')[1] || '').get('id');
+                if (!targetId) throw new Error('ID required for UPDATE');
+                result = await Promise.race([supabase.from(table).update(updateData).eq('id', targetId).select(), timeoutPromise]) as any;
             }
-        }
 
-        if (path.includes('?')) {
-            const params = new URLSearchParams(path.split('?')[1]);
-            params.forEach((val, key) => {
-                if (key === '_sort' || key === '_order' || key === '_limit') return;
-                const snakeKey = key.replace(/[A-Z]/g, (l) => `_${l.toLowerCase()}`);
-                query = query.eq(snakeKey, val);
-            });
-
-            const sortKey = params.get('_sort');
-            if (sortKey) {
-                const snakeSortKey = sortKey.replace(/[A-Z]/g, (l) => `_${l.toLowerCase()}`);
-                query = query.order(snakeSortKey, { ascending: params.get('_order') !== 'desc' });
-            }
-            const limit = params.get('_limit');
-            if (limit) {
-                query = query.limit(parseInt(limit));
-            }
-        }
-
-        const { data, error } = await query;
-
-        // Gestion propre des erreurs RLS / tables vides
-        if (error) {
-            if (error.code === 'PGRST116') return null as unknown as T; // no rows
-            if (error.code === '42501') {
-                console.warn(`[RLS] Accès refusé sur ${table}:`, error.message);
-                return (Array.isArray(data) ? [] : null) as unknown as T;
-            }
-            throw error;
-        }
-
-        if (!data) return ([] as unknown) as T;
-
-        // Record unique demandé
-        if (recordId && Array.isArray(data) && data.length > 0) {
-            return toCamel(data[0]) as T;
-        }
-
-        // Tables admin_stats : extraire la valeur JSONB
-        if (table === 'admin_stats' && Array.isArray(data) && data.length > 0) {
-            const item = data[0] as any;
-            const content = item.value !== undefined ? item.value : item;
-            return toCamel(content) as T;
-        }
-
-        return toCamel(data) as unknown as T;
-    }
-
-    // ── POST / PUT / PATCH / DELETE ──────────────────────────────────────────
-    const method = options?.method || 'GET';
-    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
-        const body = options?.body ? toSnake(JSON.parse(options.body as string)) : {};
-        let result;
-
-        if (method === 'POST') {
-            // Pour les insertions, on n'utilise pas .select() par défaut car cela peut échouer 
-            // si l'utilisateur a le droit d'insérer mais pas de lire (RLS).
-            result = await supabase.from(table).insert(body);
-            
             if (result.error) {
-                console.error(`[API Error] POST ${table}:`, result.error);
                 if (result.error.code === '42501') {
-                    throw new Error(`Accès refusé. Vérifiez vos permissions sur la table ${table}.`);
+                    throw new Error(`Accès refusé sur ${table}.`);
                 }
                 throw result.error;
             }
-            return body as T; // On retourne le corps envoyé par défaut en cas de succès
-        } else if (method === 'DELETE') {
-            const deleteId = recordId || new URLSearchParams(path.split('?')[1] || '').get('id');
-            if (!deleteId) throw new Error('ID required for DELETE request');
-            result = await supabase.from(table).delete().eq('id', deleteId);
+            if (result.data && result.data.length > 0) return toCamel(result.data[0]) as T;
             return {} as T;
-        } else {
-            // PUT or PATCH
-            const { id, ...updateData } = body;
-            const targetId = recordId || id || new URLSearchParams(path.split('?')[1] || '').get('id');
-            if (!targetId) throw new Error('ID required for UPDATE request');
-            result = await supabase.from(table).update(updateData).eq('id', targetId).select();
         }
-
-        if (result.error) {
-            if (result.error.code === '42501') {
-                console.warn(`[RLS] Accès refusé pour ${method} sur ${table}`);
-                throw new Error(`Accès refusé. Vérifiez que vous êtes connecté.`);
-            }
-            throw result.error;
-        }
-        if (result.data && result.data.length > 0) return toCamel(result.data[0]) as T;
-        return {} as T;
+    } catch (err: any) {
+        console.error(`[apiFetch] Fatal Error on ${path}:`, err);
+        throw err;
     }
 
-    throw new Error(`Unsupported request: ${method} to ${path}`);
+    throw new Error(`Unsupported request: ${options?.method} to ${path}`);
 }

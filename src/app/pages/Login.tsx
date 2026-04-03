@@ -41,52 +41,57 @@ export function Login() {
         setLoading(true);
         setError('');
 
+        const authPromise = isRegister 
+            ? supabase.auth.signUp({
+                email: email.trim().toLowerCase(),
+                password,
+                options: {
+                    data: {
+                        first_name: firstName,
+                        last_name: lastName,
+                        phone: phone, 
+                    }
+                }
+            })
+            : supabase.auth.signInWithPassword({
+                email: email.trim().toLowerCase(),
+                password
+            });
+
+        // Timeout de sécurité : 10 secondes (contre les blocages infinis)
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error("Le service met trop de temps à répondre. Veuillez réessayer.")), 10000)
+        );
+
         try {
-            if (isRegister) {
-                // 1. Validations de base
-                if (!email.includes('@') || phone.length < 8 || !firstName || !lastName) {
-                    throw new Error('Veuillez remplir correctement tous les champs.');
+            const { data: authData, error: authError } = await Promise.race([authPromise, timeoutPromise]) as any;
+
+            if (authError) {
+                if (authError.message.includes('already registered')) {
+                    throw new Error("Cette adresse email est déjà utilisée. Connectez-vous plutôt !");
                 }
-                if (password !== confirmPassword) {
-                    throw new Error('Les mots de passe ne correspondent pas.');
+                if (authError.message === 'Email not confirmed' || authError.status === 400 || authError.message.includes('Invalid login credentials')) {
+                    throw new Error("Identifiants invalides ou email non confirmé.");
                 }
-                if (password.length < 6) {
-                    throw new Error('Le mot de passe doit contenir au moins 6 caractères.');
-                }
+                throw authError;
+            }
 
-                // 2. Inscription Supabase
-                const { data: authData, error: authError } = await supabase.auth.signUp({
-                    email: email.trim().toLowerCase(),
-                    password,
-                    options: {
-                        data: {
-                            first_name: firstName,
-                            last_name: lastName,
-                            phone: phone, 
-                        }
-                    }
-                });
+            if (authData?.user) {
+                const userRole = authData.user.user_metadata?.role || 'client';
+                const userObj = {
+                    id: authData.user.id,
+                    email: authData.user.email || '',
+                    firstName: isRegister ? firstName : (authData.user.user_metadata?.first_name || 'Utilisateur'),
+                    lastName: isRegister ? lastName : (authData.user.user_metadata?.last_name || ''),
+                    role: userRole as 'client' | 'admin',
+                    initiales: isRegister ? `${firstName[0]}${lastName[0]}`.toUpperCase() : (authData.user.user_metadata?.first_name?.[0] || 'U').toUpperCase()
+                };
 
-                if (authError) {
-                    if (authError.message.includes('already registered')) {
-                        throw new Error("Cette adresse email est déjà utilisée. Connectez-vous plutôt !");
-                    }
-                    throw authError;
-                }
+                // Mise à jour globale immédiate
+                setGlobalUser(userObj);
 
-                if (authData.user) {
-                    const newUser = {
-                        id: authData.user.id,
-                        email: authData.user.email || '',
-                        firstName,
-                        lastName,
-                        role: 'client' as const,
-                        initiales: `${firstName[0]}${lastName[0]}`.toUpperCase()
-                    };
-
-                    setGlobalUser(newUser);
-
-                    // Synchronisation CRM (Sheets) en tâche de fond (non bloquant)
+                if (isRegister) {
+                    // CRM en arrière-plan
                     sheetsService.sendDemande({
                         nom: `${firstName} ${lastName}`,
                         email: email,
@@ -95,40 +100,17 @@ export function Login() {
                         message: `Nouvel utilisateur inscrit via le site web.`,
                         source: 'Site Web - Login/Register'
                     }).catch(err => console.error("[Register] Erreur synchro CRM:", err));
-
-                    toast.success('Bienvenue ! Votre compte est prêt.');
-                    navigate('/mon-espace/dashboard');
-                }
-            } else {
-                // Connexion Supabase
-                const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-                    email: email.trim().toLowerCase(),
-                    password
-                });
-
-                if (authError) {
-                    if (authError.message === 'Email not confirmed' || authError.status === 400 || authError.message.includes('Invalid login credentials')) {
-                        throw new Error("Identifiants invalides ou email non confirmé.");
-                    }
-                    throw authError;
-                }
-
-                if (authData.user) {
-                    const userRole = authData.user.user_metadata?.role || 'client';
-                    const userObj = {
-                        id: authData.user.id,
-                        email: authData.user.email || '',
-                        firstName: authData.user.user_metadata?.first_name || 'Utilisateur',
-                        lastName: authData.user.user_metadata?.last_name || '',
-                        role: userRole as 'client' | 'admin',
-                        initiales: (authData.user.user_metadata?.first_name?.[0] || 'U').toUpperCase()
-                    };
-                    setGlobalUser(userObj);
-                    toast.success('Bon retour parmi nous !');
                     
-                    const redirectTo = userRole === 'admin' ? '/admin/dashboard' : '/mon-espace/dashboard';
-                    navigate(redirectTo);
+                    toast.success('Bienvenue ! Votre compte est prêt.');
+                } else {
+                    toast.success('Bon retour parmi nous !');
                 }
+
+                // Redirection différée pour laisser le state se stabiliser
+                setTimeout(() => {
+                    const redirectTo = userRole === 'admin' ? '/admin/dashboard' : '/mon-espace/dashboard';
+                    navigate(redirectTo, { replace: true });
+                }, 100);
             }
         } catch (err: any) {
             console.error('Erreur Auth complète:', err);

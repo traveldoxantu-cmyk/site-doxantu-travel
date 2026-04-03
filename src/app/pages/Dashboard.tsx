@@ -63,21 +63,37 @@ export function Dashboard() {
             }
             try {
                 // Charger en parallèle : profil, timeline, deadlines, docs, conseiller, messages
+                // Temps d'attente maximum par appel : 10s
+                const fetchWithTimeout = (promise: any) => Promise.race([
+                    promise,
+                    new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 10000))
+                ]).catch(err => {
+                    console.warn("[Dashboard] Échec partiel d'un chargement:", err);
+                    return { data: null, error: err };
+                });
+
                 const [
-                    { data: prof },
-                    { data: tl },
-                    { data: dl },
-                    { data: docs },
-                    { data: cons },
-                    { data: msgs },
+                    profRes,
+                    tlRes,
+                    dlRes,
+                    docsRes,
+                    consRes,
+                    msgsRes,
                 ] = await Promise.all([
-                    supabase!.from('profiles').select('*').eq('id', user.id).single(),
-                    supabase!.from('timeline').select('*').eq('user_id', user.id).order('date'),
-                    supabase!.from('deadlines').select('*').eq('user_id', user.id).order('date'),
-                    supabase!.from('user_documents').select('id').eq('user_id', user.id),
-                    supabase!.from('conseillers').select('*').limit(1),
-                    supabase!.from('messages').select('id').eq('status', 'unread').limit(99),
+                    fetchWithTimeout(supabase!.from('profiles').select('*').eq('id', user.id).single()),
+                    fetchWithTimeout(supabase!.from('timeline').select('*').eq('user_id', user.id).order('date')),
+                    fetchWithTimeout(supabase!.from('deadlines').select('*').eq('user_id', user.id).order('date')),
+                    fetchWithTimeout(supabase!.from('user_documents').select('id').eq('user_id', user.id)),
+                    fetchWithTimeout(supabase!.from('conseillers').select('*').limit(1)),
+                    fetchWithTimeout(supabase!.from('messages').select('id').eq('status', 'unread').limit(99)),
                 ]);
+
+                const prof = profRes.data;
+                const tl   = tlRes.data;
+                const dl   = dlRes.data;
+                const docs = docsRes.data;
+                const cons = consRes.data;
+                const msgs = msgsRes.data;
 
                 const p = prof || {};
                 setProfile(p);
@@ -102,7 +118,7 @@ export function Dashboard() {
                 // Timeline depuis Supabase ou fallback accueil
                 let finalTimeline: TimelineItem[] = [];
                 if (tl && tl.length > 0) {
-                    finalTimeline = tl.map(t => ({
+                    finalTimeline = tl.map((t: any) => ({
                         id: t.id,
                         title: t.title,
                         date: t.date,
@@ -118,7 +134,7 @@ export function Dashboard() {
                 setTimeline(finalTimeline);
 
                 // Deadlines depuis Supabase ou vide
-                const finalDeadlines = (dl || []).map(d => ({
+                const finalDeadlines: Deadline[] = (dl || []).map((d: any) => ({
                     id: d.id,
                     title: d.title,
                     date: d.date,

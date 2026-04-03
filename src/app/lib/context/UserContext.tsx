@@ -50,11 +50,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     initAuth();
 
     // Écouter les changements d'état d'auth en temps réel
-    const { data: { subscription } } = supabase?.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase?.auth.onAuthStateChange((event, session) => {
+      console.log(`[UserContext] Auth Event: ${event}`);
       if (session?.user) {
-        // Optimisation : Ne pas resynchroniser inutilement sur chaque événement mineur
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
-          await syncUserFromSession(session.user.id, session.user.email || '');
+          // Sync asynchrone pour ne pas bloquer le thread principal
+          syncUserFromSession(session.user.id, session.user.email || '');
         }
       } else if (event === 'SIGNED_OUT') {
         localStorage.removeItem('user');
@@ -66,14 +67,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const syncUserFromSession = async (userId: string, email: string) => {
+    // 0. Récupération des données Auth Session (métadonnées prédictives)
+    // Cela nous donne instantanément un nom/prénom.
     try {
-      // 0. Récupération des données Auth Session (métadonnées prédictives)
-      // Cela nous donne instantanément un nom/prénom même si le profil n'est pas encore prêt.
-      const { data: { user: authUser }, error: authError } = await supabase!.auth.getUser();
-      
-      if (authError) throw authError;
+      const { data: { user: authUser } } = await supabase!.auth.getUser();
 
-      const predictiveProfile: Partial<User> = {
+      const predictiveProfile: User = {
         id: userId,
         email,
         firstName: authUser?.user_metadata?.first_name || authUser?.user_metadata?.full_name?.split(' ')[0] || 'Ami',
@@ -82,53 +81,48 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         initiales: (authUser?.user_metadata?.first_name?.[0] || authUser?.user_metadata?.full_name?.[0] || 'U').toUpperCase()
       };
 
-      // 1. Priorité extrême au localStorage pour un affichage instantané
+      // 1. Priorité à l'affichage immédiat
       const stored = localStorage.getItem('user');
       if (stored) {
         const parsed = JSON.parse(stored);
         if (parsed.id === userId) {
           setUserState(parsed);
+        } else {
+          setUserState(predictiveProfile);
         }
       } else {
-        // Si rien en cache, utiliser le profil prédictif pour éviter l'écran blanc
-        setUserState(predictiveProfile as User);
+        setUserState(predictiveProfile);
       }
 
-      // 2. Récupération asynchrone sécurisée du profil complet depuis la table 'profiles'
-      // Utilisation d'un bloc try-catch isolé pour ne pas bloquer l'auth si le profil échoue
+    // 2. Mise à jour asynchrone du profil complet depuis la table 'profiles'
+    // On ne l'attend pas pour la navigation.
+    (async () => {
       try {
-        const { data: profile, error: profileError } = await supabase!
+        const { data: profile, error } = await supabase!
           .from('profiles')
           .select('*')
           .eq('id', userId)
           .maybeSingle();
 
-        if (profile && !profileError) {
+        if (profile && !error) {
           const userObj: User = {
             id: userId,
             email,
-            firstName: profile.prenom || (predictiveProfile.firstName as string),
-            lastName: profile.nom || (predictiveProfile.lastName as string),
+            firstName: profile.prenom || predictiveProfile.firstName,
+            lastName: profile.nom || predictiveProfile.lastName,
             phone: profile.tel,
-            role: (profile.role as 'client' | 'admin') || (predictiveProfile.role as 'client' | 'admin'),
+            role: (profile.role as 'client' | 'admin') || predictiveProfile.role,
             initiales: profile.initiales || (profile.prenom?.[0] || 'U') + (profile.nom?.[0] || ''),
           };
           localStorage.setItem('user', JSON.stringify(userObj));
           setUserState(userObj);
-        } else if (profileError) {
-          console.warn("[UserContext] Problème récupération profil (table absente ou err):", profileError);
-          // On reste sur le profil prédictif déjà configuré au dessus
         }
-      } catch (innerErr) {
-        console.warn("[UserContext] Erreur lors de la lecture de la table profil:", innerErr);
-        // Fallback déjà géré par setUserState(predictiveProfile) plus haut
+      } catch (err: any) {
+        console.warn("[UserContext] Erreur profil non-critique:", err);
       }
+    })();
     } catch (err) {
       console.error("[UserContext] Erreur fatale sync session:", err);
-      // En dernier recours, reset si on ne peut même pas avoir l'auth user
-      if (!localStorage.getItem('user')) {
-        setUserState(null);
-      }
     }
   };
 
