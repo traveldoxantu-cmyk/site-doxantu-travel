@@ -5,6 +5,7 @@ import { Link } from 'react-router';
 import { apiFetch } from '../lib/api';
 import { supabase } from '../lib/supabase';
 import { SEO } from '../components/SEO';
+import { Skeleton } from '../components/ui/skeleton';
 
 interface AdminStats {
     caTotalAnnuel: number; clientsSatisfaits: number;
@@ -104,8 +105,10 @@ export function AdminDashboard() {
             apiFetch<StatutItem[]>('/dossiers_statut'),
             apiFetch<any[]>('/paiements?_limit=5&_sort=created_at&_order=desc'),
             // Clients urgents : clients avec champ urgent=true dans profiles
-            supabase?.from('profiles').select('id, nom, prenom, initiales, dossier_id, destination, avancement')
-                .eq('urgent' as any, true).limit(5)
+            supabase?.from('profiles')
+                .select('id, nom, prenom, initiales, dossier_id, destination, avancement')
+                .match({ urgent: true })
+                .limit(5)
                 .then(r => r?.data ?? []),
             apiFetch<Demande[]>('/demandes?_limit=5&_sort=created_at&_order=desc'),
         ]).then(([s, c, st, p, dUrgent, dem]) => {
@@ -187,15 +190,15 @@ export function AdminDashboard() {
     if (loading) {
         return (
             <div className="space-y-6 max-w-7xl mx-auto">
-                <div className="h-32 bg-gray-100 rounded-3xl animate-pulse" />
+                <Skeleton className="h-32 rounded-3xl" />
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {[1, 2, 3, 4].map(i => (
-                        <div key={i} className="h-32 bg-white border border-gray-50 rounded-[28px] animate-pulse" />
+                        <Skeleton key={i} className="h-32 rounded-[28px]" />
                     ))}
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                    <div className="lg:col-span-2 h-[350px] bg-white border border-gray-50 rounded-3xl animate-pulse" />
-                    <div className="h-[350px] bg-white border border-gray-50 rounded-3xl animate-pulse" />
+                    <Skeleton className="lg:col-span-2 h-[350px] rounded-3xl" />
+                    <Skeleton className="h-[350px] rounded-3xl" />
                 </div>
             </div>
         );

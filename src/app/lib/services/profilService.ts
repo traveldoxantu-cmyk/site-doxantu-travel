@@ -43,22 +43,27 @@ export const profilService = {
     getProfil: async (userId: string): Promise<Profil | null> => {
         if (!supabase || !userId) return null;
 
-        const { data, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', userId)
-            .single();
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', userId)
+                .maybeSingle();
 
-        if (error) {
-            if (error.code === 'PGRST116') return null; // Not found
-            if (error.code === '42501') {
-                console.warn('[RLS] Accès refusé sur profiles pour userId:', userId);
+            if (error) {
+                if (error.code === '42501') {
+                    console.warn('[profilService] Erreur RLS (Accès refusé):', userId);
+                    return null;
+                }
+                console.error('[profilService] Erreur lors de la récupération du profil:', error);
                 return null;
             }
-            throw error;
-        }
 
-        return data;
+            return data;
+        } catch (err) {
+            console.error('[profilService] Erreur inattendue:', err);
+            return null;
+        }
     },
 
     /**

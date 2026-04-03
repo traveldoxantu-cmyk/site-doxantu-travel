@@ -10,6 +10,7 @@ import { apiFetch } from '../lib/api';
 import { useUser } from '../lib/context/UserContext';
 
 import { storageService } from '../lib/services/storageService';
+import { sheetsService } from '../lib/services/sheetsService';
 
 type QuoteFormValues = {
   service: string;
@@ -138,8 +139,19 @@ export function QuoteRequest() {
         console.error("Échec discret de l'enregistrement DB:", err);
       });
 
+      // 3. Liaison Google Sheets (CRM)
+      sheetsService.sendDemande({
+        nom: data.nom,
+        email: data.email,
+        tel: data.tel,
+        service: data.service,
+        destination: data.destination || 'Non spécifiée',
+        message: `Budget: ${data.budget} | Visa: ${data.visaType} | Études: ${data.niveauEtude} | Message: ${data.message}`,
+        files: uploadedUrls,
+        source: 'Formulaire Devis Accompagnement'
+      }).catch(err => console.error("[QuoteRequest] Erreur synchro Sheets:", err));
 
-      // 3. Redirection instantanée
+      // 4. Redirection instantanée
       openWhatsAppSubmission(message);
       setCurrentStep(4);
       toast.success("Votre demande est en cours de transmission !");

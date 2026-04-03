@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { SEO } from '../components/SEO';
 import { supabase } from '../lib/supabase';
 import { useUser } from '../lib/context/UserContext';
+import { sheetsService } from '../lib/services/sheetsService';
 
 export function Login() {
     const [searchParams] = useSearchParams();
@@ -41,9 +42,9 @@ export function Login() {
         setError('');
 
         try {
-            // MODE SURVIE V8 : Timeout augmenté à 15 secondes pour compenser la lenteur de Supabase
+            // Sûreté : Timeout augmenté à 8 secondes pour les connections lentes
             const timeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error("TIMEOUT")), 15000)
+                setTimeout(() => reject(new Error("Le délai de réponse est un peu long. Vérifiez votre connexion ou réessayez.")), 8000)
             );
 
             if (isRegister) {
@@ -72,33 +73,33 @@ export function Login() {
                     }
 
                     if (authData.user) {
-                        setGlobalUser({
+                        const newUser = {
                             id: authData.user.id,
                             email: authData.user.email || '',
                             firstName,
                             lastName,
-                            role: 'client',
+                            role: 'client' as const,
                             initiales: `${firstName[0]}${lastName[0]}`.toUpperCase()
-                        });
+                        };
+
+                        setGlobalUser(newUser);
+
+                        // Synchronisation CRM (Sheets) en tâche de fond
+                        sheetsService.sendDemande({
+                            nom: `${firstName} ${lastName}`,
+                            email: email,
+                            tel: phone,
+                            service: 'Nouvelle Inscription',
+                            message: `Nouvel utilisateur inscrit via le site web.`,
+                            source: 'Site Web - Login/Register'
+                        }).catch(err => console.error("[Register] Erreur synchro CRM:", err));
+
                         toast.success('Bienvenue ! Votre compte est prêt.');
                         navigate('/mon-espace/dashboard');
                     }
                 })();
 
-                try {
-                    await Promise.race([signUpPromise, timeoutPromise]);
-                } catch (err: any) {
-                    if (err.message === 'TIMEOUT') {
-                        console.warn("Délai dépassé, vérification de la session...");
-                        const { data: sessionData } = await supabase.auth.getSession();
-                        if (sessionData.session) {
-                            navigate('/mon-espace/dashboard');
-                            return;
-                        }
-                        throw new Error("Le délai de réponse est un peu long. Vérifiez vos mails, le compte a peut-être été créé.");
-                    }
-                    throw err;
-                }
+                await Promise.race([signUpPromise, timeoutPromise]);
             } else {
                 const signInPromise = (async () => {
                     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
@@ -352,7 +353,7 @@ export function Login() {
                             {loading ? (
                                 <div className="flex items-center gap-3">
                                     <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    <span className="text-sm font-medium">Chargement...</span>
+                                    <span className="text-sm font-medium">Préparation de votre voyage...</span>
                                 </div>
                             ) : (
                                 <>

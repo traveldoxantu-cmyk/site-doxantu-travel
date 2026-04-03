@@ -4,6 +4,7 @@ import { Info, CheckCircle2, FileText, Search, GraduationCap, Plane, Building2, 
 import { Link } from 'react-router';
 import { apiFetch } from '../lib/api';
 import { dossierService, type DossierStep } from '../lib/services/dossierService';
+import { Skeleton } from '../components/ui/skeleton';
 
 type IconType = typeof FileText;
 
@@ -65,11 +66,13 @@ export function MonDossier() {
 
     if (loading) {
         return (
-            <div className="max-w-4xl mx-auto pb-24 space-y-8 animate-pulse">
-                <div className="h-10 bg-gray-200 rounded-2xl w-3/4" />
-                <div className="h-6 bg-gray-200 rounded-xl w-1/4" />
+            <div className="max-w-4xl mx-auto pb-24 space-y-8">
+                <Skeleton className="h-10 w-3/4 rounded-2xl" />
+                <Skeleton className="h-6 w-1/4 rounded-xl" />
                 <div className="space-y-4">
-                    {[1,2,3,4,5,6].map(i => <div key={i} className="bg-gray-200 rounded-3xl h-24" />)}
+                    {[1, 2, 3, 4, 5, 6].map(i => (
+                        <Skeleton key={i} className="h-24 rounded-3xl" />
+                    ))}
                 </div>
             </div>
         );

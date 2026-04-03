@@ -11,6 +11,7 @@ import { supabase } from '../lib/supabase';
 import { buildWhatsAppMessage, openWhatsAppSubmission } from '../lib/submission';
 import { useUser } from '../lib/context/UserContext';
 import { useForm } from 'react-hook-form';
+import { sheetsService } from '../lib/services/sheetsService';
 
 
 const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
@@ -182,9 +183,19 @@ export function VisaAssistance() {
         console.error("Échec discret de l'enregistrement Visa DB:", err);
       });
 
-      
+      // 3. Sync to Google Sheets (CRM)
+      sheetsService.sendDemande({
+        nom: data.nom,
+        email: data.email,
+        tel: data.tel,
+        service: selectedService?.title || 'Visa',
+        destination: data.destination || data.extra?.destination || 'Non spécifiée',
+        message: data.message,
+        files: fileUrls,
+        source: 'Formulaire Visa Assistance'
+      }).catch(err => console.error("[VisaAssistance] Erreur synchro Sheets:", err));
 
-      // 3. WhatsApp Message
+      // 4. WhatsApp Message
       const waMessage = buildWhatsAppMessage(`Nouvelle demande Visa: ${selectedService?.title}`, {
         Nom: data.nom,
         Telephone: data.tel,

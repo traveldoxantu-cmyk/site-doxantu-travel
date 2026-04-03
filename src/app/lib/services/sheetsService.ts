@@ -6,26 +6,30 @@ export const sheetsService = {
                         "https://script.google.com/macros/s/AKfycbxx2f5ZVtfszq98GuahrYlJstZ9QtFl8qtBieYfOzaNTir3XTkyfD0j2AdYZGDuywFHVQ/exec";
     
     if (!WEBHOOK_URL) {
-      console.warn("VITE_GOOGLE_SHEETS_WEBHOOK_URL non configuré. Envoi vers Sheets annulé.");
+      console.warn("[SheetsService] VITE_GOOGLE_SHEETS_WEBHOOK_URL non configuré. Envoi vers Sheets annulé.");
       return;
     }
 
     // Normalisation des données pour le Google Sheet
+    // On s'adapte à la structure reçue (Visa, Contact, Billetterie, Inscription)
     const payload = {
-      nom: data.nom || 'Inconnu',
+      nom: data.nom || data.fullName || 'Inconnu',
       email: data.email || 'Non renseigné',
-      tel: data.tel || 'Non renseigné',
+      tel: data.tel || data.phone || 'Non renseigné',
       service: data.service || 'Demande générale',
-      destination: data.destination || data.to || 'Non spécifiée',
+      destination: data.destination || data.to || 'Sénégal (Dakar)',
       message: data.message || 'Aucun message particulier',
-      files: data.files || 'Aucun',
+      files: Array.isArray(data.files) ? data.files.join(", ") : (data.files || 'Aucun'),
       timestamp: new Date().toLocaleString('fr-FR'),
-      source: data.source || 'Site Web Doxantu'
+      source: data.source || 'Site Web Doxantu',
+      meta: JSON.stringify(data.extra || {}) // Données supplémentaires au besoin
     };
+
+    console.log(`[SheetsService] 📤 Envoi CRM (${payload.service}) pour ${payload.nom}...`);
 
     try {
       // Utilisation du mode 'no-cors' pour éviter les erreurs CORS avec Google Apps Script
-      // Note: Avec 'no-cors', on ne peut pas lire la réponse, mais l'envoi fonctionne.
+      // Note: Avec 'no-cors', on ne peut pas lire le corps de la réponse mais l'exécution fonctionne.
       await fetch(WEBHOOK_URL, {
         method: 'POST',
         mode: 'no-cors',
@@ -34,9 +38,11 @@ export const sheetsService = {
         },
         body: JSON.stringify(payload),
       });
-      console.log("Données transmises au CRM Google Sheets");
+      console.log("[SheetsService] ✅ Données transmises avec succès au CRM Google Sheets.");
+      return { success: true };
     } catch (err) {
-      console.error("Échec de la synchronisation Google Sheets:", err);
+      console.error("[SheetsService] ❌ Échec de la synchronisation Google Sheets:", err);
+      return { success: false, error: err };
     }
   }
 };
