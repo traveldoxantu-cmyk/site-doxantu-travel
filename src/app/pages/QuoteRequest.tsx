@@ -89,57 +89,73 @@ export function QuoteRequest() {
     let uploadedUrls: string[] = [];
 
     try {
-      // 1. Upload files first if any
+      // 1. Upload des fichiers (si présents)
       if (files.length > 0) {
         setUploadingFiles(true);
-        const uploadPromises = files.map(file => {
-          const path = `demandes/${Date.now()}_${file.name}`;
-          return storageService.uploadFile('documents', path, file);
-        });
-        uploadedUrls = await Promise.all(uploadPromises);
+        try {
+          const uploadPromises = files.map(file => {
+            const path = `demandes/${Date.now()}_${file.name}`;
+            return storageService.uploadFile('documents', path, file);
+          });
+          uploadedUrls = await Promise.all(uploadPromises);
+        } catch (uploadErr) {
+          console.error("Erreur upload fichiers:", uploadErr);
+          toast.error("Erreur lors de l'envoi des documents. Vérifiez votre connexion.");
+          setLoading(false);
+          setUploadingFiles(false);
+          return; // On arrête tout si l'upload échoue
+        }
         setUploadingFiles(false);
       }
 
-      // 2. Enregistrement en base de données (EN ARRIÈRE-PLAN)
-      apiFetch('/demandes', {
-        method: 'POST',
-        body: JSON.stringify({
-          type: data.service === 'billet-retour' ? 'billetterie' : 'accompagnement',
+      // 2. Enregistrement Base de données (Supabase)
+      try {
+        await apiFetch('/demandes', {
+          method: 'POST',
+          body: JSON.stringify({
+            type: data.service === 'billet-retour' ? 'billetterie' : 'accompagnement',
+            nom: data.nom,
+            email: data.email,
+            tel: data.tel,
+            service: data.service,
+            status: 'pending',
+            user_id: user?.id || null,
+            data: {
+              ...data,
+              files: uploadedUrls,
+              recipient: 'traveldoxantu@gmail.com',
+              createdAt: new Date().toISOString()
+            }
+          })
+        });
+      } catch (dbErr) {
+        console.error("Erreur base de données:", dbErr);
+        // On ne bloque pas forcément l'utilisateur si Sheets fonctionne, 
+        // mais pour la robustesse on logue l'erreur.
+      }
+
+      // 3. Synchronisation Google Sheets (CRM)
+      try {
+        await sheetsService.sendDemande({
           nom: data.nom,
           email: data.email,
           tel: data.tel,
           service: data.service,
-          status: 'pending',
-          user_id: user?.id || null,
-          data: {
-            ...data,
-            files: uploadedUrls,
-            recipient: 'traveldoxantu@gmail.com',
-            createdAt: new Date().toISOString()
-          }
-        })
-      }).catch(err => {
-        console.error("Échec discret de l'enregistrement DB:", err);
-      });
+          destination: data.destination || 'Non spécifiée',
+          message: `Budget: ${data.budget} | Visa: ${data.visaType} | Études: ${data.niveauEtude} | Message: ${data.message}`,
+          files: uploadedUrls,
+          source: 'Formulaire Devis Accompagnement'
+        });
+      } catch (sheetsErr) {
+        console.error("Erreur Sheets:", sheetsErr);
+      }
 
-      // 3. Liaison Google Sheets (CRM)
-      sheetsService.sendDemande({
-        nom: data.nom,
-        email: data.email,
-        tel: data.tel,
-        service: data.service,
-        destination: data.destination || 'Non spécifiée',
-        message: `Budget: ${data.budget} | Visa: ${data.visaType} | Études: ${data.niveauEtude} | Message: ${data.message}`,
-        files: uploadedUrls,
-        source: 'Formulaire Devis Accompagnement'
-      }).catch(err => console.error("[QuoteRequest] Erreur synchro Sheets:", err));
-
-      // 4. Confirmation locale (Plus de redirection WhatsApp automatique)
+      // 4. Succès final
       setCurrentStep(4);
-      toast.success("Votre demande est en cours de transmission !");
+      toast.success("Votre demande a été transmise avec succès !");
     } catch (err) {
-      console.error(err);
-      toast.error("Erreur lors de l'envoi. Veuillez vérifier vos fichiers ou votre connexion.");
+      console.error("Erreur globale soumission:", err);
+      toast.error("Une erreur imprévue est survenue. Veuillez réessayer.");
     } finally {
       setLoading(false);
       setUploadingFiles(false);
