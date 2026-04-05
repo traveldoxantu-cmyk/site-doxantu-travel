@@ -81,17 +81,17 @@ export function Login() {
                 const userObj = {
                     id: authData.user.id,
                     email: authData.user.email || '',
-                    firstName: isRegister ? firstName : (authData.user.user_metadata?.first_name || 'Utilisateur'),
-                    lastName: isRegister ? lastName : (authData.user.user_metadata?.last_name || ''),
+                    firstName: authData.user.user_metadata?.first_name || firstName || 'Utilisateur',
+                    lastName: authData.user.user_metadata?.last_name || lastName || '',
                     role: userRole as 'client' | 'admin',
-                    initiales: isRegister ? `${firstName[0]}${lastName[0]}`.toUpperCase() : (authData.user.user_metadata?.first_name?.[0] || 'U').toUpperCase()
+                    initiales: (authData.user.user_metadata?.first_name?.[0] || firstName?.[0] || 'U').toUpperCase()
                 };
 
-                // Mise à jour globale immédiate
+                // Mise à jour globale immédiate (le trigger DB s'occupe du reste en arrière-plan)
                 setGlobalUser(userObj);
 
                 if (isRegister) {
-                    // CRM en arrière-plan
+                    // CRM en arrière-plan (Doublon de sécurité, l'automatisation Edge Function prendra le relais)
                     sheetsService.sendDemande({
                         nom: `${firstName} ${lastName}`,
                         email: email,
@@ -110,7 +110,7 @@ export function Login() {
                 setTimeout(() => {
                     const redirectTo = userRole === 'admin' ? '/admin/dashboard' : '/mon-espace/dashboard';
                     navigate(redirectTo, { replace: true });
-                }, 100);
+                }, 150);
             }
         } catch (err: any) {
             console.error('Erreur Auth complète:', err);

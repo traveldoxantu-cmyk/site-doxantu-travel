@@ -98,7 +98,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     // On ne l'attend pas pour la navigation.
     (async () => {
       try {
-        const { data: profile, error } = await supabase!
+        if (!supabase) return;
+        
+        // On récupère les données de la table 'profiles'
+        // Note: La table 'users' est déjà synchronisée via le trigger
+        const { data: profile, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', userId)
@@ -108,11 +112,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           const userObj: User = {
             id: userId,
             email,
-            firstName: profile.prenom || predictiveProfile.firstName,
-            lastName: profile.nom || predictiveProfile.lastName,
-            phone: profile.tel,
-            role: (profile.role as 'client' | 'admin') || predictiveProfile.role,
-            initiales: profile.initiales || (profile.prenom?.[0] || 'U') + (profile.nom?.[0] || ''),
+            firstName: predictiveProfile.firstName, // On garde les meta de auth.users qui sont la source de vérité
+            lastName: predictiveProfile.lastName,
+            phone: predictiveProfile.phone,
+            role: predictiveProfile.role,
+            initiales: predictiveProfile.initiales,
           };
           localStorage.setItem('user', JSON.stringify(userObj));
           setUserState(userObj);
