@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://fcuboucxyirgldeugvem.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_DbJU9gpq3TJpIOrDJyyzew_u8Nx8WS9';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjdWJvdWN4eWlyZ2xkZXVndmVtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMTc2OTAsImV4cCI6MjA4ODg5MzY5MH0.xBg492LL9LyiHIWybThuXAn-5Ff2qz7Jc_BDSGQ61Ms';
 
 // Guard: only initialise if credentials look like real values (http/https URLs)
 const isValidUrl = (url: string) => {
