@@ -11,6 +11,7 @@ import { supabase } from '../lib/supabase';
 import { useUser } from '../lib/context/UserContext';
 import { useForm } from 'react-hook-form';
 import { sheetsService } from '../lib/services/sheetsService';
+import { AdminRestrictionNotice } from '../components/AdminRestrictionNotice';
 
 
 const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
@@ -85,9 +86,9 @@ export function VisaAssistance() {
 
   const { register, handleSubmit, reset } = useForm<VisaFormValues>({
     defaultValues: {
-      nom: '',
-      tel: '',
-      email: '',
+      nom: user?.firstName ? `${user.firstName} ${user.lastName}` : '',
+      tel: user?.phone || '',
+      email: user?.email || '',
       destination: '',
       message: '',
       extra: {}
@@ -191,6 +192,7 @@ export function VisaAssistance() {
         destination: data.destination || data.extra?.destination || 'Non spécifiée',
         message: data.message,
         files: fileUrls,
+        extra: data.extra, // Ensure contextual info (motif, niveau, etc.) is sent
         source: 'Formulaire Visa Assistance'
       }).catch(err => console.error("[VisaAssistance] Erreur synchro Sheets:", err));
 
@@ -239,13 +241,7 @@ export function VisaAssistance() {
               Visa étudiant, visa tourisme, légalisation de documents, nous gérons tout
               pour vous permettre de vous concentrer sur l'essentiel.
             </p>
-            <div className="flex flex-wrap gap-4">
-              <a href="https://wa.me/221776748596" target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-7 py-4 font-semibold transition-all shadow-lg hover:shadow-blue-400/20 active:scale-95"
-                style={{ backgroundColor: 'white', color: '#072a50', borderRadius: '16px' }}>
-                💬 Discuter sur WhatsApp
-              </a>
-            </div>
+
           </motion.div>
         </div>
       </section>
@@ -452,205 +448,214 @@ export function VisaAssistance() {
                   </div>
                 </div>
 
-                <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
-                  {/* Common Fields */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {user?.role === 'admin' ? (
+                  <div className="py-10">
+                    <AdminRestrictionNotice 
+                      title="Assistance Visa & Documents"
+                      description="Les administrateurs ne peuvent pas soumettre de dossiers visa. Veuillez utiliser le Dashboard pour gérer les demandes clients."
+                    />
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
+                    {/* Common Fields */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Nom complet</label>
+                        <input 
+                          {...register('nom', { required: true })}
+                          type="text" 
+                          placeholder="Votre nom complet"
+                          className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Téléphone</label>
+                        <input 
+                          {...register('tel', { required: true })}
+                          type="tel" 
+                          placeholder="+221 7X XXX XX XX"
+                          className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
+                        />
+                      </div>
+                    </div>
+
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Nom complet</label>
+                      <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Email</label>
                       <input 
-                        {...register('nom', { required: true })}
-                        type="text" 
-                        placeholder="Votre nom complet"
+                        {...register('email', { required: true, pattern: /^\S+@\S+$/i })}
+                        type="email" 
+                        placeholder="votre@email.com"
                         className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Téléphone</label>
-                      <input 
-                        {...register('tel', { required: true })}
-                        type="tel" 
-                        placeholder="+221 7X XXX XX XX"
-                        className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
-                      />
-                    </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Email</label>
-                    <input 
-                      {...register('email', { required: true, pattern: /^\S+@\S+$/i })}
-                      type="email" 
-                      placeholder="votre@email.com"
-                      className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
-                    />
-                  </div>
-
-                  {/* Contextual Fields */}
-                  <div className="space-y-6 pt-2 border-t border-gray-100">
-                    {selectedService.tag === 'legalisation' && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Langue cible</label>
-                          <select 
-                            {...register('extra.langue')}
-                            className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
-                          >
-                            <option value="Francais">Français</option>
-                            <option value="Anglais">Anglais</option>
-                            <option value="Arabe">Arabe</option>
-                            <option value="Autre">Autre</option>
-                          </select>
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Nombre de pages</label>
-                          <input 
-                            {...register('extra.pages')}
-                            type="number" 
-                            min="1"
-                            placeholder="1"
-                            className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {selectedService.tag === 'visa-etudiant' && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Niveau d'études</label>
-                          <select 
-                            {...register('extra.niveau')}
-                            className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
-                          >
-                            <option value="Licence">Licence</option>
-                            <option value="Master">Master</option>
-                            <option value="Doctorat">Doctorat</option>
-                            <option value="Autre">Autre</option>
-                          </select>
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Destination</label>
-                          <input 
-                            {...register('destination')}
-                            type="text" 
-                            placeholder="Ex: France, Canada..."
-                            className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    {selectedService.tag === 'visa-tourisme' && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Motif du voyage</label>
-                          <select 
-                            {...register('extra.motif')}
-                            className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
-                          >
-                            <option value="Tourisme">Tourisme</option>
-                            <option value="Visite familiale">Visite familiale</option>
-                            <option value="Affaires">Affaires</option>
-                          </select>
-                        </div>
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Durée du séjour</label>
-                          <input 
-                            {...register('extra.duree')}
-                            type="text" 
-                            placeholder="Ex: 15 jours"
-                            className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Message / Précisions */}
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Précisions (Optionnel)</label>
-                    <textarea 
-                      {...register('message')}
-                      placeholder="Comment pouvons-nous vous aider ?"
-                      rows={3}
-                      className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold resize-none"
-                    />
-                  </div>
-
-                  {/* File Upload Section */}
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">
-                      {selectedService.tag === 'legalisation' ? 'Documents à traduire / légaliser' : 'Documents complémentaires (Optionnel)'}
-                    </label>
-                    <div 
-                      onClick={() => fileInputRef.current?.click()}
-                      className="group cursor-pointer border-2 border-dashed border-gray-200 rounded-3xl p-8 flex flex-col items-center justify-center transition-all hover:border-[#0B84D8] hover:bg-blue-50/30"
-                    >
-                      <input 
-                        type="file" 
-                        multiple 
-                        ref={fileInputRef}
-                        className="hidden" 
-                        onChange={handleFileChange}
-                      />
-                      <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-[#0B84D8] group-hover:text-white transition-all mb-3">
-                        <UploadCloud className="w-6 h-6" />
-                      </div>
-                      <p className="text-xs font-bold text-gray-500">Cliquez pour ajouter vos documents</p>
-                      <p className="text-[9px] text-gray-300 mt-1 uppercase font-black tracking-widest">PDF, JPG, PNG (Max 10MB)</p>
-                    </div>
-
-                    {/* File List */}
-                    <AnimatePresence>
-                      {files.length > 0 && (
-                        <motion.div 
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          className="space-y-2 mt-4"
-                        >
-                          {files.map((f, i) => (
-                            <motion.div 
-                              key={i}
-                              initial={{ x: -10, opacity: 0 }}
-                              animate={{ x: 0, opacity: 1 }}
-                              className="flex items-center justify-between p-3 bg-gray-50 rounded-xl"
+                    {/* Contextual Fields */}
+                    <div className="space-y-6 pt-2 border-t border-gray-100">
+                      {selectedService.tag === 'legalisation' && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Langue cible</label>
+                            <select 
+                              {...register('extra.langue')}
+                              className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
                             >
-                              <div className="flex items-center gap-3">
-                                <Paperclip className="w-4 h-4 text-[#0B84D8]" />
-                                <span className="text-[11px] font-bold text-gray-600 truncate max-w-[200px]">{f.name}</span>
-                              </div>
-                              <button 
-                                type="button"
-                                onClick={() => removeFile(i)}
-                                className="p-1.5 hover:bg-red-50 text-gray-400 hover:text-red-500 transition-all rounded-lg"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </motion.div>
-                          ))}
-                        </motion.div>
+                              <option value="Francais">Français</option>
+                              <option value="Anglais">Anglais</option>
+                              <option value="Arabe">Arabe</option>
+                              <option value="Autre">Autre</option>
+                            </select>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Nombre de pages</label>
+                            <input 
+                              {...register('extra.pages')}
+                              type="number" 
+                              min="1"
+                              placeholder="1"
+                              className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
+                            />
+                          </div>
+                        </div>
                       )}
-                    </AnimatePresence>
-                  </div>
 
-                  <div className="pt-4">
-                    <button 
-                      disabled={loading}
-                      className="w-full py-5 bg-[#0B84D8] text-white font-black rounded-2xl flex items-center justify-center gap-3 shadow-xl shadow-blue-500/20 hover:bg-black transition-all active:scale-95 disabled:opacity-50"
-                    >
-                      {loading ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                      ) : (
-                        <>
-                          Soumettre mon dossier <Send className="w-4 h-4" />
-                        </>
+                      {selectedService.tag === 'visa-etudiant' && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Niveau d'études</label>
+                            <select 
+                              {...register('extra.niveau')}
+                              className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
+                            >
+                              <option value="Licence">Licence</option>
+                              <option value="Master">Master</option>
+                              <option value="Doctorat">Doctorat</option>
+                              <option value="Autre">Autre</option>
+                            </select>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Destination</label>
+                            <input 
+                              {...register('destination')}
+                              type="text" 
+                              placeholder="Ex: France, Canada..."
+                              className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
+                            />
+                          </div>
+                        </div>
                       )}
-                    </button>
-                    <p className="text-[9px] text-gray-400 text-center font-bold uppercase tracking-widest mt-4">
-                      🔐 Vos données sont sécurisées et traitées sous 24h
-                    </p>
-                  </div>
-                </form>
+
+                      {selectedService.tag === 'visa-tourisme' && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Motif du voyage</label>
+                            <select 
+                              {...register('extra.motif')}
+                              className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
+                            >
+                              <option value="Tourisme">Tourisme</option>
+                              <option value="Visite familiale">Visite familiale</option>
+                              <option value="Affaires">Affaires</option>
+                            </select>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Durée du séjour</label>
+                            <input 
+                              {...register('extra.duree')}
+                              type="text" 
+                              placeholder="Ex: 15 jours"
+                              className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Message / Précisions */}
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">Précisions (Optionnel)</label>
+                      <textarea 
+                        {...register('message')}
+                        placeholder="Comment pouvons-nous vous aider ?"
+                        rows={3}
+                        className="w-full px-5 py-4 bg-gray-50 rounded-2xl border-2 border-transparent focus:border-[#0B84D8]/20 focus:bg-white transition-all text-sm font-bold resize-none"
+                      />
+                    </div>
+
+                    {/* File Upload Section */}
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest ml-1">
+                        {selectedService.tag === 'legalisation' ? 'Documents à traduire / légaliser' : 'Documents complémentaires (Optionnel)'}
+                      </label>
+                      <div 
+                        onClick={() => fileInputRef.current?.click()}
+                        className="group cursor-pointer border-2 border-dashed border-gray-200 rounded-3xl p-8 flex flex-col items-center justify-center transition-all hover:border-[#0B84D8] hover:bg-blue-50/30"
+                      >
+                        <input 
+                          type="file" 
+                          multiple 
+                          ref={fileInputRef}
+                          className="hidden" 
+                          onChange={handleFileChange}
+                        />
+                        <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-[#0B84D8] group-hover:text-white transition-all mb-3">
+                          <UploadCloud className="w-6 h-6" />
+                        </div>
+                        <p className="text-xs font-bold text-gray-500">Cliquez pour ajouter vos documents</p>
+                        <p className="text-[9px] text-gray-300 mt-1 uppercase font-black tracking-widest">PDF, JPG, PNG (Max 10MB)</p>
+                      </div>
+
+                      {/* File List */}
+                      <AnimatePresence>
+                        {files.length > 0 && (
+                          <motion.div 
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            className="space-y-2 mt-4"
+                          >
+                            {files.map((f, i) => (
+                              <motion.div 
+                                key={i}
+                                initial={{ x: -10, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                className="flex items-center justify-between p-3 bg-gray-50 rounded-xl"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <Paperclip className="w-4 h-4 text-[#0B84D8]" />
+                                  <span className="text-[11px] font-bold text-gray-600 truncate max-w-[200px]">{f.name}</span>
+                                </div>
+                                <button 
+                                  type="button"
+                                  onClick={() => removeFile(i)}
+                                  className="p-1.5 hover:bg-red-50 text-gray-400 hover:text-red-500 transition-all rounded-lg"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </motion.div>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+
+                    <div className="pt-4">
+                      <button 
+                        disabled={loading}
+                        className="w-full py-5 bg-[#0B84D8] text-white font-black rounded-2xl flex items-center justify-center gap-3 shadow-xl shadow-blue-500/20 hover:bg-black transition-all active:scale-95 disabled:opacity-50"
+                      >
+                        {loading ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <>
+                            Soumettre mon dossier <Send className="w-4 h-4" />
+                          </>
+                        )}
+                      </button>
+                      <p className="text-[9px] text-gray-400 text-center font-bold uppercase tracking-widest mt-4">
+                        🔐 Vos données sont sécurisées et traitées sous 24h
+                      </p>
+                    </div>
+                  </form>
+                )}
               </div>
             </motion.div>
           </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router';
-import { LayoutDashboard, FolderOpen, BarChart3, Users, Settings, ArrowLeft, LogOut, Bell, CreditCard, AlertTriangle, Menu as MenuIcon, X } from 'lucide-react';
+import { LayoutDashboard, FolderOpen, BarChart3, Users, Settings, ArrowLeft, LogOut, Bell, CreditCard, AlertTriangle, Menu as MenuIcon, X, Mail } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '../lib/supabase';
 import logoImgWhite from '../../assets/logo-doxantu-white.png';
@@ -11,6 +11,7 @@ const NAV_ITEMS = [
     { icon: FolderOpen, label: 'Dossiers Clients', to: '/admin/clients', badge: '31' },
     { icon: CreditCard, label: 'Pilotage Financier', to: '/admin/finance', badge: '4' },
     { icon: BarChart3, label: 'Reporting & Stats', to: '/admin/reporting', badge: null },
+    { icon: Mail, label: 'Messagerie', to: '/admin/messagerie', badge: null },
     { icon: Users, label: 'Conseillers', to: '/admin/conseillers', badge: null },
 ];
 
@@ -120,9 +121,11 @@ export function AdminLayout() {
                                     <item.icon className="w-4 h-4 shrink-0" />
                                     {item.label}
                                 </div>
-                                {item.badge && (
-                                    <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded-md ${isActive ? 'bg-white/20 text-white' : 'bg-[#0B84D8]/20 text-[#0B84D8]'}`}>
-                                        {item.badge}
+                                {(item as any).badge && (
+                                    <span className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center shadow-sm ${
+                                        isActive ? 'bg-white/20 text-white' : 'bg-[#0B84D8] text-white'
+                                    }`}>
+                                        {(item as any).badge}
                                     </span>
                                 )}
                             </Link>

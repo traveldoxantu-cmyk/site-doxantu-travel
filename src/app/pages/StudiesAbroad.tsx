@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import { motion } from 'motion/react';
+import { useUser } from '../lib/context/UserContext';
 import { ArrowRight, Clock, DollarSign, FileCheck, ChevronRight, Globe, MapPin } from 'lucide-react';
 import { SEO } from '../components/SEO';
 const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
@@ -97,6 +98,10 @@ const destinations = [
 ];
 
 export function StudiesAbroad() {
+  const { user } = useUser();
+  const getCtaPath = (defaultPath: string) => user?.role === 'admin' ? '/admin/dashboard' : defaultPath;
+  const ctaText = user?.role === 'admin' ? 'Aller au Dashboard' : 'Faire ma demande';
+
   return (
     <div>
       <SEO 
@@ -240,13 +245,13 @@ export function StudiesAbroad() {
                       </div>
                     </div>
 
-                      <Link
-                        to={`/devis?destination=${dest.country.toLowerCase()}`}
-                        className="inline-flex items-center gap-2 px-6 py-3.5 text-white font-bold text-sm transition-all hover:shadow-xl hover:-translate-y-1 whitespace-nowrap shadow-md shadow-[#0B84D8]/20"
-                        style={{ backgroundColor: '#0B84D8', borderRadius: '16px' }}
-                      >
-                        Faire ma demande <ArrowRight className="w-4 h-4" />
-                      </Link>
+                    <Link
+                      to={getCtaPath(`/devis?destination=${dest.country.toLowerCase()}`)}
+                      className="inline-flex items-center gap-2 px-6 py-3.5 text-white font-bold text-sm transition-all hover:shadow-xl hover:-translate-y-1 whitespace-nowrap shadow-md shadow-[#0B84D8]/20"
+                      style={{ backgroundColor: '#0B84D8', borderRadius: '16px' }}
+                    >
+                      {ctaText} <ArrowRight className="w-4 h-4" />
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -274,10 +279,11 @@ export function StudiesAbroad() {
               Nos conseillers vous aident à choisir la meilleure destination selon votre projet, votre budget et votre profil.
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
-              <Link to="/devis" className="inline-flex items-center gap-2 px-8 py-4 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5"
+              <Link to={getCtaPath('/devis')} className="inline-flex items-center gap-2 px-8 py-4 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5"
                 style={{ backgroundColor: 'white', color: '#0B84D8', borderRadius: '12px' }}>
-                Faire ma demande <ArrowRight className="w-5 h-5" />
+                {ctaText} <ArrowRight className="w-5 h-5" />
               </Link>
+
               <Link to="/contact" className="inline-flex items-center gap-2 px-8 py-4 font-semibold transition-all"
                 style={{ backgroundColor: 'rgba(255,255,255,0.15)', color: 'white', borderRadius: '12px', border: '1.5px solid rgba(255,255,255,0.3)' }}>
                 Nous contacter

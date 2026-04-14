@@ -4,7 +4,10 @@ import { Search, Send, Paperclip, MoreVertical, CheckCheck, Smile, Phone, Video,
 import { toast } from 'sonner';
 import { messagerieService, type Conversation, type Message } from '../lib/services/messagerieService';
 
+import { useUser } from '../lib/context/UserContext';
+
 export function Messagerie() {
+    const { user } = useUser();
     const [conversations, setConversations] = useState<Conversation[]>([]);
     const [messages, setMessages] = useState<Message[]>([]);
     const [activeConv, setActiveConv] = useState<Conversation | null>(null);
@@ -13,47 +16,41 @@ export function Messagerie() {
     const [sending, setSending] = useState(false);
 
     useEffect(() => {
-        messagerieService.getConversations()
+        if (!user) return;
+        
+        messagerieService.getConversations(false, user.id)
             .then(convs => {
+                setConversations(convs);
                 if (convs.length > 0) {
-                    setConversations(convs);
                     setActiveConv(convs[0]);
-                } else {
-                    // Fallback Welcome Conversation
-                    const welcomeConv: Conversation = {
-                        id: 'welcome-conv',
-                        name: 'Support Doxantu',
-                        role: 'ASSISTANCE 24/7',
-                        avatar: 'DX',
-                        lastMessage: 'Bienvenue chez Doxantu Travel ! Comment pouvons-nous vous aider ?',
-                        time: 'Maintenant',
-                        unread: 1,
-                        online: true
-                    };
-                    setConversations([welcomeConv]);
-                    setActiveConv(welcomeConv);
-                    setMessages([{
-                        id: 'welcome-msg',
-                        conversationId: 'welcome-conv',
-                        senderId: 'support',
-                        text: 'Bonjour ! Bienvenue chez Doxantu Travel. Votre espace est maintenant prêt. Vous pouvez nous poser vos questions ici.',
-                        time: 'Maintenant',
-                        status: 'unread'
-                    }]);
                 }
             })
             .catch(err => {
                 console.error("Erreur messagerie:", err);
-                setLoading(false);
             })
             .finally(() => setLoading(false));
-    }, []);
+    }, [user]);
 
     useEffect(() => {
         if (!activeConv) return;
+        
+        // 1. Load existing messages
         messagerieService.getMessages(activeConv.id)
             .then(setMessages)
             .catch(console.error);
+
+        // 2. Subscribe to new messages in real-time
+        const subscription = messagerieService.subscribeToMessages(activeConv.id, (newMsg) => {
+            setMessages(prev => {
+                // Eviter les doublons si le message vient d'être envoyé par l'utilisateur local
+                if (prev.some(m => m.id === newMsg.id)) return prev;
+                return [...prev, newMsg];
+            });
+        });
+
+        return () => {
+            subscription?.unsubscribe();
+        };
     }, [activeConv]);
 
     if (loading) {
@@ -163,15 +160,15 @@ export function Messagerie() {
                                 className={`flex ${msg.senderId === 'me' ? 'justify-end' : 'justify-start'}`}
                             >
                                 <div className="max-w-[85%] md:max-w-[70%]">
-                                    <div className={`p-3 md:p-4 rounded-2xl shadow-sm text-xs md:text-sm ${msg.senderId === 'me'
+                                    <div className={`p-3 md:p-4 rounded-2xl shadow-sm text-xs md:text-sm ${msg.senderId === user?.id
                                         ? 'bg-[#0B84D8] text-white rounded-tr-none'
                                         : 'bg-white text-[#333] border border-gray-100 rounded-tl-none'
                                     }`}>
                                         {msg.text}
                                     </div>
-                                    <div className={`flex items-center gap-1.5 mt-2 ${msg.senderId === 'me' ? 'justify-end' : 'justify-start'}`}>
+                                    <div className={`flex items-center gap-1.5 mt-2 ${msg.senderId === user?.id ? 'justify-end' : 'justify-start'}`}>
                                         <span className="text-[10px] text-gray-400 font-medium">{msg.time}</span>
-                                        {msg.senderId === 'me' && (
+                                        {msg.senderId === user?.id && (
                                             <CheckCheck className="w-3.5 h-3.5 text-blue-400" />
                                         )}
                                     </div>
@@ -188,10 +185,11 @@ export function Messagerie() {
                             
                             setSending(true);
                             try {
+                                if (!user) return;
                                 const newMsg = await messagerieService.sendMessage({
                                     conversationId: activeConv.id,
                                     text: inputText,
-                                    senderId: 'me',
+                                    senderId: user.id,
                                     time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
                                     status: 'unread'
                                 });

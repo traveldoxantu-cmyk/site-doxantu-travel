@@ -1,4 +1,3 @@
 User-agent: *
 Allow: /
-
-Sitemap: https://doxantu-travel-agency.vercel.app/sitemap.xml
+Sitemap: https://doxantutravel.com/sitemap.xml

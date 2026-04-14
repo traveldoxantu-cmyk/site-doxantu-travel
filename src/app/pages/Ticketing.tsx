@@ -21,6 +21,7 @@ import {
 import { apiFetch } from '../lib/api';
 import { useUser } from '../lib/context/UserContext';
 import { sheetsService } from '../lib/services/sheetsService';
+import { AdminRestrictionNotice } from '../components/AdminRestrictionNotice';
 
 const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
@@ -54,6 +55,8 @@ const advantages = [
 
 export function Ticketing() {
   const { user } = useUser();
+  const today = new Date().toISOString().split('T')[0];
+
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [departDate, setDepartDate] = useState('');
@@ -99,13 +102,17 @@ export function Ticketing() {
       }
 
       // 3. Sync to Google Sheets (CRM)
+      const userNom = user?.firstName ? `${user.firstName} ${user.lastName}` : 'Client Web';
+      const userTel = user?.phone || '';
+      const userEmail = user?.email || '';
+
       sheetsService.sendDemande({
-        nom: user?.firstName ? `${user.firstName} ${user.lastName}` : 'Client Web',
-        email: user?.email || '',
-        tel: user?.phone || '',
+        nom: userNom,
+        email: userEmail,
+        tel: userTel,
         service: 'Billetterie',
         destination: to,
-        message: `De ${from} à ${to} | Aller: ${departDate} | Retour: ${returnDate} | Passagers: ${passengers}`,
+        message: `De ${from} à ${to} | Aller: ${departDate} | Retour: ${returnDate || 'Sans retour'} | Passagers: ${passengers}`,
         source: 'Formulaire Billetterie'
       }).catch(err => console.error("[Ticketing] Erreur synchro Sheets:", err));
 
@@ -164,7 +171,12 @@ export function Ticketing() {
               <Search className="w-5 h-5 text-[#0B84D8]" /> Rechercher un vol
             </h2>
 
-            {formSent ? (
+            {user?.role === 'admin' ? (
+              <AdminRestrictionNotice 
+                title="Service de Billetterie"
+                description="Les administrateurs ne peuvent pas soumettre de demandes de billets. Veuillez utiliser le Dashboard pour gérer les dossiers existants."
+              />
+            ) : formSent ? (
               <div className="text-center py-8">
                 <div className="w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4 bg-green-50 text-green-500">
                   <CheckCircle className="w-8 h-8" />
@@ -221,7 +233,13 @@ export function Ticketing() {
                       <input
                         type="date"
                         value={departDate}
-                        onChange={(e) => setDepartDate(e.target.value)}
+                        min={today}
+                        onChange={(e) => {
+                          setDepartDate(e.target.value);
+                          if (returnDate && e.target.value > returnDate) {
+                            setReturnDate('');
+                          }
+                        }}
                         required
                         className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
                         style={{ borderRadius: '16px' }}
@@ -237,6 +255,7 @@ export function Ticketing() {
                       <input
                         type="date"
                         value={returnDate}
+                        min={departDate || today}
                         onChange={(e) => setReturnDate(e.target.value)}
                         className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:ring-2"
                         style={{ borderRadius: '16px' }}

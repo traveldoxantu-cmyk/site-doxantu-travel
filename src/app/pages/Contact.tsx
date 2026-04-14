@@ -5,6 +5,7 @@ import { submitContactForm } from '../lib/services/contactService';
 import { SEO } from '../components/SEO';
 import { useUser } from '../lib/context/UserContext';
 import { toast } from 'sonner';
+import { AdminRestrictionNotice } from '../components/AdminRestrictionNotice';
 
 const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
@@ -169,7 +170,14 @@ export function Contact() {
                   <p className="text-gray-400 text-sm font-medium">Nous répondons dans les 24h ouvrées.</p>
                 </div>
 
-                {sent ? (
+                {user?.role === 'admin' ? (
+                  <div className="py-5">
+                    <AdminRestrictionNotice 
+                      title="Support & Messagerie"
+                      description="En tant qu'administrateur, vous disposez d'un système de messagerie direct avec les clients dans votre Dashboard."
+                    />
+                  </div>
+                ) : sent ? (
                   <div className="text-center py-10">
                     <CheckCircle className="w-16 h-16 mx-auto mb-4" style={{ color: '#0B84D8' }} />
                     <h3 className="text-[#333333] font-bold mb-2" style={{ fontSize: '1.3rem' }}>

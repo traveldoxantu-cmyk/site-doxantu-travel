@@ -13,28 +13,33 @@ export function Footer() {
           {/* Column 1: Branding */}
           <div className="flex flex-col">
             <div>
-              <img src={logoWhite} alt="Doxantu Travel" className="h-16 w-auto object-contain mb-5" />
+              <img src={logoWhite} alt="Doxantu Travel" className="h-20 w-auto object-contain mb-5" />
               <p className="text-gray-400 text-sm leading-relaxed mb-8 max-w-sm">
                 L'agence digitale de référence pour la mobilité étudiante au Sénégal. Excellence, transparence et accompagnement sans limites.
               </p>
             </div>
             <div className="flex gap-4">
               {[
-                { icon: <Facebook className="w-4 h-4" />, label: 'Facebook', href: 'https://www.facebook.com/doxantutravel' },
-                { icon: <Instagram className="w-4 h-4" />, label: 'Instagram', href: 'https://www.instagram.com/doxantutravel' },
+                { 
+                  icon: <Instagram className="w-4 h-4" />, 
+                  label: 'Instagram', 
+                  href: 'https://www.instagram.com/doxantutravel?igsh=Z3lwMmxnejliY3N4&utm_source=qr' 
+                },
                 { 
                   icon: (
-                    <svg fill="currentColor" viewBox="0 0 24 24" className="w-4 h-4">
-                      <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z" /><circle cx="4" cy="4" r="2" />
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                      <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.9-.32-1.9-.23-2.74.12-.69.3-1.27.77-1.62 1.4-.4.71-.41 1.67-.1 2.44.21.52.65.98 1.11 1.25.46.26.96.4 1.46.47h.12c.64-.01 1.29-.11 1.9-.34 1.05-.33 1.86-1.1 2.22-2.12.06-.17.11-.34.13-.52.09-1.31.02-2.61.03-3.92-.01-5.6-.01-11.2 0-16.81z"/>
                     </svg>
                   ), 
-                  label: 'Linkedin', 
-                  href: 'https://www.linkedin.com/company/doxantu-travel' 
+                  label: 'TikTok', 
+                  href: 'https://www.tiktok.com/@doxantu.travel?_r=1&_t=ZS-95W9eGMDgGL' 
                 },
               ].map((social) => (
                 <motion.a
                   key={social.label}
                   href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   whileHover={{ y: -3, backgroundColor: 'rgba(255,255,255,0.1)', borderColor: '#0B84D8', color: '#0B84D8' }}
                   className="w-10 h-10 rounded-xl bg-white/[0.03] flex items-center justify-center text-white/30 transition-all duration-300 border border-white/[0.05]"
                   aria-label={social.label}
@@ -54,6 +59,7 @@ export function Footer() {
               <li><Link className="hover:text-white transition-colors" to="/services/visa-documents">Assistance Visa & Documents</Link></li>
               <li><Link className="hover:text-white transition-colors" to="/etudes-etranger">Études à l'étranger</Link></li>
               <li><Link className="hover:text-white transition-colors" to="/devis">Faire ma demande</Link></li>
+
             </ul>
           </div>
 

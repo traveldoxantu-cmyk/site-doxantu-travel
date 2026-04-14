@@ -12,9 +12,9 @@ const sections = [
 **Dénomination sociale :** Doxantu Travel SARL
 **Siège social :** Fann Hock rue 55 en face Canal 4, Dakar
 **Capital social :** 5 000 000 FCFA
-**Registre du Commerce :** RCCM SN-DKR-2024-B-XXXXX
+**Registre du Commerce :** RCCM SN-DKR-2026-B-XXXXX
 **Numéro d'Identification Fiscale :** NINEA XXXXXXXX
-**Licence d'agence de voyages :** N° 2024-DT-001 - Ministère du Tourisme du Sénégal
+**Licence d'agence de voyages :** N° 2026-DT-001 - Ministère du Tourisme du Sénégal
 
 **Directeur de la publication :** Abdoulaye Ndiaye
 
@@ -109,7 +109,7 @@ export function LegalMentions() {
               Mentions Légales
             </h1>
             <p className="text-blue-200">
-              Dernière mise à jour : Février 2026
+              Dernière mise à jour : Avril 2026
             </p>
           </motion.div>
         </div>

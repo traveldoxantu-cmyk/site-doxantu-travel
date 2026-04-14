@@ -26,11 +26,25 @@ export function Login() {
     const { setUser: setGlobalUser } = useUser();
 
 
-    // Initialisation
+    // Initialisation et écouteur de succès "fantôme" (détection même si la requête timeout)
     useEffect(() => {
         const mode = searchParams.get('mode');
         if (mode === 'register') setIsRegister(true);
-    }, [searchParams]);
+
+        // Si on détecte une session active alors qu'on est sur cette page, on redirige
+        // Cela règle le cas où Supabase crée le compte mais la requête HTTP met trop de temps
+        const { data: { subscription } } = supabase?.auth.onAuthStateChange((event, session) => {
+            if (session?.user && (event === 'SIGNED_IN' || event === 'USER_UPDATED')) {
+                console.log("[Login] Succès détecté via le listener d'état.");
+                const userRole = session.user.user_metadata?.role || 'client';
+                const redirectTo = userRole === 'admin' ? '/admin/dashboard' : '/mon-espace/dashboard';
+                // On redirige IMMÉDIATEMENT dès que la session est détectée
+                navigate(redirectTo, { replace: true });
+            }
+        }) ?? { data: { subscription: { unsubscribe: () => {} } } };
+
+        return () => subscription.unsubscribe();
+    }, [searchParams, navigate]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -58,9 +72,9 @@ export function Login() {
                 password
             });
 
-        // Timeout de sécurité : 10 secondes (contre les blocages infinis)
+        // Timeout de sécurité : 30 secondes (contre les blocages infinis)
         const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error("Le service met trop de temps à répondre. Veuillez réessayer.")), 10000)
+            setTimeout(() => reject(new Error("Le service met trop de temps à répondre. Vérifiez votre connexion ou retentez dans un instant.")), 30000)
         );
 
         try {
@@ -106,14 +120,21 @@ export function Login() {
                     toast.success('Bon retour parmi nous !');
                 }
 
-                // Redirection différée pour laisser le state se stabiliser
-                setTimeout(() => {
-                    const redirectTo = userRole === 'admin' ? '/admin/dashboard' : '/mon-espace/dashboard';
-                    navigate(redirectTo, { replace: true });
-                }, 150);
+                // Redirection immédiate
+                const redirectTo = userRole === 'admin' ? '/admin/dashboard' : '/mon-espace/dashboard';
+                navigate(redirectTo, { replace: true });
             }
         } catch (err: any) {
             console.error('Erreur Auth complète:', err);
+            
+            // Cas spécial : Le compte a été créé mais la requête a timeout
+            // Si on tente de ré-inscrire un email qui vient juste d'être créé dynamiquement
+            if (isRegister && err.message.includes('already registered')) {
+                toast.info("Votre compte semble déjà actif. Tentative de connexion...");
+                setIsRegister(false); // On bascule en mode login
+                return;
+            }
+
             const msg = err.message || 'Une erreur est survenue lors de la connexion.';
             toast.error(msg, { duration: 5000 });
             setError(msg);

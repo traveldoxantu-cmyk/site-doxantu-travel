@@ -30,8 +30,8 @@ const AdminClients = () => import('./pages/AdminClients').then(m => ({ Component
 const AdminTeam = () => import('./pages/AdminTeam').then(m => ({ Component: m.AdminTeam }));
 const AdminSettings = () => import('./pages/AdminSettings').then(m => ({ Component: m.AdminSettings }));
 const AdminDemandes = () => import('./pages/AdminDemandes').then(m => ({ Component: m.AdminDemandes }));
-const AdminFinance = () => import('./pages/AdminFinance').then(m => ({ Component: m.AdminFinance }));
-const AdminReporting = () => import('./pages/AdminReporting').then(m => ({ Component: m.AdminReporting }));
+const ComingSoon = () => import('./pages/ComingSoon').then(m => ({ Component: m.ComingSoon }));
+const AdminMessagerie = () => import('./pages/AdminMessagerie').then(m => ({ Component: m.AdminMessagerie }));
 
 export const router = createBrowserRouter([
   // ─── Site public ───────────────────────────────────────────────────────────
@@ -48,6 +48,7 @@ export const router = createBrowserRouter([
       { path: 'contact', lazy: Contact },
       { path: 'devis', lazy: QuoteRequest },
       { path: 'mentions-legales', lazy: LegalMentions },
+      { path: 'bientot', lazy: ComingSoon },
       { path: '*', lazy: NotFound },
     ],
   },
@@ -79,10 +80,11 @@ export const router = createBrowserRouter([
       { index: true, lazy: AdminDashboard },
       { path: 'dashboard', lazy: AdminDashboard },
       { path: 'clients', lazy: AdminClients },
-      { path: 'finance', lazy: AdminFinance },
-      { path: 'reporting', lazy: AdminReporting },
+      { path: 'finance', lazy: ComingSoon },
+      { path: 'reporting', lazy: ComingSoon },
       { path: 'conseillers', lazy: AdminTeam },
       { path: 'demandes', lazy: AdminDemandes },
+      { path: 'messagerie', lazy: AdminMessagerie },
       { path: 'parametres', lazy: AdminSettings },
     ],
   },

@@ -7,9 +7,9 @@ const sidebarLinks = [
     { icon: LayoutGrid, label: 'Tableau de bord', to: '/mon-espace/dashboard' },
     { icon: FolderOpen, label: 'Mon Dossier', to: '/mon-espace/dossier' },
     { icon: FileText, label: 'Mes Documents', to: '/mon-espace/documents' },
-    { icon: MessageSquare, label: 'Messagerie', to: '/mon-espace/messagerie', badge: 2 },
+    { icon: MessageSquare, label: 'Messagerie', to: '/mon-espace/messagerie' },
     { icon: CreditCard, label: 'Paiements', to: '/mon-espace/paiement' },
-    { icon: Calendar, label: 'Échéances', to: '/mon-espace/echeances', badge: 3 },
+    { icon: Calendar, label: 'Échéances', to: '/mon-espace/echeances' },
     { icon: User, label: 'Mon Profil', to: '/mon-espace/profil' },
 ];
 
@@ -107,11 +107,11 @@ export function DashboardLayout() {
                                     <link.icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-400 group-hover:text-white'}`} />
                                     {link.label}
                                 </div>
-                                {link.badge && (
+                                {(link as any).badge && (
                                     <span className={`w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center shadow-sm ${
                                         isActive ? 'bg-white/20 text-white' : 'bg-[#0B84D8] text-white'
                                     }`}>
-                                        {link.badge}
+                                        {(link as any).badge}
                                     </span>
                                 )}
                             </Link>

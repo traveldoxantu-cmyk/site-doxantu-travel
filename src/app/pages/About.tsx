@@ -97,7 +97,7 @@ const team = [
 const stats = [
   { value: '500+', label: 'Étudiants accompagnés' },
   { value: '15+', label: 'Destinations couvertes' },
-  { value: '5 ans', label: 'D\'expérience' },
+  { value: '2026', label: 'Année de création' },
   { value: '98%', label: 'Taux de satisfaction' },
 ];
 
@@ -134,7 +134,7 @@ export function About() {
                 <span style={{ color: '#7dd3fc' }}>ressemble</span>
               </h1>
               <p className="text-blue-100 mb-8" style={{ fontSize: '1.05rem', lineHeight: 1.8 }}>
-                Née à Dakar en 2019, Doxantu Travel est une agence digitale fondée avec une mission claire :
+                Née à Dakar le 1er avril 2026, Doxantu Travel est une agence digitale fondée avec une mission claire :
                 rendre la mobilité internationale accessible à tous les Sénégalais, en toute transparence.
                 <br /><br />
                 Nos fondateurs, anciens étudiants ayant vécu les difficultés des procédures d'expatriation,
@@ -149,7 +149,7 @@ export function About() {
                   <Shield className="w-5 h-5 text-green-300" />
                   <div>
                     <p className="text-white font-bold text-xs tracking-tight">Agence officielle enregistrée au Sénégal</p>
-                    <p className="text-blue-200 text-[10px] font-medium">Licence Ministérielle N° 2024-DT-001</p>
+                    <p className="text-blue-200 text-[10px] font-medium">Licence Ministérielle N° 2026-DT-001</p>
                   </div>
                 </div>
               </div>
@@ -293,7 +293,7 @@ export function About() {
                 <div className="mx-auto mb-4 w-20 h-20 rounded-full overflow-hidden flex items-center justify-center" style={{ backgroundColor: '#E8F4FD' }}>
                   <TeamAvatar initials={member.initials} color={member.color} />
                 </div>
-                <h3 className="font-black text-[#1a2b40] text-xl mb-1">Abdoulaye Ndiaye</h3>
+                <h3 className="font-black text-[#1a2b40] text-xl mb-1">{member.name}</h3>
                 <p className="text-sm mb-3 flex items-center justify-center gap-1" style={{ color: '#0B84D8' }}>
                   {member.roleIcon}{member.role}
                 </p>
@@ -323,7 +323,7 @@ export function About() {
             </p>
             <ul className="flex flex-wrap justify-center gap-4 mb-8">
               {[
-                'Licence N° 2024-DT-001',
+                'Licence N° 2026-DT-001',
                 'Registre du Commerce de Dakar',
                 'Membre de l\'Association des Agences de Voyage',
                 'Assurance professionnelle',

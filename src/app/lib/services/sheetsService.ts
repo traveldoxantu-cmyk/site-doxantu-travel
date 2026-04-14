@@ -19,7 +19,9 @@ export const sheetsService = {
       service: data.service || 'Demande générale',
       destination: data.destination || data.to || 'Sénégal (Dakar)',
       message: data.message || 'Aucun message particulier',
-      files: Array.isArray(data.files) ? data.files.join(", ") : (data.files || 'Aucun'),
+      files: Array.isArray(data.files) ? data.files.join(", ") : 
+             Array.isArray(data.fileUrls) ? data.fileUrls.join(", ") :
+             (data.files || data.fileUrls || 'Aucun'),
       timestamp: new Date().toLocaleString('fr-FR'),
       source: data.source || 'Site Web Doxantu',
       meta: JSON.stringify(data.extra || {}) // Données supplémentaires au besoin

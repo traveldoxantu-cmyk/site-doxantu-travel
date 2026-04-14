@@ -1,8 +1,10 @@
 import { useEffect } from 'react';
+import { JsonLd } from './JsonLd';
 
 interface SEOProps {
   title: string;
   description: string;
+  keywords?: string;
   image?: string;
   url?: string;
   type?: string;
@@ -11,7 +13,8 @@ interface SEOProps {
 export function SEO({ 
   title, 
   description, 
-  image = 'https://doxantu-travel-agency.vercel.app/og-image.jpg', // Image par défaut
+  keywords = 'Doxantu Travel, agence voyage Sénégal, Campus France Sénégal, visa Canada Sénégal, mobilité étudiante, billets avion Dakar',
+  image = 'https://doxantu-travel-agency.vercel.app/og-image.jpg',
   url = window.location.href,
   type = 'website'
 }: SEOProps) {
@@ -19,7 +22,6 @@ export function SEO({
     const fullTitle = `${title} | Doxantu Travel`;
     document.title = fullTitle;
     
-    // Helper function to update or create meta tags
     const updateOrCreateMeta = (name: string, content: string, property = false) => {
       const selector = property ? `meta[property="${name}"]` : `meta[name="${name}"]`;
       let el = document.querySelector(selector);
@@ -34,10 +36,9 @@ export function SEO({
       }
     };
 
-    // Standard Meta Tags
     updateOrCreateMeta('description', description);
+    updateOrCreateMeta('keywords', keywords);
 
-    // Open Graph / Facebook / WhatsApp
     updateOrCreateMeta('og:type', type, true);
     updateOrCreateMeta('og:url', url, true);
     updateOrCreateMeta('og:title', fullTitle, true);
@@ -45,7 +46,6 @@ export function SEO({
     updateOrCreateMeta('og:image', image, true);
     updateOrCreateMeta('og:image:alt', title, true);
 
-    // Twitter
     updateOrCreateMeta('twitter:card', 'summary_large_image');
     updateOrCreateMeta('twitter:url', url);
     updateOrCreateMeta('twitter:title', fullTitle);
@@ -53,7 +53,6 @@ export function SEO({
     updateOrCreateMeta('twitter:image', image);
     updateOrCreateMeta('twitter:image:alt', title);
 
-    // Canonical link
     let canonical = document.querySelector('link[rel="canonical"]');
     if (canonical) {
       canonical.setAttribute('href', url);
@@ -63,7 +62,27 @@ export function SEO({
       canonical.setAttribute('href', url);
       document.head.appendChild(canonical);
     }
-  }, [title, description, image, url, type]);
+  }, [title, description, keywords, image, url, type]);
 
-  return null;
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "TravelAgency",
+    "name": "Doxantu Travel",
+    "alternateName": "Doxantu Travel Agency",
+    "url": "https://doxantu-travel-agency.vercel.app",
+    "logo": "https://doxantu-travel-agency.vercel.app/logo.png",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+221776748596",
+      "contactType": "customer service",
+      "areaServed": "SN",
+      "availableLanguage": ["French", "Wolof"]
+    },
+    "sameAs": [
+      "https://www.instagram.com/doxantutravel",
+      "https://www.tiktok.com/@doxantu.travel"
+    ]
+  };
+
+  return <JsonLd data={organizationSchema} />;
 }

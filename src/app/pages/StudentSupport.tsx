@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import { motion } from 'motion/react';
 import { SEO } from '../components/SEO';
+import { useUser } from '../lib/context/UserContext';
 import {
   CheckCircle,
   ChevronDown,
@@ -89,7 +90,11 @@ const faqs = [
 ];
 
 export function StudentSupport() {
+  const { user } = useUser();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  const getCtaPath = (defaultPath: string) => user?.role === 'admin' ? '/admin/dashboard' : defaultPath;
+  const ctaText = user?.role === 'admin' ? 'Aller au Dashboard' : 'Faire ma demande';
 
   return (
     <div>
@@ -266,12 +271,14 @@ export function StudentSupport() {
                 </ul>
 
                 <Link
-                  to="/devis?service=campus-france"
+                  to={getCtaPath('/devis?service=campus-france')}
                   className="flex items-center justify-center gap-2 py-3.5 font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5 rounded-2xl"
                   style={{ backgroundColor: 'white', color: '#0B84D8' }}
                 >
-                  Faire ma demande <ArrowRight className="w-4 h-4" />
+                  {ctaText} <ArrowRight className="w-4 h-4" />
                 </Link>
+
+
 
                 <div className="flex items-center gap-2 mt-4 justify-center">
                   <Shield className="w-4 h-4 text-blue-300" />
@@ -353,12 +360,13 @@ export function StudentSupport() {
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
               <Link
-                to="/devis"
+                to={getCtaPath('/devis')}
                 className="inline-flex items-center gap-2 px-8 py-4 text-white font-semibold transition-all hover:shadow-xl hover:-translate-y-0.5 rounded-2xl"
                 style={{ backgroundColor: 'rgba(255,255,255,0.2)', border: '2px solid white' }}
               >
-                Faire ma demande <ArrowRight className="w-5 h-5" />
+                {ctaText} <ArrowRight className="w-5 h-5" />
               </Link>
+
               <a
                 href="https://wa.me/221776748596"
                 target="_blank"

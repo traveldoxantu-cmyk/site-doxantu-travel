@@ -40,6 +40,18 @@ BEGIN
   )
   ON CONFLICT (id) DO NOTHING;
 
+  -- Initialisation de la conversation de support
+  INSERT INTO public.conversations (user_id, name, role, avatar, last_message, time)
+  VALUES (
+    NEW.id,
+    'Support Doxantu',
+    'ASSISTANCE 24/7',
+    'DX',
+    'Bienvenue ! Comment pouvons-nous vous aider ?',
+    TO_CHAR(NOW(), 'HH24:MI')
+  )
+  ON CONFLICT DO NOTHING;
+
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

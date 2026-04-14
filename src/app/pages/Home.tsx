@@ -16,6 +16,7 @@ import {
   Globe,
 } from 'lucide-react';
 import { SEO } from '../components/SEO';
+import { useUser } from '../lib/context/UserContext';
 const HERO_BG = 'https://images.unsplash.com/photo-1690323223790-4df744a1a033?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEYWthciUyMFNlbmVnYWwlMjBjaXR5JTIwbW9kZXJuJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzIzMTAxNDl8MA&ixlib=rb-4.1.0&q=80&w=1080';
 const STUDENT_IMG = 'https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdHVkZW50cyUyMHN0dWR5aW5nJTIwYWJyb2FkJTIwdW5pdmVyc2l0eSUyMGNhbXB1c3xlbnwxfHx8fDE3NzIzMTAxNTF8MA&ixlib=rb-4.1.0&q=80&w=1080';
 
@@ -63,16 +64,20 @@ const stats = [
   { icon: <Users className="w-6 h-6" />, value: '500+', label: 'Étudiants accompagnés' },
   { icon: <Award className="w-6 h-6" />, value: '98%', label: 'Taux de satisfaction' },
   { icon: <Zap className="w-6 h-6" />, value: '72h', label: 'Délai de réponse moyen' },
-  { icon: <Clock className="w-6 h-6" />, value: '5 ans', label: 'D\'expérience' },
+  { icon: <Clock className="w-6 h-6" />, value: '2026', label: 'Année de création' },
 ];
 
 export function Home() {
+  const { user } = useUser();
+  const mainCtaPath = user?.role === 'admin' ? '/admin/dashboard' : '/devis';
+  const ctaText = user?.role === 'admin' ? 'Aller au Dashboard' : 'Faire ma demande';
 
   return (
     <div>
       <SEO 
-        title="Agence de Voyage Digitale au Sénégal | Études à l'Étranger" 
-        description="Doxantu Travel est la première agence 100% digitale au Sénégal dédiée à la mobilité étudiante. Études en France (Campus France), Canada, Maroc. Accompagnement Visa, Billetterie et Orientation sur mesure."
+        title="Agence de Voyage Digitale au Sénégal | Études à l'Étranger & Campus France" 
+        description="Doxantu Travel est la première agence 100% digitale au Sénégal dédiée à la mobilité étudiante. Accompagnement Campus France, Canada, Maroc. Visa, Billetterie et Orientation sur mesure à Dakar."
+        keywords="Doxantu Travel, agence voyage Sénégal, Campus France Sénégal, visa Canada Sénégal, mobilité étudiante Dakar, billets avion prix bas Sénégal, assistance visa Sénégal"
         image={HERO_BG}
       />
       {/* ── HERO ─────────────────────────────────────────── */}
@@ -97,13 +102,7 @@ export function Home() {
           <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
             {/* Centered Content */}
             <motion.div initial="hidden" animate="visible" variants={stagger} className="flex flex-col items-center">
-              <motion.div variants={fadeUp}>
-                <span className="inline-flex items-center gap-2 text-sm font-medium px-5 py-2.5 rounded-full mb-6"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.16)', color: 'white', backdropFilter: 'blur(12px)' }}>
-                  <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                  Agence certifiée Dakar, Sénégal
-                </span>
-              </motion.div>
+
  
               <motion.h1
                 variants={fadeUp}
@@ -124,18 +123,7 @@ export function Home() {
               </motion.p>
  
               <motion.div variants={fadeUp} className="flex flex-wrap justify-center gap-4 mb-14">
-                <Link
-                  to="/devis"
-                  className="inline-flex items-center gap-2 px-10 py-4 font-bold transition-all hover:shadow-[0_0_40px_rgba(11,132,216,0.4)] hover:-translate-y-1"
-                  style={{
-                    backgroundColor: '#0B84D8',
-                    color: 'white',
-                    borderRadius: '16px',
-                    fontSize: '1.1rem',
-                  }}
-                >
-                  Faire ma demande →
-                </Link>
+
                 <Link
                   to="/a-propos"
                   className="inline-flex items-center gap-2 px-10 py-4 font-bold transition-all hover:bg-white/10"
@@ -356,11 +344,6 @@ export function Home() {
                     desc: 'Wave, Orange Money, Visa, payez comme vous le souhaitez, en toute sécurité.',
                   },
                   {
-                    icon: <Award className="w-5 h-5" />,
-                    title: 'Agence certifiée',
-                    desc: 'Enregistrée et agréée au Sénégal. Votre confiance mérite le meilleur.',
-                  },
-                  {
                     icon: <Clock className="w-5 h-5" />,
                     title: 'Suivi en temps réel',
                     desc: 'Nous vous accompagnons à chaque étape et répondons en moins de 24h.',
@@ -403,7 +386,7 @@ export function Home() {
                       className="flex flex-col items-center justify-center gap-3 p-4 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all border border-gray-50 group min-h-[100px]"
                     >
                       <div className="h-10 flex items-center justify-center transform transition-transform group-hover:scale-110 duration-300">
-                        <img src={method.icon} alt={`Logo ${method.name}`} className="max-h-full max-w-full object-contain" />
+                        <img src={method.icon} alt={`Payer par ${method.name} chez Doxantu Travel`} className="max-h-full max-w-full object-contain" />
                       </div>
                       <span className="text-[10px] font-bold text-center text-[#1a2b40] uppercase tracking-wider">{method.name}</span>
                     </article>
@@ -420,7 +403,7 @@ export function Home() {
                   </div>
                 </div>
                 <h4 className="text-[#333333] font-bold mb-1 text-lg">Agence enregistrée au Sénégal</h4>
-                <p className="text-gray-500 text-sm">Licence ministérielle N° 2024-DT-001</p>
+                <p className="text-gray-500 text-sm">Licence ministérielle N° 2026-DT-001</p>
               </div>
             </motion.div>
           </div>
